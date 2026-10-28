@@ -1,6 +1,6 @@
 # AdBlock Island
 
-**v1.4.3** · [Play it](https://potaterrr.github.io/adblock-island/) · [Patch notes](CHANGELOG.md)
+**v1.5.0** · [Play it](https://potaterrr.github.io/adblock-island/) · [Patch notes](CHANGELOG.md)
 
 A wholesome micro-MMO in a single HTML file. The ads took the beach, the locals kept the kettle on. Pick a class, sweep the static, bonk the ad-monsters, and leave a kind note for whoever washes ashore next.
 
@@ -30,13 +30,15 @@ It is not a sad story. The ocean is still warm, the kettle still works, and the 
 
 **3. Clean the static.** Purple static sits on the ground across the island. Walking over it scrubs a little; hitting it with your weapon clears it much faster and pays **Joy** and **XP**. Joy is spent on permanent upgrades (`U`) — damage, health, speed, cleanse radius, and cozy cosmetics.
 
-**4. Survive the waves.** Ads arrive in fixed waves that climb from **Super Easy** to **Super Hard+**. Each wave clears with bonus Joy and XP, then the island takes a four-second breath. Watch the card under your portrait for the wave number, tier, and how many ads are left.
+**4. Survive the waves.** Every run starts at **Super Easy** and climbs only when you say so. Clear a wave and the island asks what's next: **Upgrade** (the shop is safe — it never starts the next wave) or **Next wave**, which gives you a **10-second countdown** to spend Joy, take a breath, or change your mind. Each clear pays bonus Joy and XP and hands you a **medal or a free item**, plus the next chapter of the island's story. Watch the card under your portrait for the wave, the tier and what's left.
 
-**5. Wake the Algorithm.** When the island is about 64% clear, the boss wakes at the plaza and starts running ad breaks. Dodge the sponsored beams, break its health thresholds, and finish the fight. Waves pause while it is out.
+**5. Reach Super Hard.** Wave 10 is the last of the ladder: clear it and the island stops serving ads for good. There is no fail screen — the ladder simply restarts at Super Easy next visit, and after Super Hard the endless **Super Hard+** waves are there if you want to keep going.
 
-**6. Be a neighbour.** Locals roam, fight beside you, and chat. At the cozy bench (`F`), sit down and pin a note to the kindness wall — it is saved in your browser and read by whoever visits next, including you on a bad day.
+**6. Wake the Algorithm.** When the island is about 64% clear, the boss wakes at the plaza and starts running ad breaks. Dodge the sponsored beams, break its health thresholds, and finish the fight. Waves pause while it is out.
 
-**7. Bring a friend (optional).** Choose **play with a friend** on the title screen for same-keyboard co-op: player 2 moves on the arrow keys and attacks automatically, shares Joy and waves, and is a real hero that ads will target.
+**7. Be a neighbour.** Locals roam, fight beside you, and chat. At the cozy bench (`F`), sit down and pin a note to the kindness wall — it is saved in your browser and read by whoever visits next, including you on a bad day.
+
+**8. Bring a friend (optional).** Choose **play with a friend** on the title screen for same-keyboard co-op: player 2 moves on the arrow keys and attacks automatically, shares Joy and waves, and is a real hero that ads will target.
 
 There is no fail state that erases progress, no timer, and no score to chase. Play for ten minutes or an hour. Progress, notes, and settings save automatically in `localStorage`.
 
@@ -64,6 +66,7 @@ Audio starts after the first click, as browsers require.
 | Sit / leave a note | `F` near the bench | sit button near the bench |
 | Upgrades | `U` | upgrades tool |
 | Chat | `C` | chat tool |
+| Wave choice | `N` (when a wave is cleared) | tap the wave card |
 | Help | `H` | help tool |
 | Pause | `Esc` | pause tool |
 | Mute | `M` | speaker tool |
@@ -95,7 +98,31 @@ Ads arrive in waves instead of trickling in at random. Each wave has a fixed cre
 | 9–10 | Super Hard | 11–12 ads at a time, roughly double health |
 | 11+ | Super Hard+ | keeps scaling; the label stops being polite |
 
-Clearing a wave pays bonus Joy and XP, then the island takes a 4–5 second breath. The wave banner announces each new tier, the HUD card under your portrait shows the wave, its difficulty and how many ads are left, and the locals comment in chat. The Algorithm still interrupts the schedule when the island is clear enough to wake it; waves pause until that fight is over.
+### Upgrade or move on
+
+Clearing a wave never rolls straight into the next one. The island stops and asks, with a card showing the wave you just cleared, the chapter of the island log you unlocked, the reward you earned, and a preview of what's coming:
+
+- **Upgrade** opens the shop. Buying things never starts the next wave — you can sit there as long as you like.
+- **Next wave** starts a **10-second countdown** (shown on the card under your portrait). Open the shop during it and the countdown politely pauses until you close it. Press `N` or tap the wave card to reopen the choice if you closed it.
+
+**Every clear hands you something.** Milestone waves give a medal; the rest give a free item — a spare broom, a wool blanket, a jar of joy, a kettle break — which is a free upgrade rank, a heal, or Joy.
+
+| Medal | Earned at |
+| --- | --- |
+| First Sweep | clear wave 1 |
+| Polite Static | reach Easy (wave 3) |
+| They Brought Friends | reach Normal (wave 5) |
+| Banner Bane | reach Hard (wave 7) |
+| Hold the Line | reach Super Hard (wave 9) |
+| Island Saved | clear Super Hard (wave 10) |
+
+Medals and found items live in the pause screen (`Esc`), and carry over between visits.
+
+### The end of the ladder
+
+Wave 10 is **Super Hard**. Clear it and the island tells you plainly: *you saved this island from serving ads*. The kettle is on, the plaza is quiet, and the story reaches its last chapter. Keep going if you like — waves 11+ are endless **Super Hard+**, with a few extra island-log entries, and the next visit starts back at Super Easy whenever you want to climb again.
+
+The Algorithm still interrupts the schedule when the island is clear enough to wake it; waves pause until that fight is over. The wave banner announces each new tier, the card under your portrait tracks the wave, its difficulty and what's left, and the locals comment in chat.
 
 ## Classes
 
@@ -162,6 +189,7 @@ The full history lives in **[CHANGELOG.md](CHANGELOG.md)**, newest first, and th
 
 | Version | Date | Headline |
 | --- | --- | --- |
+| [1.5.0](CHANGELOG.md#150--2026-10-29) | 2026-10-29 | Upgrade-or-next-wave choice, 10s countdown, medals, items, story chapters |
 | [1.4.3](CHANGELOG.md#143--2026-10-29) | 2026-10-29 | Backstory and credits in the help panel, documented README |
 | [1.4.2](CHANGELOG.md#142--2026-10-29) | 2026-10-29 | Compact phone class picker; all three classes on one screen |
 | [1.4.1](CHANGELOG.md#141--2026-10-29) | 2026-10-29 | Touch controls and HUD scaled to fit phones |

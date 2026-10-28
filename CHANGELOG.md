@@ -4,6 +4,25 @@ All notable changes to AdBlock Island. The game is a single `index.html`, and th
 
 Format: [Semantic Versioning](https://semver.org/). Dates are YYYY-MM-DD. Every release since the first build is listed below, newest first.
 
+## [1.5.0] — 2026-10-29
+
+Waves become a ladder you climb on purpose.
+
+### Added
+
+- **Upgrade or next wave.** Clearing a wave no longer rolls straight into the next one. A card opens with what you just swept, the story chapter you unlocked, the reward you earned and a preview of the next tier. **Upgrade** opens the shop; buying things never starts the next wave. **Next wave** starts a **10-second countdown** on the card under your portrait. The countdown pauses while the shop or any panel is open, and `N` or tapping the wave card reopens the choice if you dismissed it.
+- **Medals.** Six achievements, tracked on the pause screen and kept between visits: First Sweep (wave 1), Polite Static (wave 3), They Brought Friends (wave 5), Banner Bane (wave 7), Hold the Line (wave 9) and Island Saved (wave 10).
+- **Free items.** Waves without a medal hand out something instead: Spare Broom, Wool Blanket, Spare Lens, Worn Sandals, Cool Cloth, Jar of Joy or Kettle Break. Most are a free upgrade rank; the rest are Joy or a full heal. Found items are listed on the pause screen.
+- **A story chapter per wave.** The island log runs from "the first pop-up bursts like wet paper" to the kettle at the end of the ladder, one short entry per clear, also written into the chat log so you can reread it. Waves 11+ have a small pool of extra entries.
+- **An ending for the ladder.** Clearing **Super Hard** (wave 10) shows *"You saved this island from serving ads"*, fires the confetti, awards the Island Saved medal, and unlocks endless **Super Hard+** waves. The victory is remembered in the save.
+
+### Changed
+
+- **Every run starts at Super Easy.** Waves used to resume from `save.wave`; now the ladder always begins at wave 1, while levels, Joy, upgrades, medals, items and the island itself persist. Restarting the climb is the point, not a punishment.
+- **The boss no longer eats a wave.** If the Algorithm interrupts the schedule, the wave is marked held and re-spawned properly once it is dealt with, instead of being counted as cleared with no ads on the field.
+- The HUD wave card is now a button when a wave is cleared ("cleared · tap to choose") and shows the countdown while one is running.
+- The pause screen "current plan" follows the wave state, and the help panel documents the choice, the countdown and the ladder's ending.
+
 ## [1.4.3] — 2026-10-29
 
 The island gets its story told.

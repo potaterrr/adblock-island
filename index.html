@@ -327,6 +327,71 @@ body.has-touch #coopBtn{display:none}
 }
 .wave-banner.cleared .wb-label{color:#2e8a68}
 .wave-banner.warn .wb-label{color:var(--danger)}
+
+/* ---- wave cleared / next wave choice ---- */
+.wave-card.ready{border-color:rgba(255,126,158,.85);cursor:pointer}
+.wave-card.ready .wave-dot{animation:wavePulse 1.4s infinite ease-in-out}
+.wave-card.counting{border-color:rgba(255,227,154,.95)}
+.wave-clear-head{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.wave-clear-head .wch-badge{
+  width:46px;height:46px;flex:0 0 46px;border:2.5px solid var(--line);border-radius:50%;
+  display:grid;place-items:center;background:linear-gradient(180deg,#eafff5,#a9e8c9);
+  box-shadow:2px 3px 0 rgba(60,52,83,.18);
+}
+.wave-clear-head .wch-badge svg{width:24px;height:24px}
+.wave-clear-head h3{margin:0;font-family:var(--ui);font-size:17px;letter-spacing:-.01em}
+.wave-clear-head p{margin:2px 0 0;font-size:11px;color:var(--ink-soft)}
+.wave-win{
+  border:3px solid var(--line);border-radius:14px;padding:13px 15px;margin-bottom:12px;text-align:center;
+  background:linear-gradient(160deg,#fff6d8,#ffe3ea 55%,#d6f8ea);
+  box-shadow:4px 5px 0 rgba(60,52,83,.16);
+}
+.wave-win h3{margin:0 0 5px;font-family:var(--ui);font-size:18px;line-height:1.22;letter-spacing:-.01em}
+.wave-win p{margin:0;font-size:11.5px;line-height:1.5;color:var(--ink-soft)}
+.wave-reward{
+  display:flex;align-items:center;gap:11px;padding:11px 12px;margin:0 0 12px;
+  border:2.5px solid var(--line);border-radius:12px;
+  background:linear-gradient(120deg,#fff3d1,#ffe3ea 72%,#e2f7fc);
+  box-shadow:2px 3px 0 rgba(60,52,83,.14);
+}
+.wave-reward .wr-ico{
+  width:38px;height:38px;flex:0 0 38px;border:2.5px solid var(--line);border-radius:10px;
+  background:#fffdf6;display:grid;place-items:center;
+}
+.wave-reward .wr-ico svg{width:21px;height:21px}
+.wave-reward small{
+  display:block;font-family:var(--ui);font-size:8px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--ink-faint);
+}
+.wave-reward b{display:block;font-size:12px;margin-top:1px}
+.wave-reward p{margin:2px 0 0;font-size:10.5px;line-height:1.4;color:var(--ink-soft)}
+.wave-next{
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:9px 11px;
+  border:2px dashed rgba(60,52,83,.3);border-radius:10px;background:rgba(255,255,255,.4);
+  font-size:11px;color:var(--ink-soft);
+}
+.wave-next .wn-kicker{
+  font-family:var(--ui);font-size:8px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint);
+}
+.wave-next b{font-family:var(--ui);font-size:11px;color:var(--ink)}
+.wave-next .wn-count{
+  margin-left:auto;font-family:var(--ui);font-size:9px;font-weight:900;letter-spacing:.04em;
+  background:rgba(60,52,83,.07);border-radius:99px;padding:2px 8px;
+}
+.ach-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:4px}
+.ach-badge{
+  display:flex;align-items:center;gap:7px;padding:6px 8px;border:2px solid var(--line);
+  border-radius:9px;background:rgba(255,255,255,.5);font-family:var(--ui);font-size:9px;font-weight:700;
+  letter-spacing:.02em;
+}
+.ach-badge svg{width:14px;height:14px;flex:0 0 14px}
+.ach-badge small{display:block;font-size:7.5px;font-weight:700;color:var(--ink-faint);letter-spacing:.06em;text-transform:uppercase}
+.ach-badge.locked{opacity:.45;border-style:dashed;background:transparent}
+.item-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.item-pill{
+  font-family:var(--ui);font-size:9px;font-weight:700;border:2px solid var(--line);
+  border-radius:99px;padding:3px 9px;background:var(--paper);
+}
 /* keep the banner clear of the stacked HUD on phones */
 body.touch .wave-banner{top:max(168px,26vh);padding:10px 22px 12px;max-width:86vw}
 body.touch .wave-banner .wb-label{font-size:24px}
@@ -991,6 +1056,10 @@ body.touch .mobile-only{display:initial}
   }
   .class-card .cc-check{top:6px;right:6px;width:18px;height:18px;font-size:10px}
 }
+@media (max-width:380px){
+  .panel-foot{gap:6px;padding:9px 12px}
+  .panel-foot .btn{padding:7px 10px;font-size:10px}
+}
 @media (max-width:500px){
   .title-card{padding:16px 14px;border-radius:18px}
   .title-top{gap:10px}
@@ -1282,7 +1351,7 @@ const ICONS = {
 };
 const svg = (name) => ICONS[name] || ICONS.spark;
 
-const VERSION = '1.4.3';
+const VERSION = '1.5.0';
 
 /* ------------------------------- classes -------------------------------- */
 const CLASSES = {
@@ -1650,6 +1719,7 @@ const defaultSave = () => ({
   upgrades: {}, cosmetics: ['none'], equipped: 'none',
   stats: { tiles: 0, kills: 0, notes: 0, bosses: 0, seconds: 0 },
   corruption: null, bossSpawned: false, bossDefeated: false, won: false, wave: 1, coop: false,
+  achievements: [], items: [], waveCampaignWon: false,
   seed: Math.floor(Math.random() * 1e9), createdAt: Date.now()
 });
 let save = Object.assign(defaultSave(), store.get(SAVE_KEY, {}) || {});
@@ -1658,6 +1728,9 @@ save.stats = Object.assign({ tiles: 0, kills: 0, notes: 0, bosses: 0, seconds: 0
 save.cosmetics = Array.isArray(save.cosmetics) && save.cosmetics.length ? save.cosmetics : ['none'];
 if (!CLASSES[save.cls]) save.cls = 'blocker';
 if (!save.upgrades || typeof save.upgrades !== 'object') save.upgrades = {};
+save.achievements = Array.isArray(save.achievements) ? save.achievements.filter((x) => typeof x === 'string') : [];
+save.items = Array.isArray(save.items) ? save.items.filter((x) => typeof x === 'string').slice(-40) : [];
+save.waveCampaignWon = !!save.waveCampaignWon;
 for (const u of UPGRADES) save.upgrades[u.id] = clamp(Number(save.upgrades[u.id]) || 0, 0, u.max);
 const persistSave = () => { try { store.set(SAVE_KEY, save); } catch (e) {} };
 
@@ -2327,6 +2400,11 @@ function bindUI() {
   ui.helpBtn.addEventListener('click', () => openPanel('help'));
   ui.settingsBtn.addEventListener('click', () => openPanel('settings'));
   ui.pauseBtn.addEventListener('click', () => openPanel('pause'));
+  // the wave card doubles as the "what next?" button once a wave is cleared
+  ui.waveCard.addEventListener('click', () => {
+    if (game.state !== 'playing') return;
+    if (game.waveState === 'cleared') openPanel('wave');
+  });
   ui.chatToggleBtn.addEventListener('click', () => {
     if (input.touch) {
       ui.chatPanel.classList.toggle('open');
@@ -2387,6 +2465,7 @@ function bindUI() {
     if (k === 'f') interactBench();
     if (k === 'u') openPanel('upgrades');
     if (k === 'h') openPanel('help');
+    if (k === 'n' && game.waveState === 'cleared') openPanel('wave');
     if (k === 'm') ui.muteBtn.click();
     if (k === 'c') { if (input.touch) ui.chatPanel.classList.add('open'); ui.chatInput.focus(); }
   });
@@ -2785,6 +2864,7 @@ const PANEL_META = {
   help: { title: 'How to help', sub: 'Everything is optional except being kind to yourself.', icon: 'help' },
   settings: { title: 'Cozy settings', sub: 'Sound, motion, and a fresh start if you need one.', icon: 'gear' },
   pause: { title: 'Taking a breath', sub: 'The ads can wait. They are very good at waiting.', icon: 'pause' },
+  wave: { title: 'Wave cleared', sub: 'The island takes a breath. You decide what comes next.', icon: 'sun' },
   victory: { title: 'Island restored', sub: 'You did a good thing. Look at all this green.', icon: 'sun' }
 };
 
@@ -2824,6 +2904,9 @@ function closePanel() {
     }
   }, 180);
   if (wasType === 'kindness') { player.sit = false; }
+  if (wasType === 'upgrades' && game.waveState === 'cleared' && game.state !== 'title') {
+    toast('Upgrades saved. Tap the wave card when you are ready for the next one.', '', '✦');
+  }
   resetArmed = false;
   audio.sfx('ui');
 }
@@ -2841,6 +2924,7 @@ function panelFoot(buttons) {
       if (act === 'kindness') openPanel('kindness');
       if (act === 'resume') closePanel();
       if (act === 'explore') closePanel();
+      if (act === 'nextwave') startWaveCountdown();
     });
   });
 }
@@ -2851,6 +2935,7 @@ function buildPanel(type) {
   else if (type === 'help') buildHelpPanel();
   else if (type === 'settings') buildSettingsPanel();
   else if (type === 'pause') buildPausePanel();
+  else if (type === 'wave') buildWavePanel();
   else if (type === 'victory') buildVictoryPanel();
 }
 
@@ -3045,7 +3130,7 @@ function buildHelpPanel() {
         <p><kbd>WASD</kbd>/<kbd>arrows</kbd> move · <kbd>J</kbd> or click attack (hold to keep bonking)<br>
         <kbd>Q</kbd> skill one · <kbd>E</kbd> skill two · <kbd>Space</kbd> dash<br>
         <kbd>F</kbd> sit at the kindness bench · <kbd>U</kbd> upgrades<br>
-        <kbd>C</kbd> chat · <kbd>H</kbd> help · <kbd>Esc</kbd> pause</p>
+        <kbd>N</kbd> wave choice · <kbd>C</kbd> chat · <kbd>H</kbd> help · <kbd>Esc</kbd> pause</p>
       </div>
       <div class="help-block">
         <h4>Ads, explained</h4>
@@ -3061,7 +3146,7 @@ function buildHelpPanel() {
       </div>
       <div class="help-block">
         <h4>Waves</h4>
-        <p>Ads now arrive in waves, from <b>Super Easy</b> up to <b>Super Hard+</b>. Clear the crew and you get a few seconds and some Joy before the next one. The Algorithm still interrupts everything when the island gets clear enough to wake it.</p>
+        <p>Every run starts at <b>Super Easy</b>. Clear the crew and the island asks what you want: <b>Upgrade</b> (the shop is safe — it never starts the next wave) or <b>Next wave</b>, which gives you a 10-second countdown. Each clear hands you a medal or a free item and a chapter of the island's log. Clear <b>Super Hard</b> and the ads stop being served. The Algorithm still interrupts when the island gets clear enough to wake it.</p>
       </div>
       <div class="help-block">
         <h4>Play with a friend</h4>
@@ -3161,8 +3246,24 @@ function buildPausePanel() {
     </div>
     <div class="help-grid">
       <div class="help-block"><h4>A small pause</h4><p>Nothing is chasing you right now. The island will keep. Stretch your shoulders, sip something, blink slowly.</p></div>
-      <div class="help-block"><h4>Current plan</h4><p>${game.bossSpawned ? (game.bossDefeated ? 'The Algorithm is quiet. Wander as long as you like.' : 'The Algorithm is at the plaza. Bots are holding the line with you.') : `Sweep static until the island is ${Math.round(BOSS_CLARITY * 100)}% clear. The locals are helping.`}</p></div>
+      <div class="help-block"><h4>Current plan</h4><p>${game.waveState === 'cleared' ? `Wave ${game.wave} is cleared. Tap the wave card to upgrade or start the next one.` : game.waveState === 'countdown' ? `Next wave in ${Math.max(1, Math.ceil(game.waveT))} seconds. Upgrades are still open.` : game.bossSpawned ? (game.bossDefeated ? 'The Algorithm is quiet. Wander as long as you like.' : 'The Algorithm is at the plaza. Bots are holding the line with you.') : `Sweep static until the island is ${Math.round(BOSS_CLARITY * 100)}% clear, and clear wave ${game.wave} while you are at it.`}</p></div>
     </div>
+    <div class="section-title">Medals</div>
+    <div class="ach-grid">
+      ${WAVE_ACHIEVEMENTS.map((a) => {
+        const got = save.achievements.includes(a.id);
+        return `<div class="ach-badge ${got ? '' : 'locked'}" title="${esc(a.desc)}">
+          ${svg(got ? a.icon : 'star')}
+          <span>${a.name}<small>${got ? 'earned' : 'not yet'}</small></span>
+        </div>`;
+      }).join('')}
+    </div>
+    ${save.items.length ? `<div class="section-title">Small things you found</div>
+    <div class="item-list">${Object.entries(save.items.reduce((m, id) => { m[id] = (m[id] || 0) + 1; return m; }, {}))
+      .map(([id, count]) => {
+        const it = WAVE_ITEMS.find((x) => x.id === id);
+        return it ? `<span class="item-pill">${it.name}${count > 1 ? ' ×' + count : ''}</span>` : '';
+      }).join('')}</div>` : ''}
   `;
   panelFoot([
     { label: 'Keep wandering', action: 'resume', kind: 'primary' },
@@ -3191,6 +3292,70 @@ function buildVictoryPanel() {
   panelFoot([
     { label: 'Keep exploring', action: 'explore', kind: 'primary' },
     { label: 'Visit the wall', action: 'kindness' }
+  ]);
+}
+
+/* ---------------------------- wave cleared panel ------------------------- */
+function buildWavePanel() {
+  const n = game.wave || 1;
+  const plan = wavePlan(n);
+  const tier = plan.tier;
+  const next = wavePlan(n + 1);
+  const reward = game.waveReward;
+  const story = game.waveStory || waveStoryFor(n);
+  const medals = WAVE_ACHIEVEMENTS.filter((a) => save.achievements.includes(a.id)).length;
+  const bonus = 10 + n * 4;
+
+  ui.modalTitle.textContent = 'Wave ' + n + ' cleared';
+  ui.modalSub.textContent = 'Upgrading never starts the next wave. The island waits for you.';
+
+  const winBlock = n >= 10 ? `
+    <div class="wave-win">
+      <h3>You saved this island from serving ads.</h3>
+      <p>Super Hard is cleared. The kettle is on, the plaza is quiet, and the locals will be telling this one for years. Stay for the sunset, or keep going — the ads come back a little politer after this.</p>
+    </div>` : '';
+
+  const rewardBlock = reward ? `
+    <div class="wave-reward">
+      <span class="wr-ico">${svg(reward.icon)}</span>
+      <div>
+        <small>${reward.kind === 'achievement' ? 'Achievement unlocked' : 'Free item'}</small>
+        <b>${reward.name}</b>
+        <p>${reward.desc}</p>
+      </div>
+    </div>` : '';
+
+  ui.modalBody.innerHTML = `
+    ${winBlock}
+    <div class="wave-clear-head">
+      <span class="wch-badge">${svg('spark')}</span>
+      <div>
+        <h3>${tier.label} · wave ${n} swept</h3>
+        <p>${plan.count} ads cleared · +${bonus} Joy · ${medals}/${WAVE_ACHIEVEMENTS.length} medals earned</p>
+      </div>
+    </div>
+    ${rewardBlock}
+    <div class="help-story">
+      <h4>Island log · chapter ${n} — ${story.title}</h4>
+      <p>${story.text}</p>
+    </div>
+    <div class="wave-next">
+      <span class="wn-kicker">next</span>
+      <b>${next.tier.label}</b>
+      <span>${next.tier.note}</span>
+      <span class="wn-count">${next.count} ads · wave ${n + 1}</span>
+    </div>
+    <div class="kind-row" style="margin-top:12px">
+      <span class="chip on">✿ ${Math.floor(player.joy)} Joy to spend</span>
+      <span class="chip">Level ${player.level}</span>
+      <span class="chip">${fmt(save.stats.waves || 0)} wave${(save.stats.waves || 0) === 1 ? '' : 's'} cleared</span>
+    </div>
+  `;
+
+  panelFoot([
+    { label: 'Upgrade', action: 'upgrades' },
+    { label: 'Not yet', action: 'close' },
+    { label: n >= 10 ? 'Keep going · 10s' : 'Next wave · 10s', action: 'nextwave', kind: 'primary' }
   ]);
 }
 
@@ -3230,13 +3395,16 @@ function startGame() {
   game.bossSpawned = false;
   game.bossDefeated = !!save.bossDefeated;
   game.won = !!save.won;
-  // waves: pick up where the save left off, or welcome them with wave one
+  // waves: every run starts at Super Easy, then climbs only when you say so.
+  // Medals, items and upgrades carry over between visits.
   monsters.length = 0;
   game.boss = null;
+  game.waveStory = null;
+  game.waveReward = null;
   if (save.bossSpawned && !save.bossDefeated) {
     spawnBoss(true);
   }
-  startWave(clamp(Math.round(save.wave || 1), 1, 99), { silent: false });
+  startWave(1, { silent: false });
   game.coop = !!coopEnabled;
   if (game.coop) spawnPartner();
   ui.titleScreen.classList.add('hidden');
@@ -3707,6 +3875,11 @@ function respawnPlayer() {
   audio.sfx('heal');
   updateHpUI();
   toast('Back on your feet. Your Joy is safe. The bench saved your seat.', 'good', '♥');
+  if (game.waveState === 'cleared') {
+    setTimeout(() => {
+      if (game.state === 'playing' && game.waveState === 'cleared') openPanel('wave');
+    }, 900);
+  }
   const bot = pick(bots);
   if (bot) { botSay(bot, pick(CHAT.heal)); }
 }
@@ -3898,9 +4071,52 @@ const WAVE_TIERS = [
   { max: Infinity, label: 'Super Hard+', note: 'they keep coming', color: '#a02a4e', dot: '#ff6b8b' }
 ];
 
+/* A chapter of the island's story unlocks with every wave you clear, so the
+   backstory is told as you climb instead of all at once on the title screen. */
+const WAVE_STORY = {
+  1: { title: 'The first sweep', text: 'The first pop-up bursts like wet paper. Underneath it the sand is exactly the colour of sand. The locals cheer from the plaza, a little too loudly — the way people cheer when they are mostly relieved.' },
+  2: { title: 'The paper tide', text: 'Moss shows you a notebook: every banner, dated, with a little drawing in the margin. “We started keeping track,” she says. “Then we started naming them. Then we started feeling a bit bad for them.”' },
+  3: { title: 'The unsold afternoon', text: 'There is a whole page in the notebook with nothing written on it. No ads, no errands. Just “the light was nice”. The locals have been quietly trying to get that afternoon back ever since.' },
+  4: { title: 'The keeper of the kettle', text: 'The kettle is older than the ads. It was here before, and it will be here after. Someone has scratched a line into the lid: “for whoever is cold.” Nobody remembers who, and everybody keeps it full.' },
+  5: { title: 'The schedule', text: 'You find the very first banner, pressed flat in the notebook. It still has a date on it. The locals kept it because it was the last ordinary thing that happened before everything got loud.' },
+  6: { title: 'The plaza', text: 'The plaza keeps the three things the island refuses to give up: the bench, the kindness wall, and one good lamp. It is also where the Algorithm likes to stand. Somehow, that makes a sad kind of sense.' },
+  7: { title: 'The long ones', text: 'The behemoths are not evil. They are just long. Somewhere inside is a message about a mattress nobody needs, and a countdown nobody can skip. The locals have learned to walk around them like weather.' },
+  8: { title: 'The wall', text: 'There are notes on the kindness wall from people who never came back, and notes from people who did. Both kinds are kind. You read four of them and quietly promise to write your own.' },
+  9: { title: 'The last push', text: 'The light goes gold and the ads come in the wave the notebook only describes in shaky capitals. Someone puts the kettle on. Someone else stands beside you. Nobody says anything brave out loud.' },
+  10: { title: 'Serving ads', text: 'The last banner folds into the sand. No pop-ups, no countdown, no “skip in five”. Just the sea doing its long patient thing. The island is not serving ads anymore. It is serving tea.' }
+};
+const WAVE_STORY_ENDLESS = [
+  { title: 'After the quiet', text: 'The ads come back, smaller and politer, as if embarrassed. The locals handle it. You are here now, and that makes it a different sort of afternoon.' },
+  { title: 'A note you did not write', text: 'Tucked under the bench: “thank you for the quiet.” No name. You add it to the notebook and leave the next page blank for someone else.' },
+  { title: 'The kettle is on', text: 'The kettle is on. The bench is warm. The waves keep coming, and so does the tea. Nobody on the island is in a hurry about either.' }
+];
+
+const WAVE_ACHIEVEMENTS = [
+  { at: 1, id: 'first_sweep', name: 'First Sweep', desc: 'Clear your first wave on the island.', icon: 'broom' },
+  { at: 3, id: 'polite_static', name: 'Polite Static', desc: 'Reach the Easy tier. The ads are still being polite.', icon: 'leaf' },
+  { at: 5, id: 'brought_friends', name: 'They Brought Friends', desc: 'Survive the Normal tier with the plaza still standing.', icon: 'star' },
+  { at: 7, id: 'banner_bane', name: 'Banner Bane', desc: 'Make it to Hard. The banners know your name now.', icon: 'shield' },
+  { at: 9, id: 'hold_the_line', name: 'Hold the Line', desc: 'Reach Super Hard without giving the island back.', icon: 'bolt' },
+  { at: 10, id: 'island_saved', name: 'Island Saved', desc: 'Clear Super Hard. The island is not serving ads anymore.', icon: 'sun' }
+];
+
+const WAVE_ITEMS = [
+  { id: 'spare_broom', name: 'Spare Broom', icon: 'broom', kind: 'upgrade', upgrade: 'cleanse', desc: 'A second broom, slightly less splintery. +1 Wide Broom.' },
+  { id: 'wool_blanket', name: 'Wool Blanket', icon: 'heart', kind: 'upgrade', upgrade: 'vitality', desc: 'Left on the bench for you. +1 Deep Breaths.' },
+  { id: 'spare_lens', name: 'Spare Lens', icon: 'target', kind: 'upgrade', upgrade: 'damage', desc: 'Everything looks a little more bonkable. +1 Clarity Lens.' },
+  { id: 'worn_sandals', name: 'Worn Sandals', icon: 'wind', kind: 'upgrade', upgrade: 'speed', desc: 'Someone walked the whole island in these. +1 Barefoot Speed.' },
+  { id: 'cool_cloth', name: 'Cool Cloth', icon: 'clock', kind: 'upgrade', upgrade: 'cooldown', desc: 'Damp, folded, perfect. +1 Cool Head.' },
+  { id: 'joy_jar', name: 'Jar of Joy', icon: 'coin', kind: 'joy', amount: 60, desc: 'The locals pass a jar around. +60 Joy, no strings.' },
+  { id: 'kettle', name: 'Kettle Break', icon: 'spark', kind: 'heal', desc: 'Tea, a chair, and a full heal for you and your friend.' }
+];
+
 function waveTier(n) {
   for (const t of WAVE_TIERS) if (n <= t.max) return t;
   return WAVE_TIERS[WAVE_TIERS.length - 1];
+}
+
+function waveStoryFor(n) {
+  return WAVE_STORY[n] || WAVE_STORY_ENDLESS[(n - 11) % WAVE_STORY_ENDLESS.length];
 }
 
 function wavePlan(n) {
@@ -3935,15 +4151,76 @@ function waveSpawnPoint(cx, cy) {
   return { x: clamp(cx + rand(320, -320), 60, WORLD_W - 60), y: clamp(cy + rand(320, -320), 60, WORLD_H - 60) };
 }
 
+/* ---------------------------- wave rewards ------------------------------- */
+function grantUpgradeRank(id) {
+  const u = UPGRADES.find((x) => x.id === id);
+  if (!u || statUp(id) >= u.max) return false;
+  save.upgrades[id] = statUp(id) + 1;
+  if (id === 'vitality') {
+    player.maxHp = CLASSES[player.cls].hp + stats.bonusHp() + (player.level - 1) * 9;
+    player.hp = Math.min(player.maxHp, player.hp + 15);
+  }
+  if (id === 'speed') player.speed = CLASSES[player.cls].speed * stats.speedMult();
+  persistSave();
+  updateHUD(true);
+  return true;
+}
+
+function waveItemAvailable(it) {
+  if (it.kind !== 'upgrade') return true;
+  const u = UPGRADES.find((x) => x.id === it.upgrade);
+  return !!u && statUp(it.upgrade) < u.max;
+}
+
+function applyWaveItem(it) {
+  if (it.kind === 'upgrade') {
+    if (grantUpgradeRank(it.upgrade)) return it;
+    it = WAVE_ITEMS.find((x) => x.id === 'joy_jar');
+  }
+  if (it.kind === 'joy') {
+    addJoy(it.amount, true, player.x, player.y);
+    return it;
+  }
+  if (it.kind === 'heal') {
+    player.hp = player.maxHp;
+    const mate = partnerBot();
+    if (mate) mate.hp = mate.maxHp;
+    burst(player.x, player.y, PAL.mint, 18, { speed: 130, life: 1.1, size: 4, gravity: -18 });
+    audio.sfx('heal');
+    updateHpUI();
+    return it;
+  }
+  return it;
+}
+
+function grantWaveReward(n) {
+  const ach = WAVE_ACHIEVEMENTS.find((a) => a.at === n);
+  if (ach && !save.achievements.includes(ach.id)) {
+    save.achievements.push(ach.id);
+    audio.sfx('levelup');
+    return { kind: 'achievement', id: ach.id, name: ach.name, desc: ach.desc, icon: ach.icon };
+  }
+  const pool = WAVE_ITEMS.filter(waveItemAvailable);
+  const item = applyWaveItem(pick(pool.length ? pool : WAVE_ITEMS));
+  save.items.push(item.id);
+  if (save.items.length > 40) save.items.splice(0, save.items.length - 40);
+  audio.sfx('coin');
+  return { kind: 'item', id: item.id, name: item.name, desc: item.desc, icon: item.icon };
+}
+
+/* ---------------------------- wave lifecycle ------------------------------ */
 function startWave(n, opts = {}) {
   const plan = wavePlan(n);
   game.wave = n;
   game.waveState = 'fight';
   game.waveT = 0;
   game.waveTotal = 0;
+  game.waveReward = null;
+  game.waveStory = null;
   save.wave = n;
   if (game.boss && !game.boss.dead) {
-    // the boss interrupted the schedule: hold the wave until it is dealt with
+    // the boss interrupted the schedule: hold this wave until it is dealt with
+    game.waveState = 'held';
     updateWaveChip();
     return;
   }
@@ -3978,35 +4255,43 @@ function startWave(n, opts = {}) {
   saveGame();
 }
 
-function updateWaves(dt) {
-  if (game.state !== 'playing' || game.won) return;
-  if (game.boss && !game.boss.dead) return; // boss fight overrides the schedule
-  if (!game.wave) { startWave(1); return; }
-  if (game.waveState === 'break') {
-    game.waveT -= dt;
-    if (game.waveT <= 0) startWave(game.wave + 1);
-    return;
-  }
-  if (waveAlive() > 0) return;
-
-  const n = game.wave;
+/* The player cleared a wave. Stop the schedule, hand out one reward (a medal
+   or a small free item) and open the choice: upgrade, or start the next wave. */
+function waveCleared(n) {
   const bonus = 10 + n * 4;
   player.joy += bonus;
+  save.joy = player.joy;
   save.totalJoy = (save.totalJoy || 0) + bonus;
   gainXp(5 + n * 2);
   save.stats.waves = (save.stats.waves || 0) + 1;
-  game.waveState = 'break';
-  game.waveT = 4.6;
+  if (n >= 10 && !save.waveCampaignWon) save.waveCampaignWon = true;
+
+  const reward = grantWaveReward(n);
+  const story = waveStoryFor(n);
+  game.waveStory = story;
+  game.waveReward = reward;
+  game.waveState = 'cleared';
+  game.waveT = 0;
+
   waveBannerShow({
     kicker: 'wave ' + n + ' cleared',
-    label: 'Nice work',
-    note: '+' + bonus + ' joy · next one in a moment',
+    label: n >= 10 ? 'Super Hard cleared' : 'Nice work',
+    note: '+' + bonus + ' joy · ' + (reward.kind === 'achievement' ? 'medal: ' + reward.name : 'item: ' + reward.name),
     cls: 'cleared',
-    hold: 2400
+    hold: 2600
   });
-  audio.sfx('levelup');
+  audio.sfx(n >= 10 ? 'victory' : 'levelup');
+  if (n >= 10) {
+    launchConfetti();
+    toast('You saved this island from serving ads.', 'good', '✿');
+  }
+  chatAdd('', 'Island log · ' + story.title + ' — ' + story.text, 'system');
   const bot = pick(bots.filter((b) => b.bubbleT <= 0));
-  if (bot) botSay(bot, pick([
+  if (bot) botSay(bot, n >= 10 ? pick([
+    'you did it. the kettle is definitely on.',
+    'no ads. just us and the sea.',
+    'we are going to talk about this for years.'
+  ]) : pick([
     'that is the lot. kettle is on.',
     'clean sweep! literally.',
     'okay, small break. you earned it',
@@ -4014,6 +4299,35 @@ function updateWaves(dt) {
   ]));
   updateWaveChip();
   saveGame();
+  setTimeout(() => {
+    if (game.state === 'playing' && game.waveState === 'cleared' && game.wave === n) openPanel('wave');
+  }, 800);
+}
+
+function startWaveCountdown() {
+  if (game.waveState !== 'cleared') return;
+  game.waveState = 'countdown';
+  game.waveT = 10;
+  closePanel();
+  audio.sfx('select');
+  updateWaveChip();
+  toast('Next wave in 10 seconds. Upgrades stay open until it starts.', '', '✦');
+  saveGame();
+}
+
+function updateWaves(dt) {
+  if (game.state !== 'playing' || game.won) return;
+  if (game.boss && !game.boss.dead) return; // boss fight overrides the schedule
+  if (!game.wave) { startWave(1); return; }
+  if (game.waveState === 'held') { startWave(game.wave); return; }
+  if (game.waveState === 'cleared') return; // waiting on the player's choice
+  if (game.waveState === 'countdown') {
+    game.waveT -= dt;
+    if (game.waveT <= 0) startWave(game.wave + 1);
+    return;
+  }
+  if (waveAlive() > 0) return;
+  waveCleared(game.wave);
 }
 
 let waveBannerT = null;
@@ -4039,11 +4353,20 @@ function updateWaveChip() {
   ui.waveChipLabel.style.color = tier.color;
   ui.waveDot.style.background = tier.dot;
   ui.waveDot.style.boxShadow = '0 0 0 3px ' + tier.dot + '55';
-  ui.waveCard.classList.toggle('breaking', game.waveState === 'break');
-  if (game.boss && !game.boss.dead) {
-    ui.waveChipLeft.textContent = 'paused — boss on the island';
-  } else if (game.waveState === 'break') {
+  const state = game.waveState;
+  ui.waveCard.classList.toggle('breaking', state === 'countdown');
+  ui.waveCard.classList.toggle('ready', state === 'cleared');
+  ui.waveCard.classList.toggle('counting', state === 'countdown');
+  ui.waveCard.title = state === 'cleared' ? 'Wave cleared — tap to choose upgrade or next wave'
+    : state === 'countdown' ? 'Next wave is counting down' : '';
+  if (state === 'cleared') {
+    ui.waveChipLeft.textContent = 'cleared · tap to choose';
+  } else if (game.boss && !game.boss.dead) {
+    ui.waveChipLeft.textContent = state === 'countdown' ? 'next wave paused — boss' : 'paused — boss on the island';
+  } else if (state === 'countdown') {
     ui.waveChipLeft.textContent = 'next wave in ' + Math.max(1, Math.ceil(game.waveT)) + 's';
+  } else if (state === 'held') {
+    ui.waveChipLeft.textContent = 'waiting on the boss';
   } else {
     const left = waveAlive();
     ui.waveChipLeft.textContent = left + (left === 1 ? ' ad left' : ' ads left');
