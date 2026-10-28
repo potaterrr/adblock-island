@@ -44,7 +44,7 @@ The "MMO" in micro-MMO is currently a polite lie: the other players are bots, an
 
 Until then, the honest description is: a single-player and local co-op cozy micro-MMO with bots, in beta.
 
-## [1.5.4] — 2026-10-29
+## [0.5.4] — 2026-10-29
 
 Beta launch polish.
 
@@ -57,10 +57,12 @@ Beta launch polish.
 
 ### Changed
 
+- **The beta now counts from zero.** Every release in this log is numbered `0.x`, from `0.0.0` to this build, so the version line matches the project's actual status. The title badge, the build tag, the page metadata and the help panel all read the same `VERSION` constant.
+- **The local storage keys changed.** They are now `adblock-island.save.v0`, `adblock-island.notes.v0` and `adblock-island.settings.v0`. These are storage-schema tags rather than game versions; progress, kindness notes and settings saved under the old keys do not carry over, so the first visit after this build starts fresh.
 - The page now has a `<noscript>` card explaining that the island needs JavaScript, instead of a dead title screen.
 - Description and preview copy mention the beta and the current version.
 
-## [1.5.3] — 2026-10-29
+## [0.5.3] — 2026-10-29
 
 The wave card gets keyboard manners.
 
@@ -74,7 +76,7 @@ The wave card gets keyboard manners.
 
 - The help panel's controls line now lists `Enter` next to `N` wave choice and `U` upgrades.
 
-## [1.5.2] — 2026-10-29
+## [0.5.2] — 2026-10-29
 
 The wave ladder keeps its promise.
 
@@ -89,13 +91,13 @@ The wave ladder keeps its promise.
 - A save with `won: true` now clears waves 1→10: every wave spawns its full crew (4, 5, 6, 7, 8, 9, 9, 10, 11, 12 ads), every clear opens the choice card with the right medal or item, and wave 10 shows the "You saved this island from serving ads" win card.
 - Pausing immediately after a clear, dying during it, and finishing the boss at the same moment all still lead to the popup.
 
-## [1.5.1] — 2026-10-29
+## [0.5.1] — 2026-10-29
 
 Beta, labelled.
 
 ### Added
 
-- **A beta badge on the title screen.** A loud `beta · v1.5.1` pill sits next to the "wholesome micro-MMO" kicker, and the build tag in the bottom-right corner now reads `v1.5.1 · beta`. The pill's tooltip and the help panel's "This build" block both say the build is a beta.
+- **A beta badge on the title screen.** A loud `beta · v0.5.1` pill sits next to the "wholesome micro-MMO" kicker, and the build tag in the bottom-right corner now reads `v0.5.1 · beta`. The pill's tooltip and the help panel's "This build" block both say the build is a beta.
 - **A "Still pending" section at the top of these patch notes**, covering the achievements and items that are still thin, and the MMORPG essentials — online multiplayer, accounts, moderated chat, parties, quests, economy, anti-cheat, live ops — that a static page cannot provide on its own. Mirrored in the README.
 
 ### Changed
@@ -103,7 +105,7 @@ Beta, labelled.
 - The page `<title>` and `<meta name="description">` now say **beta** and the current version, so link previews and search results match the build.
 - The help panel's "This build" block points at the pending list instead of implying the game is finished.
 
-## [1.5.0] — 2026-10-29
+## [0.5.0] — 2026-10-29
 
 Waves become a ladder you climb on purpose.
 
@@ -122,7 +124,7 @@ Waves become a ladder you climb on purpose.
 - The HUD wave card is now a button when a wave is cleared ("cleared · tap to choose") and shows the countdown while one is running.
 - The pause screen "current plan" follows the wave state, and the help panel documents the choice, the countdown and the ladder's ending.
 
-## [1.4.3] — 2026-10-29
+## [0.4.3] — 2026-10-29
 
 The island gets its story told.
 
@@ -130,13 +132,13 @@ The island gets its story told.
 
 - **A backstory in the help panel.** Pressing `H` now opens with "The story so far": the ads came with the tide, the locals kept the kettle on, and you wash ashore with a broom and nowhere else to be. Two short paragraphs above the existing plan, class abilities, controls, ads, waves and co-op blocks.
 - **A credit and disclaimer footer.** The bottom of the help panel names it as an original solo project by [@potaterrr](https://github.com/potaterrr), links to the source, and notes that every asset is hand-written — no third-party art, fonts, audio, or libraries — and that the game is a work of parody with no real advertisers involved.
-- **README: backstory, how to play, patch notes, disclaimer.** The readme now opens with the island's story, then a seven-step how-to-play that matches the actual game loop (classes, aim, cleansing, waves, the Algorithm, the bench, co-op), then a patch-notes table covering every release from 1.0.0 to 1.4.3, then a plain-language disclaimer: original work by potaterrr, no third-party assets, no affiliation, no data collection.
+- **README: backstory, how to play, patch notes, disclaimer.** The readme now opens with the island's story, then a seven-step how-to-play that matches the actual game loop (classes, aim, cleansing, waves, the Algorithm, the bench, co-op), then a patch-notes table covering every release from 0.0.0 to 0.4.3, then a plain-language disclaimer: original work by potaterrr, no third-party assets, no affiliation, no data collection.
 
 ### Changed
 
 - The "note on the fiction" paragraph moved into the fuller disclaimer at the end of the README, so the affiliation and parody notice sits next to the ownership statement instead of being buried mid-document.
 
-## [1.4.2] — 2026-10-29
+## [0.4.2] — 2026-10-29
 
 The title screen gets the phone treatment too.
 
@@ -146,7 +148,7 @@ The title screen gets the phone treatment too.
 - **Phone-sized class blurbs.** Each class has a two-line description for the compact card, so nothing is cut off with an ellipsis. Desktop and tablet keep the original longer copy.
 - Tighter title spacing under 500px (logo, tagline, name field, button, links) so the "wash ashore" button and the whole picker share the first screen.
 
-## [1.4.1] — 2026-10-29
+## [0.4.1] — 2026-10-29
 
 A phone-sized pass over the controls.
 
@@ -157,7 +159,7 @@ A phone-sized pass over the controls.
 - **The wave banner** keeps its tier on one line and sits below the top cards instead of on top of them.
 - **Short and landscape screens.** The title screen now scrolls from the top instead of centering itself out of reach, so "wash ashore" can't be pushed off-screen, and full-screen layers use `dvh` so a mobile browser's toolbar can't cover the bottom controls.
 
-## [1.4.0] — 2026-10-29
+## [0.4.0] — 2026-10-29
 
 Waves, a friend on the arrow keys, and aim that stops guessing.
 
@@ -175,7 +177,7 @@ Waves, a friend on the arrow keys, and aim that stops guessing.
 
 - The AdBlocker's auto-sword could still draw attention to the wrong direction; it now has its own arc colour and never modifies the aim.
 
-## [1.3.2] — 2026-10-29
+## [0.3.2] — 2026-10-29
 
 Attacks now go where you point.
 
@@ -188,7 +190,7 @@ Attacks now go where you point.
 
 - The auto-swing draws its own small gold arc, separate from the shield bash, so you can tell the two apart.
 
-## [1.3.1] — 2026-10-29
+## [0.3.1] — 2026-10-29
 
 The mouse works everywhere now.
 
@@ -202,7 +204,7 @@ The mouse works everywhere now.
 
 - Two faint pips in front of the hero show the aim direction at a glance.
 
-## [1.3.0] — 2026-10-29
+## [0.3.0] — 2026-10-29
 
 Aiming, weapons, and paperwork.
 
@@ -221,15 +223,15 @@ Aiming, weapons, and paperwork.
 
 ### Removed
 
-- The enemy-lock reticle from 1.2.0. It was helpful, but it stole the cursor from players who wanted to keep aiming by hand.
+- The enemy-lock reticle from 0.2.0. It was helpful, but it stole the cursor from players who wanted to keep aiming by hand.
 
-## [1.2.0] — 2026-10-29
+## [0.2.0] — 2026-10-29
 
 ### Added
 
 - The aim cursor travels with the player: it rides ahead of you while walking, and a mobile pip shows the stick direction.
 
-## [1.1.0] — 2026-10-29
+## [0.1.0] — 2026-10-29
 
 ### Added
 
@@ -243,7 +245,7 @@ Aiming, weapons, and paperwork.
 
 - HUD portraits, cosmetic previews, bots, and the player all share one hero renderer.
 
-## [1.0.0] — 2026-10-29
+## [0.0.0] — 2026-10-29
 
 ### Added
 

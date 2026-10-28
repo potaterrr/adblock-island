@@ -1,6 +1,6 @@
 # AdBlock Island
 
-**v1.5.4 · beta** · [Play it](https://potaterrr.github.io/adblock-island/) · [Patch notes](CHANGELOG.md)
+**v0.5.4 · beta** · [Play it](https://potaterrr.github.io/adblock-island/) · [Patch notes](CHANGELOG.md)
 
 A wholesome micro-MMO in a single HTML file, currently in **beta**. The ads took the beach, the locals kept the kettle on. Pick a class, sweep the static, bonk the ad-monsters, and leave a kind note for whoever washes ashore next.
 
@@ -12,7 +12,11 @@ index.html   ← the entire game (≈300 KB, markup + CSS + renderer + audio + l
 
 ## Status: beta
 
-**v1.5.4 is a beta.** The island is playable end to end — three classes, the wave ladder, medals, items, the Algorithm, kindness notes and same-keyboard co-op — but it is not a finished MMORPG.
+**v0.5.4 is a beta.** The island is playable end to end — three classes, the wave ladder, medals, items, the Algorithm, kindness notes and same-keyboard co-op — but it is not a finished MMORPG.
+
+Versions count from zero while the game is in beta, so every release is `0.x`; the title card's build tag and the top entry of the patch notes always agree.
+
+Storage keys: `adblock-island.save.v0`, `adblock-island.notes.v0` and `adblock-island.settings.v0`. They are schema tags rather than versions, and they live in `localStorage` only.
 
 Still pending, in short:
 
@@ -186,9 +190,9 @@ If you use Jekyll and want the file served untouched, keep the empty `.nojekyll`
 
 The game stores three keys in `localStorage`:
 
-- `adblock-island.save.v1` — name, class, level, Joy, upgrades, cosmetics, stats, boss progress, corruption map
-- `adblock-island.notes.v1` — the local kindness wall
-- `adblock-island.settings.v1` — volume, mute, scanlines, particles, numbers, reduced motion
+- `adblock-island.save.v0` — name, class, level, Joy, upgrades, cosmetics, stats, boss progress, corruption map
+- `adblock-island.notes.v0` — the local kindness wall
+- `adblock-island.settings.v0` — volume, mute, scanlines, particles, numbers, reduced motion
 
 Clearing site data resets the island. Nothing is sent anywhere.
 
@@ -212,21 +216,21 @@ The full history lives in **[CHANGELOG.md](CHANGELOG.md)**, newest first, and th
 
 | Version | Date | Headline |
 | --- | --- | --- |
-| [1.5.4](CHANGELOG.md#154--2026-10-29) | 2026-10-29 | Beta launch polish: social card, richer previews, screenshots |
-| [1.5.3](CHANGELOG.md#153--2026-10-29) | 2026-10-29 | Enter takes the next wave; U opens upgrades from the cleared card |
-| [1.5.2](CHANGELOG.md#152--2026-10-29) | 2026-10-29 | Waves keep running after the island victory; clear popup can no longer be lost |
-| [1.5.1](CHANGELOG.md#151--2026-10-29) | 2026-10-29 | Beta label and version on the splash screen; "Still pending" notes |
-| [1.5.0](CHANGELOG.md#150--2026-10-29) | 2026-10-29 | Upgrade-or-next-wave choice, 10s countdown, medals, items, story chapters |
-| [1.4.3](CHANGELOG.md#143--2026-10-29) | 2026-10-29 | Backstory and credits in the help panel, documented README |
-| [1.4.2](CHANGELOG.md#142--2026-10-29) | 2026-10-29 | Compact phone class picker; all three classes on one screen |
-| [1.4.1](CHANGELOG.md#141--2026-10-29) | 2026-10-29 | Touch controls and HUD scaled to fit phones |
-| [1.4.0](CHANGELOG.md#140--2026-10-29) | 2026-10-29 | Escalating waves, wave HUD, same-keyboard co-op |
-| [1.3.2](CHANGELOG.md#132--2026-10-29) | 2026-10-29 | Aim follows the player; chibi hero renderer |
-| [1.3.1](CHANGELOG.md#131--2026-10-29) | 2026-10-29 | Kindness wall and bench sitting |
-| [1.3.0](CHANGELOG.md#130--2026-10-29) | 2026-10-29 | The Algorithm boss fight |
-| [1.2.0](CHANGELOG.md#120--2026-10-29) | 2026-10-29 | Upgrade shop, cosmetics, save data |
-| [1.1.0](CHANGELOG.md#110--2026-10-29) | 2026-10-29 | Procedural audio, settings, accessibility toggles |
-| [1.0.0](CHANGELOG.md#100--2026-10-29) | 2026-10-29 | First build: the island, three classes, static cleansing |
+| [0.5.4](CHANGELOG.md#054--2026-10-29) | 2026-10-29 | Beta launch polish: social card, richer previews, screenshots |
+| [0.5.3](CHANGELOG.md#053--2026-10-29) | 2026-10-29 | Enter takes the next wave; U opens upgrades from the cleared card |
+| [0.5.2](CHANGELOG.md#052--2026-10-29) | 2026-10-29 | Waves keep running after the island victory; clear popup can no longer be lost |
+| [0.5.1](CHANGELOG.md#051--2026-10-29) | 2026-10-29 | Beta label and version on the splash screen; "Still pending" notes |
+| [0.5.0](CHANGELOG.md#050--2026-10-29) | 2026-10-29 | Upgrade-or-next-wave choice, 10s countdown, medals, items, story chapters |
+| [0.4.3](CHANGELOG.md#043--2026-10-29) | 2026-10-29 | Backstory and credits in the help panel, documented README |
+| [0.4.2](CHANGELOG.md#042--2026-10-29) | 2026-10-29 | Compact phone class picker; all three classes on one screen |
+| [0.4.1](CHANGELOG.md#041--2026-10-29) | 2026-10-29 | Touch controls and HUD scaled to fit phones |
+| [0.4.0](CHANGELOG.md#040--2026-10-29) | 2026-10-29 | Escalating waves, wave HUD, same-keyboard co-op |
+| [0.3.2](CHANGELOG.md#032--2026-10-29) | 2026-10-29 | Aim follows the player; chibi hero renderer |
+| [0.3.1](CHANGELOG.md#031--2026-10-29) | 2026-10-29 | Kindness wall and bench sitting |
+| [0.3.0](CHANGELOG.md#030--2026-10-29) | 2026-10-29 | The Algorithm boss fight |
+| [0.2.0](CHANGELOG.md#020--2026-10-29) | 2026-10-29 | Upgrade shop, cosmetics, save data |
+| [0.1.0](CHANGELOG.md#010--2026-10-29) | 2026-10-29 | Procedural audio, settings, accessibility toggles |
+| [0.0.0](CHANGELOG.md#000--2026-10-29) | 2026-10-29 | First build: the island, three classes, static cleansing |
 
 ## Disclaimer
 

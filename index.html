@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
 <meta name="theme-color" content="#bde8f2">
-<meta name="description" content="AdBlock Island — a wholesome micro-MMO, currently in beta (v1.5.4). Clear the static, bonk the ad-monsters, and leave a kind note on the beach.">
+<meta name="description" content="AdBlock Island — a wholesome micro-MMO, currently in beta (v0.5.4). Clear the static, bonk the ad-monsters, and leave a kind note on the beach.">
 <meta name="author" content="potaterrr">
 <meta name="application-name" content="AdBlock Island">
 <meta name="apple-mobile-web-app-title" content="AdBlock Island">
@@ -1265,7 +1265,7 @@ body.scanlines::after{
         <div class="logo-badges">
           <div class="logo-kicker">a wholesome micro-MMO</div>
           <div class="beta-pill" id="betaPill" title="This is a beta build. The patch notes list what is still pending.">
-            <span class="beta-dot"></span>beta · <b id="betaVersion">v1.5.4</b>
+            <span class="beta-dot"></span>beta · <b id="betaVersion">v0.5.4</b>
           </div>
         </div>
         <h1 class="logo">ADBLOCK<br><span>ISLAND</span></h1>
@@ -1421,7 +1421,7 @@ const ICONS = {
 };
 const svg = (name) => ICONS[name] || ICONS.spark;
 
-const VERSION = '1.5.4';
+const VERSION = '0.5.4';
 
 /* ------------------------------- classes -------------------------------- */
 const CLASSES = {
@@ -1563,9 +1563,9 @@ const NOTE_SEEDS = [
 const BOT_COSMETICS = ['sunhat', 'leaf', 'cat', 'scarf', 'halo', 'antenna', 'crown', 'none', 'sunhat', 'leaf'];
 
 /* ------------------------------- storage -------------------------------- */
-const SAVE_KEY = 'adblock-island.save.v1';
-const NOTES_KEY = 'adblock-island.notes.v1';
-const SETTINGS_KEY = 'adblock-island.settings.v1';
+const SAVE_KEY = 'adblock-island.save.v0';
+const NOTES_KEY = 'adblock-island.notes.v0';
+const SETTINGS_KEY = 'adblock-island.settings.v0';
 const store = {
   get(key, fallback) {
     try { const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; }
