@@ -256,6 +256,7 @@ h1.logo span{color:var(--sun);display:inline-block;transform:translateX(34px) ro
 .class-card h3{margin:0;font-family:var(--ui);font-size:14px;letter-spacing:.02em}
 .class-card .cc-role{font-family:var(--ui);font-size:9px;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-faint);margin:2px 0 8px}
 .class-card p{margin:0 0 9px;font-size:11.5px;line-height:1.45;color:var(--ink-soft);min-height:48px}
+.class-card p .d-short{display:none}
 .cc-stats{display:flex;gap:8px;margin-bottom:8px}
 .cc-stat{flex:1}
 .cc-stat span{display:block;font-family:var(--ui);font-size:7.5px;letter-spacing:.08em;color:var(--ink-faint);margin-bottom:3px}
@@ -905,6 +906,7 @@ body.touch .mobile-only{display:initial}
   .class-card{padding:11px}
   .class-card p{min-height:0}
   .class-card .cc-portrait{margin-bottom:7px}
+  .class-card .cc-portrait canvas{max-height:150px;object-fit:cover}
   .cc-stats{display:none}
   .title-top{gap:14px}
   .title-side{flex:1 1 100%}
@@ -945,14 +947,49 @@ body.touch .mobile-only{display:initial}
   #classTag{display:none}
   .status-chips{display:none}
 }
+/* phones: turn the three tall class cards into short horizontal rows so the
+   whole picker fits on one screen instead of three */
+@media (max-width:560px){
+  .class-cards{gap:7px}
+  .class-card{
+    display:grid;grid-template-columns:72px minmax(0,1fr);
+    column-gap:10px;row-gap:2px;padding:9px;align-items:start;
+  }
+  .class-card .cc-portrait{
+    grid-column:1;grid-row:1 / span 3;align-self:stretch;
+    min-height:64px;margin:0;
+  }
+  .class-card .cc-portrait canvas{
+    width:100%;height:100%;max-height:none;object-fit:cover;object-position:50% 40%;
+  }
+  .class-card h3{grid-column:2;font-size:13px;line-height:1.2}
+  .class-card .cc-role{grid-column:2;margin:0 0 1px}
+  .class-card p{
+    grid-column:2;margin:0;min-height:0;font-size:10.5px;line-height:1.35;
+  }
+  .class-card p .d-long{display:none}
+  .class-card p .d-short{display:inline}
+  .class-card .cc-skills{
+    grid-column:1 / -1;margin-top:5px;padding-top:5px;font-size:8px;
+  }
+  .class-card .cc-check{top:6px;right:6px;width:18px;height:18px;font-size:10px}
+}
 @media (max-width:500px){
   .title-card{padding:16px 14px;border-radius:18px}
+  .title-top{gap:10px}
+  h1.logo{font-size:clamp(30px,9vw,40px)}
+  .tagline{font-size:11.5px;line-height:1.35;margin-top:10px}
+  .title-side{gap:6px;padding:12px}
+  #nameInput{padding:9px 10px}
+  .big-btn{padding:12px 16px}
+  .text-btn{padding:2px}
+  .audio-hint{font-size:9.5px}
+  .class-picker{margin-top:18px}
   .hud-right{width:150px}
   .cleanse-meta .mini-label{display:none}
   .minimap-card{display:none}
   .hud-left{max-width:calc(100vw - 100px)}
   .hud-left .player-card{transform:none}
-  .tagline{font-size:12.5px}
 }
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}
@@ -1228,7 +1265,7 @@ const ICONS = {
 };
 const svg = (name) => ICONS[name] || ICONS.spark;
 
-const VERSION = '1.4.1';
+const VERSION = '1.4.2';
 
 /* ------------------------------- classes -------------------------------- */
 const CLASSES = {
@@ -1236,6 +1273,7 @@ const CLASSES = {
     id: 'blocker', name: 'AdBlocker', role: 'shield & slam', icon: 'shield',
     color: '#8ad7e8', color2: '#5fbfd6', dark: '#2f7f9c', soft: '#d4f2f8',
     desc: 'A sturdy little firewall. Stand in the way, bonk the banners, and make a safe pocket for everyone.',
+    descShort: 'Sturdy firewall. Blocks, bonks banners, and auto-swings a sword.',
     hp: 145, speed: 198, regen: 0, damage: 1.0, passive: 'Takes 15% less damage, cleanses a little wider, and auto-swings a short sword at anything that gets close.',
     bars: { Toughness: 5, Speed: 2, Power: 3, Cleanse: 4 },
     atk: { name: 'Shield Bash', icon: 'shield', cd: 0.54, desc: 'A wide shield arc. Bonks ads and scrubs static off the tiles in front of you.' },
@@ -1246,6 +1284,7 @@ const CLASSES = {
     id: 'checker', name: 'Fact-Checker', role: 'heal & mark', icon: 'search',
     color: '#a9e8c9', color2: '#6fd6ad', dark: '#2e8a68', soft: '#dcfaec',
     desc: 'Armed with sources and a thermos. Your citations hurt ads, and your calm patches everyone up.',
+    descShort: 'Armed with sources. Hurts ads and heals nearby friends.',
     hp: 105, speed: 212, regen: 1.6, damage: 0.92, passive: 'Regenerates 1.6 HP/s and heals nearby friends a little.',
     bars: { Toughness: 3, Speed: 3, Power: 3, Cleanse: 4 },
     atk: { name: 'Citation Dart', icon: 'search', cd: 0.48, desc: 'Fires a source-backed dart that marks ads for extra damage and cleanses its path.' },
@@ -1256,6 +1295,7 @@ const CLASSES = {
     id: 'reader', name: 'Reader-Mode', role: 'ranged beams', icon: 'book',
     color: '#c9bcf6', color2: '#a58ff0', dark: '#6a50b8', soft: '#e9e3ff',
     desc: 'Turn any page into plain text. Fragile, fast, and very good at deleting clutter from a distance.',
+    descShort: 'Plain text and beams. Fragile, fast, deletes clutter at range.',
     hp: 90, speed: 226, regen: 0.5, damage: 1.16, passive: 'Moves 8% faster and pierces targets with beams.',
     bars: { Toughness: 2, Speed: 5, Power: 5, Cleanse: 3 },
     atk: { name: 'Text Beam', icon: 'beam', cd: 0.42, desc: 'A piercing line of plain text. Hits every ad in a row and cleanses along the beam.' },
@@ -2227,7 +2267,7 @@ function buildClassCards() {
       <span class="cc-portrait" style="background:${c.soft}"><canvas width="300" height="114" data-class-portrait="${c.id}" aria-hidden="true"></canvas></span>
       <h3><span class="cc-icon-sm" style="background:${c.soft}">${svg(c.icon)}</span>${c.name}</h3>
       <div class="cc-role">${c.role}</div>
-      <p>${c.desc}</p>
+      <p><span class="d-long">${c.desc}</span><span class="d-short">${c.descShort || c.desc}</span></p>
       <div class="cc-stats">
         ${Object.entries(c.bars).map(([k, v]) => `<div class="cc-stat"><span>${k}</span><i style="--v:${v * 20}%;--c:${c.color2}"></i></div>`).join('')}
       </div>

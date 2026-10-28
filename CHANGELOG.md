@@ -2,7 +2,17 @@
 
 All notable changes to AdBlock Island. The game is a single `index.html`, and the version shown on the title card (bottom right) matches the latest entry here.
 
-Format: [Semantic Versioning](https://semver.org/). Dates are YYYY-MM-DD.
+Format: [Semantic Versioning](https://semver.org/). Dates are YYYY-MM-DD. Every release since the first build is listed below, newest first.
+
+## [1.4.2] — 2026-10-29
+
+The title screen gets the phone treatment too.
+
+### Changed
+
+- **The class picker is compact on phones.** The three full-width portrait cards are now short rows: a cropped portrait on the left, name, role and description on the right, abilities underneath. On a 390×844 phone the title card drops from 1424px to 948px tall and each class card from roughly 450px to 125px, so all three classes fit on one screen instead of one and a bit.
+- **Phone-sized class blurbs.** Each class has a two-line description for the compact card, so nothing is cut off with an ellipsis. Desktop and tablet keep the original longer copy.
+- Tighter title spacing under 500px (logo, tagline, name field, button, links) so the "wash ashore" button and the whole picker share the first screen.
 
 ## [1.4.1] — 2026-10-29
 
