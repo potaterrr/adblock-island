@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
 <meta name="theme-color" content="#bde8f2">
-<meta name="description" content="AdBlock Island — a wholesome micro-MMO, currently in beta (v1.5.1). Clear the static, bonk the ad-monsters, and leave a kind note on the beach.">
+<meta name="description" content="AdBlock Island — a wholesome micro-MMO, currently in beta (v1.5.2). Clear the static, bonk the ad-monsters, and leave a kind note on the beach.">
 <meta property="og:title" content="AdBlock Island">
 <meta property="og:description" content="A wholesome micro-MMO about clearing an island overrun by annoying ad-monsters.">
 <meta property="og:type" content="website">
@@ -1220,7 +1220,7 @@ body.scanlines::after{
         <div class="logo-badges">
           <div class="logo-kicker">a wholesome micro-MMO</div>
           <div class="beta-pill" id="betaPill" title="This is a beta build. The patch notes list what is still pending.">
-            <span class="beta-dot"></span>beta · <b id="betaVersion">v1.5.1</b>
+            <span class="beta-dot"></span>beta · <b id="betaVersion">v1.5.2</b>
           </div>
         </div>
         <h1 class="logo">ADBLOCK<br><span>ISLAND</span></h1>
@@ -1376,7 +1376,7 @@ const ICONS = {
 };
 const svg = (name) => ICONS[name] || ICONS.spark;
 
-const VERSION = '1.5.1';
+const VERSION = '1.5.2';
 
 /* ------------------------------- classes -------------------------------- */
 const CLASSES = {
@@ -2895,6 +2895,7 @@ const PANEL_META = {
 
 function openPanel(type) {
   if (type === 'kindness' && game.state !== 'playing' && game.state !== 'modal') return;
+  if (type === 'wave') { game.wavePanelPending = false; game.wavePanelT = 0; }
   if (game.state === 'modal' && game.modalType === type) return;
   modalPrevState = (game.state === 'modal') ? modalPrevState : game.state;
   game.state = 'modal';
@@ -3901,9 +3902,9 @@ function respawnPlayer() {
   updateHpUI();
   toast('Back on your feet. Your Joy is safe. The bench saved your seat.', 'good', '♥');
   if (game.waveState === 'cleared') {
-    setTimeout(() => {
-      if (game.state === 'playing' && game.waveState === 'cleared') openPanel('wave');
-    }, 900);
+    game.wavePanelPending = true;
+    game.wavePanelT = 0.9;
+    setTimeout(openWavePanel, 900);
   }
   const bot = pick(bots);
   if (bot) { botSay(bot, pick(CHAT.heal)); }
@@ -4242,6 +4243,8 @@ function startWave(n, opts = {}) {
   game.waveTotal = 0;
   game.waveReward = null;
   game.waveStory = null;
+  game.wavePanelPending = false;
+  game.wavePanelT = 0;
   save.wave = n;
   if (game.boss && !game.boss.dead) {
     // the boss interrupted the schedule: hold this wave until it is dealt with
@@ -4297,6 +4300,8 @@ function waveCleared(n) {
   game.waveReward = reward;
   game.waveState = 'cleared';
   game.waveT = 0;
+  game.wavePanelPending = true;
+  game.wavePanelT = 0;
 
   waveBannerShow({
     kicker: 'wave ' + n + ' cleared',
@@ -4324,15 +4329,16 @@ function waveCleared(n) {
   ]));
   updateWaveChip();
   saveGame();
-  setTimeout(() => {
-    if (game.state === 'playing' && game.waveState === 'cleared' && game.wave === n) openPanel('wave');
-  }, 800);
+  // updateWaves() opens the choice card once the island has had a beat to
+  // breathe, and keeps trying if the player pauses or is knocked out.
 }
 
 function startWaveCountdown() {
   if (game.waveState !== 'cleared') return;
   game.waveState = 'countdown';
   game.waveT = 10;
+  game.wavePanelPending = false;
+  game.wavePanelT = 0;
   closePanel();
   audio.sfx('select');
   updateWaveChip();
@@ -4341,11 +4347,22 @@ function startWaveCountdown() {
 }
 
 function updateWaves(dt) {
-  if (game.state !== 'playing' || game.won) return;
-  if (game.boss && !game.boss.dead) return; // boss fight overrides the schedule
+  // Note: the island-clarity victory (game.won) must not stop the wave ladder.
+  // The two systems are separate: you can restore the island and still climb.
+  if (game.state !== 'playing') return;
   if (!game.wave) { startWave(1); return; }
+  if (game.waveState === 'cleared') {
+    // The choice card is opened from the update loop rather than a one-shot
+    // timer, so pausing, dying, a boss showing up or opening another panel
+    // right as the wave ends can no longer swallow the popup.
+    if (game.wavePanelPending) {
+      game.wavePanelT = (game.wavePanelT || 0) + dt;
+      if (game.wavePanelT >= 0.9) openWavePanel();
+    }
+    return;
+  }
+  if (game.boss && !game.boss.dead) return; // boss fight overrides the schedule
   if (game.waveState === 'held') { startWave(game.wave); return; }
-  if (game.waveState === 'cleared') return; // waiting on the player's choice
   if (game.waveState === 'countdown') {
     game.waveT -= dt;
     if (game.waveT <= 0) startWave(game.wave + 1);
@@ -4353,6 +4370,14 @@ function updateWaves(dt) {
   }
   if (waveAlive() > 0) return;
   waveCleared(game.wave);
+}
+
+function openWavePanel() {
+  if (game.state !== 'playing' || game.waveState !== 'cleared') return;
+  if (!game.wavePanelPending) return;
+  game.wavePanelPending = false;
+  game.wavePanelT = 0;
+  openPanel('wave');
 }
 
 let waveBannerT = null;
@@ -4729,6 +4754,9 @@ function winGame() {
   audio.sfx('victory');
   setTimeout(() => {
     if (game.state === 'title') return;
+    // If a wave was cleared at the same moment, its choice card should not be
+    // swallowed by the island-restored panel: re-arm it so it reopens after.
+    if (game.waveState === 'cleared') { game.wavePanelPending = true; game.wavePanelT = 0; }
     openPanel('victory');
     audio.sfx('start');
   }, 700);

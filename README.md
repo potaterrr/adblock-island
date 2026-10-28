@@ -1,6 +1,6 @@
 # AdBlock Island
 
-**v1.5.1 · beta** · [Play it](https://potaterrr.github.io/adblock-island/) · [Patch notes](CHANGELOG.md)
+**v1.5.2 · beta** · [Play it](https://potaterrr.github.io/adblock-island/) · [Patch notes](CHANGELOG.md)
 
 A wholesome micro-MMO in a single HTML file, currently in **beta**. The ads took the beach, the locals kept the kettle on. Pick a class, sweep the static, bonk the ad-monsters, and leave a kind note for whoever washes ashore next.
 
@@ -12,7 +12,7 @@ index.html   ← the entire game (≈300 KB, markup + CSS + renderer + audio + l
 
 ## Status: beta
 
-**v1.5.1 is a beta.** The island is playable end to end — three classes, the wave ladder, medals, items, the Algorithm, kindness notes and same-keyboard co-op — but it is not a finished MMORPG.
+**v1.5.2 is a beta.** The island is playable end to end — three classes, the wave ladder, medals, items, the Algorithm, kindness notes and same-keyboard co-op — but it is not a finished MMORPG.
 
 Still pending, in short:
 
@@ -201,6 +201,7 @@ The full history lives in **[CHANGELOG.md](CHANGELOG.md)**, newest first, and th
 
 | Version | Date | Headline |
 | --- | --- | --- |
+| [1.5.2](CHANGELOG.md#152--2026-10-29) | 2026-10-29 | Waves keep running after the island victory; clear popup can no longer be lost |
 | [1.5.1](CHANGELOG.md#151--2026-10-29) | 2026-10-29 | Beta label and version on the splash screen; "Still pending" notes |
 | [1.5.0](CHANGELOG.md#150--2026-10-29) | 2026-10-29 | Upgrade-or-next-wave choice, 10s countdown, medals, items, story chapters |
 | [1.4.3](CHANGELOG.md#143--2026-10-29) | 2026-10-29 | Backstory and credits in the help panel, documented README |

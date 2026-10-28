@@ -44,6 +44,21 @@ The "MMO" in micro-MMO is currently a polite lie: the other players are bots, an
 
 Until then, the honest description is: a single-player and local co-op cozy micro-MMO with bots, in beta.
 
+## [1.5.2] — 2026-10-29
+
+The wave ladder keeps its promise.
+
+### Fixed
+
+- **Waves stopped after the island had been restored once.** `updateWaves` bailed out whenever the island-clarity victory flag was set, so returning players got the wave 1 ads, killed them, and then nothing: no cleared popup, no reward and no way to call the next wave. The clarity victory and the wave ladder are now independent, and every visit can climb from Super Easy to Super Hard again.
+- **The cleared-wave popup could be swallowed.** It used to be a one-shot 800 ms timer that only fired while the game was in the `playing` state, so pausing, being knocked out, or the island-restored panel opening at the same moment could lose it. The choice card now lives on a retry counter in the update loop: it opens when play resumes, survives a pause or a knockout, and reopens after the victory panel is dismissed.
+- Waves cleared while the Algorithm is on the island still wait for the boss (that interruption is deliberate), but the popup is no longer lost in the process.
+
+### Verified
+
+- A save with `won: true` now clears waves 1→10: every wave spawns its full crew (4, 5, 6, 7, 8, 9, 9, 10, 11, 12 ads), every clear opens the choice card with the right medal or item, and wave 10 shows the "You saved this island from serving ads" win card.
+- Pausing immediately after a clear, dying during it, and finishing the boss at the same moment all still lead to the popup.
+
 ## [1.5.1] — 2026-10-29
 
 Beta, labelled.
