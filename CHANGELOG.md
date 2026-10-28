@@ -4,6 +4,17 @@ All notable changes to AdBlock Island. The game is a single `index.html`, and th
 
 Format: [Semantic Versioning](https://semver.org/). Dates are YYYY-MM-DD.
 
+## [1.4.1] — 2026-10-29
+
+A phone-sized pass over the controls.
+
+### Fixed
+
+- **Touch controls no longer eat the screen.** The thumbstick and the four action buttons scale with the viewport: BONK drops from 82px to 61–67px on phones, the two skills from 60px to 45–49px, and the dash from 50px to 37–41px, while tablets and desktops keep the larger layout. The whole cluster stays inside the safe-area insets.
+- **The HUD card fits its content.** Its width is now pinned to the space beside the tool row instead of shrinking to the nickname, so the HP and XP numbers are no longer clipped and the audio/chat/help buttons can't sit on top of it. On very narrow phones the tool buttons compact and the JOY box steps aside.
+- **The wave banner** keeps its tier on one line and sits below the top cards instead of on top of them.
+- **Short and landscape screens.** The title screen now scrolls from the top instead of centering itself out of reach, so "wash ashore" can't be pushed off-screen, and full-screen layers use `dvh` so a mobile browser's toolbar can't cover the bottom controls.
+
 ## [1.4.0] — 2026-10-29
 
 Waves, a friend on the arrow keys, and aim that stops guessing.
