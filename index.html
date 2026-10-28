@@ -269,6 +269,11 @@ h1.logo span{color:var(--sun);display:inline-block;transform:translateX(34px) ro
   letter-spacing:.05em;color:var(--ink-faint);
 }
 .title-foot span{white-space:nowrap}
+.title-foot .build-tag{
+  margin-left:auto;padding:1px 7px;border-radius:99px;
+  border:1.5px solid rgba(60,52,83,.25);background:rgba(255,255,255,.55);
+  letter-spacing:.08em;text-transform:lowercase;
+}
 .title-foot kbd{
   border:1.5px solid var(--line);border-bottom-width:2.5px;border-radius:4px;
   padding:1px 4px;background:#fff;color:var(--ink);font-family:var(--ui);font-size:9px;
@@ -1004,6 +1009,7 @@ body.scanlines::after{
       <span><kbd>Space</kbd> dash</span>
       <span><kbd>F</kbd> sit at the bench</span>
       <span>works on phones too</span>
+      <span class="build-tag" id="buildTag"></span>
     </div>
   </div>
 </div>
@@ -1133,13 +1139,15 @@ const ICONS = {
 };
 const svg = (name) => ICONS[name] || ICONS.spark;
 
+const VERSION = '1.3.0';
+
 /* ------------------------------- classes -------------------------------- */
 const CLASSES = {
   blocker: {
     id: 'blocker', name: 'AdBlocker', role: 'shield & slam', icon: 'shield',
     color: '#8ad7e8', color2: '#5fbfd6', dark: '#2f7f9c', soft: '#d4f2f8',
     desc: 'A sturdy little firewall. Stand in the way, bonk the banners, and make a safe pocket for everyone.',
-    hp: 145, speed: 198, regen: 0, damage: 1.0, passive: 'Takes 15% less damage and cleanses a little wider.',
+    hp: 145, speed: 198, regen: 0, damage: 1.0, passive: 'Takes 15% less damage, cleanses a little wider, and auto-swings a short sword at anything that gets close.',
     bars: { Toughness: 5, Speed: 2, Power: 3, Cleanse: 4 },
     atk: { name: 'Shield Bash', icon: 'shield', cd: 0.54, desc: 'A wide shield arc. Bonks ads and scrubs static off the tiles in front of you.' },
     q: { name: 'Bubble Wrap', icon: 'bubble', cd: 9, desc: 'Wrap yourself in a 4s bubble that absorbs 55 damage and pushes ads away.' },
@@ -1808,7 +1816,6 @@ const input = {
   joy: { x: 0, y: 0, active: false, id: null },
   mouse: { x: 0, y: 0, down: false, active: false, lastMove: -99 },
   aim: 0,
-  aimTarget: null,
   attackHeld: false,
   touch: false
 };
@@ -1819,7 +1826,8 @@ const player = {
   atkCd: 0, atkAnim: 0, atkDir: 0, skill1Cd: 0, skill2Cd: 0, dashCd: 0,
   dashTime: 0, dashDir: 0, invuln: 0, shield: 0, shieldT: 0, marked: 0,
   hurtFlash: 0, healGlow: 0, dead: false, deadT: 0, potion: 3,
-  regenT: 0, footstep: 0, sit: false, cosmetic: 'none', upgradeT: 0
+  regenT: 0, footstep: 0, sit: false, cosmetic: 'none', upgradeT: 0,
+  autoAtkCd: 0
 };
 const bots = [];
 const monsters = [];
@@ -2799,6 +2807,10 @@ function buildHelpPanel() {
         <h4>On phones</h4>
         <p>Use the left thumb pad to move. The right buttons are <b>Bonk</b>, two skills, and dash. The bench prompt appears when you are close. Tap an [X] to close a pop-up. Landscape is comfier, but portrait works too.</p>
       </div>
+      <div class="help-block">
+        <h4>This build</h4>
+        <p>AdBlock Island <b>v${VERSION}</b> — one HTML file, no build step, no trackers, no accounts. Notes are saved in this browser only. Patch notes live in <code>CHANGELOG.md</code>.</p>
+      </div>
     </div>
   `;
   panelFoot([{ label: 'Okay, back to it', action: 'close', kind: 'primary' }]);
@@ -3083,12 +3095,15 @@ function moveWithCollision(ent, dx, dy) {
 function doAttack() {
   if (game.state !== 'playing' || player.dead) return;
   if (player.atkCd > 0) return;
+  const cls = player.cls;
   player.atkCd = CLASSES[player.cls].atk.cd * stats.cdMult();
   player.atkAnim = 0.26;
-  player.atkDir = currentAim();
+  // snap onto the nearest ad inside the aim cone, if there is one
+  const reach = cls === 'blocker' ? 96 : 540;
+  const cone = input.touch ? AIM_ASSIST_CONE + 0.18 : AIM_ASSIST_CONE;
+  player.atkDir = assistAim(currentAim(), reach, cone);
   player.facing = player.atkDir;
   player.moving = true;
-  const cls = player.cls;
   if (cls === 'blocker') {
     const hits = monstersInArc(player.x, player.y, player.atkDir, 84, 1.02);
     for (const m of hits) damageMonster(m, playerDamage(21), { player: true, knock: 115 });
@@ -4168,62 +4183,74 @@ function screenToWorld(sx, sy) {
     y: (sy - window.innerHeight / 2) / cam.zoom + cam.y
   };
 }
-/* Aim is a little two-mode thing:
-   - mouse: the pointer owns the aim, exactly as before.
-   - keyboard: the moment the pointer goes quiet and you walk, the reticle hops
-     onto the nearest ad and keeps trailing it, so WASD play aims itself.
-   Touch never sees this: it aims where the stick points. */
-const AIM_MOUSE_IDLE = 1.8;   // seconds of pointer silence before auto-aim wakes up
-const AIM_RANGE = 560;        // how far the reticle will reach for an ad
+/* Aiming:
+   - mouse: the pointer aims, always. Walk and point wherever you like.
+   - keyboard with the mouse parked, or touch: you aim where you walk.
+   Attacks then snap onto the nearest ad inside the aim cone ("in range and
+   roughly that way"), so you rarely have to pixel-hunt. */
+const AIM_MOUSE_IDLE = 8;     // seconds of pointer silence before walking takes over
+const AIM_ASSIST_CONE = 0.42; // half-angle of the attack snap, radians
 
 function aimUsingMouse() {
   return !input.touch && input.mouse.active &&
     game.realElapsed - input.mouse.lastMove < AIM_MOUSE_IDLE;
 }
 
-function aimTargetValid(t) {
-  return !!t && !t.dead && !t.hidden && t.spawnT <= 0 &&
-    dist(player.x, player.y, t.x, t.y) < AIM_RANGE + 110;
-}
-
-function nearestAimTarget(x, y, maxDist) {
-  let best = null, bd = maxDist;
+/* nearest ad inside a cone in front of `angle`, ignoring hidden mimics */
+function nearestTargetInCone(x, y, angle, range, cone) {
+  let best = null, bd = Infinity;
   for (const m of monsters) {
     if (m.dead || m.hidden || m.spawnT > 0) continue;
     const d = dist(x, y, m.x, m.y);
+    if (d > range + (m.r || 0)) continue;
+    let da = Math.atan2(m.y - y, m.x - x) - angle;
+    da = Math.atan2(Math.sin(da), Math.cos(da));
+    const slack = Math.atan2(m.r || 0, Math.max(d, 1));
+    if (Math.abs(da) > cone + slack) continue;
     if (d < bd) { bd = d; best = m; }
   }
   return best;
 }
 
+/* the angle an attack should actually leave at */
+function assistAim(angle, range, cone) {
+  const t = nearestTargetInCone(player.x, player.y, angle, range, cone);
+  return t ? angleTo(player.x, player.y, t.x, t.y) : angle;
+}
+
 function updateAim(dt) {
-  if (player.sit || player.dead) { input.aimTarget = null; return; }
+  if (player.sit || player.dead) return;
 
   if (aimUsingMouse()) {
-    input.aimTarget = null;
     const w = screenToWorld(input.mouse.x, input.mouse.y);
     player.facing = lerpAng(player.facing, angleTo(player.x, player.y, w.x, w.y), 1 - Math.pow(0.0000001, dt));
     return;
   }
 
-  if (!input.touch) {
-    let tgt = input.aimTarget;
-    if (tgt && !aimTargetValid(tgt)) tgt = null;
-    if (!tgt && player.moving) tgt = nearestAimTarget(player.x, player.y, AIM_RANGE);
-    input.aimTarget = tgt;
-    if (tgt) {
-      player.facing = lerpAng(player.facing, angleTo(player.x, player.y, tgt.x, tgt.y), 1 - Math.pow(0.000001, dt));
-      return;
-    }
-  } else {
-    input.aimTarget = null;
-  }
-
-  // nothing to lock onto: face where you walk
+  // mouse is parked or absent, or this is a phone: aim where you walk
   if (player.moving && player.dashTime <= 0) {
     const dir = currentMoveDir();
     player.facing = lerpAng(player.facing, Math.atan2(dir.y, dir.x), 1 - Math.pow(0.00001, dt));
   }
+}
+
+/* The AdBlocker's arming sword swings on its own at anything hugging the tank,
+   so holding your ground still chips away at the ads crowding in. */
+const TANK_SWORD_RANGE = 64;
+const TANK_SWORD_CD = 0.85;
+
+function updateAutoSword(dt) {
+  player.autoAtkCd = Math.max(0, player.autoAtkCd - dt);
+  if (player.sit || player.autoAtkCd > 0 || player.dashTime > 0) return;
+  const t = nearestTargetInCone(player.x, player.y, player.facing, TANK_SWORD_RANGE, Math.PI);
+  if (!t) return;
+  const a = angleTo(player.x, player.y, t.x, t.y);
+  player.atkDir = a;
+  player.atkAnim = 0.22;
+  damageMonster(t, playerDamage(9), { player: true, knock: 30 });
+  ringFx(player.x + Math.cos(a) * 24, player.y + Math.sin(a) * 24, 6, 36, '#ffe39a', 0.16, 2);
+  audio.sfx('swing');
+  player.autoAtkCd = TANK_SWORD_CD * stats.cdMult();
 }
 
 function updatePlayer(dt) {
@@ -4292,6 +4319,7 @@ function updatePlayer(dt) {
   }
   updateAim(dt);
   input.aim = player.facing;
+  if (player.cls === 'blocker') updateAutoSword(dt);
   // hold-to-attack
   if (input.attackHeld) doAttack();
   // ambient movement sparkles on cleaned grass
@@ -5343,22 +5371,7 @@ function drawHeroBody(g, x, y, r, clsId, opts = {}) {
   pauldron(-1); pauldron(1);
 
   /* ---- weapons ---------------------------------------------------------- */
-  if (clsId === 'blocker') {
-    g.save();
-    g.translate(r * 0.5, r * 0.3);
-    g.rotate(0.6 - swing * 1.2);
-    g.lineCap = 'round';
-    g.strokeStyle = ink; g.lineWidth = r * 0.14 + line;
-    g.beginPath(); g.moveTo(0, r * 0.26); g.lineTo(0, -r * 0.32); g.stroke();
-    g.strokeStyle = '#bd8f5e'; g.lineWidth = r * 0.14;
-    g.beginPath(); g.moveTo(0, r * 0.26); g.lineTo(0, -r * 0.32); g.stroke();
-    g.fillStyle = '#e6eef2'; g.strokeStyle = ink; g.lineWidth = line;
-    rr(g, -r * 0.22, -r * 0.6, r * 0.44, r * 0.34, r * 0.1); g.fill(); g.stroke();
-    g.fillStyle = '#b9cbd6';
-    for (let i = -1; i <= 1; i++) { g.beginPath(); g.arc(i * r * 0.13, -r * 0.57, r * 0.035, 0, TAU); g.fill(); }
-    if (gild) { g.fillStyle = '#f2c96b'; rr(g, -r * 0.22, -r * 0.4, r * 0.44, r * 0.06, r * 0.02); g.fill(); }
-    g.restore();
-  } else if (clsId === 'checker') {
+  if (clsId === 'checker') {
     g.save();
     g.translate(r * 0.5, r * 0.3);
     g.rotate(-0.1 + swing * 0.5);
@@ -5485,6 +5498,50 @@ function drawHeroBody(g, x, y, r, clsId, opts = {}) {
     g.strokeStyle = cls.dark; g.lineWidth = Math.max(1.2, r * 0.06);
     g.beginPath(); g.arc(0, -r * 0.08, r * 0.09, 0, TAU); g.stroke();
     g.beginPath(); g.moveTo(-r * 0.065, -r * 0.145); g.lineTo(r * 0.065, -r * 0.015); g.stroke();
+    g.restore();
+  }
+
+
+  // arming sword in the weapon hand, drawn over the arm so it always reads
+  if (clsId === 'blocker') {
+    g.save();
+    g.translate(r * 0.52, r * 0.3);
+    g.lineCap = 'round';
+    if (swing > 0.04) {
+      g.strokeStyle = 'rgba(255,248,236,' + (swing * 0.45).toFixed(3) + ')';
+      g.lineWidth = r * 0.12;
+      g.beginPath(); g.arc(0, 0, r * 0.8, -Math.PI / 2, -0.15); g.stroke();
+    }
+    g.rotate(0.3 + swing * 0.85);
+    // grip and pommel
+    g.strokeStyle = ink; g.lineWidth = r * 0.11 + line;
+    g.beginPath(); g.moveTo(0, r * 0.3); g.lineTo(0, r * 0.02); g.stroke();
+    g.strokeStyle = '#7a5236'; g.lineWidth = r * 0.11;
+    g.beginPath(); g.moveTo(0, r * 0.3); g.lineTo(0, r * 0.02); g.stroke();
+    // crossguard
+    g.fillStyle = gild ? '#f2c96b' : '#c9b27a'; g.strokeStyle = ink; g.lineWidth = line * 0.6;
+    rr(g, -r * 0.22, -r * 0.05, r * 0.44, r * 0.09, r * 0.04); g.fill(); g.stroke();
+    // blade
+    if (radiant) {
+      const gl = g.createRadialGradient(0, -r * 0.4, 1, 0, -r * 0.4, r * 0.8);
+      gl.addColorStop(0, 'rgba(190,240,255,0.45)');
+      gl.addColorStop(1, 'rgba(190,240,255,0)');
+      g.fillStyle = gl;
+      g.beginPath(); g.arc(0, -r * 0.4, r * 0.8, 0, TAU); g.fill();
+    }
+    g.fillStyle = '#eef4f7'; g.strokeStyle = ink; g.lineWidth = line * 0.75;
+    g.beginPath();
+    g.moveTo(-r * 0.085, -r * 0.02);
+    g.lineTo(-r * 0.06, -r * 0.6);
+    g.lineTo(0, -r * 0.78);
+    g.lineTo(r * 0.06, -r * 0.6);
+    g.lineTo(r * 0.085, -r * 0.02);
+    g.closePath(); g.fill(); g.stroke();
+    g.strokeStyle = '#b9cbd6'; g.lineWidth = Math.max(1, r * 0.035);
+    g.beginPath(); g.moveTo(0, -r * 0.1); g.lineTo(0, -r * 0.6); g.stroke();
+    // pommel on top of the fist
+    g.fillStyle = gild ? '#f2c96b' : '#c9b27a'; g.strokeStyle = ink; g.lineWidth = line * 0.5;
+    g.beginPath(); g.arc(0, r * 0.33, r * 0.075, 0, TAU); g.fill(); g.stroke();
     g.restore();
   }
 
@@ -6303,30 +6360,7 @@ function drawAimReticle() {
     return;
   }
 
-  // keyboard: brackets ride the ad the reticle has locked onto
-  const tgt = input.aimTarget;
-  if (tgt && aimTargetValid(tgt)) {
-    const s = worldToScreen(tgt.x, tgt.y - (tgt.r || 14) * 0.1);
-    const R = 15 + (tgt.r || 14) * 0.6 + Math.sin(game.time * 5) * 1.1;
-    g.save();
-    g.translate(s.x, s.y);
-    g.globalAlpha = 0.9;
-    g.strokeStyle = c.dark;
-    g.lineWidth = 2;
-    g.lineCap = 'round';
-    for (let i = 0; i < 4; i++) {
-      g.save();
-      g.rotate(i * Math.PI / 2 + game.time * 0.5);
-      g.beginPath(); g.arc(0, 0, R, 0.16, Math.PI / 2 - 0.16); g.stroke();
-      g.restore();
-    }
-    g.fillStyle = c.color2;
-    drawStar(g, 0, 0, 4, 4.8, 2); g.fill();
-    g.restore();
-    return;
-  }
-
-  // no ad in reach: the reticle just rides along ahead of you
+  // mouse parked and nobody is steering it: the cursor rides along with you
   if (player.moving) {
     const s = worldToScreen(player.x, player.y);
     const a = player.facing;
@@ -6907,6 +6941,8 @@ function init() {
   resizeCanvas();
   initUI();
   updatePlayerCard();
+  const buildTag = $('#buildTag');
+  if (buildTag) buildTag.textContent = 'v' + VERSION;
   window.addEventListener('resize', () => { resizeCanvas(); });
   // hide the white start-fade until the player actually starts
   ui.screenFade.classList.add('hidden');
