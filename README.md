@@ -1,14 +1,26 @@
 # AdBlock Island
 
-**v1.5.0** · [Play it](https://potaterrr.github.io/adblock-island/) · [Patch notes](CHANGELOG.md)
+**v1.5.1 · beta** · [Play it](https://potaterrr.github.io/adblock-island/) · [Patch notes](CHANGELOG.md)
 
-A wholesome micro-MMO in a single HTML file. The ads took the beach, the locals kept the kettle on. Pick a class, sweep the static, bonk the ad-monsters, and leave a kind note for whoever washes ashore next.
+A wholesome micro-MMO in a single HTML file, currently in **beta**. The ads took the beach, the locals kept the kettle on. Pick a class, sweep the static, bonk the ad-monsters, and leave a kind note for whoever washes ashore next.
 
 Everything is self-contained: no build step, no CDN, no images, no fonts, no backend, no accounts, no trackers. The island is drawn with the Canvas 2D API, and the ocean, lo-fi chords, and sound effects are synthesized with the Web Audio API.
 
 ```
 index.html   ← the entire game (≈300 KB, markup + CSS + renderer + audio + logic)
 ```
+
+## Status: beta
+
+**v1.5.1 is a beta.** The island is playable end to end — three classes, the wave ladder, medals, items, the Algorithm, kindness notes and same-keyboard co-op — but it is not a finished MMORPG.
+
+Still pending, in short:
+
+- **Achievements.** Six wave medals exist. A medal gallery, unlock toasts, medals for the boss/stats/classes/co-op, and account-wide persistence do not.
+- **Cool items.** Waves give seven small items that are mostly free upgrade ranks. A real inventory, cosmetic drops with an equip screen, rarity tiers and usable items are still to come.
+- **MMORPG essentials.** Online multiplayer and rooms, accounts and cross-device saves, moderated chat, parties and guilds, quests and raids, trading, anti-cheat and live ops. These need a backend; a static `index.html` on GitHub Pages cannot provide them.
+
+The full, honest list lives in **[Still pending](CHANGELOG.md#still-pending)** at the top of the patch notes.
 
 ## Backstory
 
@@ -189,6 +201,7 @@ The full history lives in **[CHANGELOG.md](CHANGELOG.md)**, newest first, and th
 
 | Version | Date | Headline |
 | --- | --- | --- |
+| [1.5.1](CHANGELOG.md#151--2026-10-29) | 2026-10-29 | Beta label and version on the splash screen; "Still pending" notes |
 | [1.5.0](CHANGELOG.md#150--2026-10-29) | 2026-10-29 | Upgrade-or-next-wave choice, 10s countdown, medals, items, story chapters |
 | [1.4.3](CHANGELOG.md#143--2026-10-29) | 2026-10-29 | Backstory and credits in the help panel, documented README |
 | [1.4.2](CHANGELOG.md#142--2026-10-29) | 2026-10-29 | Compact phone class picker; all three classes on one screen |

@@ -4,6 +4,60 @@ All notable changes to AdBlock Island. The game is a single `index.html`, and th
 
 Format: [Semantic Versioning](https://semver.org/). Dates are YYYY-MM-DD. Every release since the first build is listed below, newest first.
 
+## Still pending
+
+This is a **beta**. The list below is deliberately not in the build yet. Some of it is a weekend of work; some of it needs a server, accounts and moderation, which a single static `index.html` on GitHub Pages cannot provide on its own. This section stays at the top of the patch notes until each line is either shipped or honestly dropped.
+
+### Achievements
+
+Six wave medals ship today, listed on the pause screen. Still pending:
+
+- A real medal gallery: a collection screen with locked silhouettes, unlock dates, progress bars, and a "new" dot until you have looked at it.
+- Achievements for the rest of the game, not just wave milestones: first boss, 100% island clarity, ten kindness notes, a full run without being knocked out, a clear with each class, a co-op clear, wave 20.
+- Unlock toasts and a small fanfare when a medal lands, instead of only finding it later in the pause screen.
+- Account-wide achievements. Today they live in `localStorage` and vanish when site data is cleared.
+
+### Cool items
+
+Waves currently hand out seven small things — Spare Broom, Wool Blanket, Spare Lens, Worn Sandals, Cool Cloth, Jar of Joy and Kettle Break — and most are quietly a free upgrade rank. Still pending:
+
+- A real inventory: slots, stacking, descriptions, and a "found on wave N" line.
+- Cosmetic drops that change how your hero looks — hats, brooms, trails, emotes — plus an equip screen. The class-picker cosmetics are the only cosmetic today.
+- Rarity tiers, set bonuses, and a reason to keep an item once its upgrade is maxed.
+- Items that change a run: one-use lures, placeable turrets, a kettle you can set down for the locals.
+- Trading and gifting between players. That needs accounts and a server first.
+
+### What an MMORPG still needs
+
+The "MMO" in micro-MMO is currently a polite lie: the other players are bots, and co-op is two people on one keyboard. To be an actual MMORPG, the game still needs:
+
+- **Online multiplayer.** Authoritative servers, rooms or shards, lag compensation and state sync. GitHub Pages is static hosting, so this needs a backend — or a peer-to-peer/WebRTC experiment with all of its NAT headaches.
+- **Accounts and cross-device saves.** Sign-in, cloud saves and conflict handling. Today progress belongs to one browser's `localStorage`.
+- **Moderated chat.** Server-side filtering, reporting, mute/block, rate limits, and a human process behind it. An unmoderated chat is not something to ship.
+- **Parties, friends and guilds.** Invites, presence, shared objectives, and a reason to log in together.
+- **Quests, raids and world events.** Content beyond the wave ladder, with rewards that respect everyone's time.
+- **A player economy.** Trading, currency sinks, and anti-dupe rules. Joy is single-player and is not an economy yet.
+- **Anti-cheat and fair play.** Server authority, validation and rate limits. Anything that lives only on the client is a suggestion.
+- **Live ops.** Seasons, events, balance patches, and consent-based telemetry so balance changes are informed.
+- **Accessibility and localisation.** Remapping, a screen-reader pass, reduced-motion parity, and translated copy.
+- **A content pipeline.** The island is one hand-written file; more classes, enemies and stories need tooling that does not exist yet.
+
+Until then, the honest description is: a single-player and local co-op cozy micro-MMO with bots, in beta.
+
+## [1.5.1] — 2026-10-29
+
+Beta, labelled.
+
+### Added
+
+- **A beta badge on the title screen.** A loud `beta · v1.5.1` pill sits next to the "wholesome micro-MMO" kicker, and the build tag in the bottom-right corner now reads `v1.5.1 · beta`. The pill's tooltip and the help panel's "This build" block both say the build is a beta.
+- **A "Still pending" section at the top of these patch notes**, covering the achievements and items that are still thin, and the MMORPG essentials — online multiplayer, accounts, moderated chat, parties, quests, economy, anti-cheat, live ops — that a static page cannot provide on its own. Mirrored in the README.
+
+### Changed
+
+- The page `<title>` and `<meta name="description">` now say **beta** and the current version, so link previews and search results match the build.
+- The help panel's "This build" block points at the pending list instead of implying the game is finished.
+
 ## [1.5.0] — 2026-10-29
 
 Waves become a ladder you climb on purpose.

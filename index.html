@@ -4,11 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
 <meta name="theme-color" content="#bde8f2">
-<meta name="description" content="AdBlock Island — a wholesome micro-MMO. Clear the static, bonk the ad-monsters, and leave a kind note on the beach.">
+<meta name="description" content="AdBlock Island — a wholesome micro-MMO, currently in beta (v1.5.1). Clear the static, bonk the ad-monsters, and leave a kind note on the beach.">
 <meta property="og:title" content="AdBlock Island">
 <meta property="og:description" content="A wholesome micro-MMO about clearing an island overrun by annoying ad-monsters.">
 <meta property="og:type" content="website">
-<title>AdBlock Island · a wholesome micro-MMO</title>
+<title>AdBlock Island · a wholesome micro-MMO (beta)</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23fff8ec'/%3E%3Cpath d='M8 40c8-6 16 6 24 0s16 6 24 0v16H8z' fill='%238ad7e8'/%3E%3Ccircle cx='32' cy='28' r='12' fill='%23ffd98a'/%3E%3Cpath d='M32 18l7 5-2 9h-10l-2-9z' fill='%23ff9eb5'/%3E%3C/svg%3E">
 <style>
 /* ============================================================
@@ -175,12 +175,30 @@ button{cursor:pointer;border:0;background:none}
 }
 .title-top{display:flex;gap:28px;justify-content:space-between;align-items:flex-start;flex-wrap:wrap}
 .logo-wrap{flex:1 1 440px;min-width:260px}
+.logo-badges{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:8px}
 .logo-kicker{
   display:inline-block;font-family:var(--ui);font-size:10px;letter-spacing:.24em;
   text-transform:uppercase;color:var(--ink-soft);
   border:2px solid var(--line);border-radius:99px;padding:4px 10px;background:var(--sun);
-  transform:rotate(-1.5deg);margin-bottom:8px;
+  transform:rotate(-1.5deg);
 }
+/* the beta label is deliberately loud: this is a work in progress and the
+   title card is the one place everyone looks before they start. */
+.beta-pill{
+  display:inline-flex;align-items:center;gap:6px;
+  font-family:var(--ui);font-size:10px;font-weight:900;letter-spacing:.14em;
+  text-transform:uppercase;color:#fff2f6;
+  background:var(--rose);border:2px solid var(--line);border-radius:99px;
+  padding:4px 10px 4px 9px;transform:rotate(1.5deg);
+  box-shadow:2px 2px 0 rgba(60,52,83,.28);
+  animation:betaPop 5s ease-in-out infinite;
+}
+.beta-pill .beta-dot{
+  width:6px;height:6px;border-radius:50%;flex:0 0 6px;
+  background:var(--sun);box-shadow:0 0 0 2px rgba(255,255,255,.35);
+}
+.beta-pill b{font-weight:900;color:var(--sun);text-transform:none;letter-spacing:.06em}
+@keyframes betaPop{0%,100%{transform:rotate(1.5deg) scale(1)}50%{transform:rotate(1.5deg) scale(1.04)}}
 h1.logo{
   margin:0;font-family:var(--ui);font-weight:900;line-height:.92;
   font-size:clamp(38px,6.6vw,76px);letter-spacing:-.02em;
@@ -1071,6 +1089,8 @@ body.touch .mobile-only{display:initial}
   .text-btn{padding:2px}
   .audio-hint{font-size:9.5px}
   .class-picker{margin-top:18px}
+  .logo-badges{gap:6px}
+  .beta-pill{font-size:9px;padding:3px 8px 3px 7px}
   .hud-right{width:150px}
   .cleanse-meta .mini-label{display:none}
   .minimap-card{display:none}
@@ -1197,7 +1217,12 @@ body.scanlines::after{
   <div class="title-card">
     <div class="title-top">
       <div class="logo-wrap">
-        <div class="logo-kicker">a wholesome micro-MMO</div>
+        <div class="logo-badges">
+          <div class="logo-kicker">a wholesome micro-MMO</div>
+          <div class="beta-pill" id="betaPill" title="This is a beta build. The patch notes list what is still pending.">
+            <span class="beta-dot"></span>beta · <b id="betaVersion">v1.5.1</b>
+          </div>
+        </div>
         <h1 class="logo">ADBLOCK<br><span>ISLAND</span></h1>
         <p class="tagline">The ads took the beach. The locals kept the kettle on. Grab a broom, bonk some <b>sponsored content</b>, and leave a kind note for whoever washes ashore next.</p>
       </div>
@@ -1351,7 +1376,7 @@ const ICONS = {
 };
 const svg = (name) => ICONS[name] || ICONS.spark;
 
-const VERSION = '1.5.0';
+const VERSION = '1.5.1';
 
 /* ------------------------------- classes -------------------------------- */
 const CLASSES = {
@@ -3154,7 +3179,7 @@ function buildHelpPanel() {
       </div>
       <div class="help-block">
         <h4>This build</h4>
-        <p>AdBlock Island <b>v${VERSION}</b> — one HTML file, no build step, no trackers, no accounts. Notes are saved in this browser only. Patch notes live in <code>CHANGELOG.md</code>.</p>
+        <p>AdBlock Island <b>v${VERSION}</b> is a <b>beta</b> — one HTML file, no build step, no trackers, no accounts. Notes are saved in this browser only. Patch notes live in <code>CHANGELOG.md</code>; its <b>still pending</b> section lists the achievements, items and MMORPG pieces that are not in yet (online play needs servers, which a static page cannot provide).</p>
       </div>
     </div>
     <div class="help-credit">
@@ -7804,7 +7829,11 @@ function init() {
   initUI();
   updatePlayerCard();
   const buildTag = $('#buildTag');
-  if (buildTag) buildTag.textContent = 'v' + VERSION;
+  if (buildTag) buildTag.textContent = 'v' + VERSION + ' · beta';
+  const betaVersion = $('#betaVersion');
+  if (betaVersion) betaVersion.textContent = 'v' + VERSION;
+  const betaPill = $('#betaPill');
+  if (betaPill) betaPill.title = 'This is a beta build (v' + VERSION + '). The patch notes list what is still pending.';
   window.addEventListener('resize', () => { resizeCanvas(); });
   // hide the white start-fade until the player actually starts
   ui.screenFade.classList.add('hidden');
