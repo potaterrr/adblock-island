@@ -21,6 +21,7 @@ Audio starts after the first click, as browsers require.
 | Action | Keyboard / mouse | Touch |
 | --- | --- | --- |
 | Move | `WASD` / arrow keys | left joystick |
+| Aim | mouse cursor, or auto-targets the nearest ad while you walk | point the joystick |
 | Attack | `J` or click / hold | BONK button |
 | Skill one | `Q` | SKILL button |
 | Skill two | `E` | SKILL button |

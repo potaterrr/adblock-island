@@ -1808,6 +1808,7 @@ const input = {
   joy: { x: 0, y: 0, active: false, id: null },
   mouse: { x: 0, y: 0, down: false, active: false, lastMove: -99 },
   aim: 0,
+  aimTarget: null,
   attackHeld: false,
   touch: false
 };
@@ -4167,6 +4168,64 @@ function screenToWorld(sx, sy) {
     y: (sy - window.innerHeight / 2) / cam.zoom + cam.y
   };
 }
+/* Aim is a little two-mode thing:
+   - mouse: the pointer owns the aim, exactly as before.
+   - keyboard: the moment the pointer goes quiet and you walk, the reticle hops
+     onto the nearest ad and keeps trailing it, so WASD play aims itself.
+   Touch never sees this: it aims where the stick points. */
+const AIM_MOUSE_IDLE = 1.8;   // seconds of pointer silence before auto-aim wakes up
+const AIM_RANGE = 560;        // how far the reticle will reach for an ad
+
+function aimUsingMouse() {
+  return !input.touch && input.mouse.active &&
+    game.realElapsed - input.mouse.lastMove < AIM_MOUSE_IDLE;
+}
+
+function aimTargetValid(t) {
+  return !!t && !t.dead && !t.hidden && t.spawnT <= 0 &&
+    dist(player.x, player.y, t.x, t.y) < AIM_RANGE + 110;
+}
+
+function nearestAimTarget(x, y, maxDist) {
+  let best = null, bd = maxDist;
+  for (const m of monsters) {
+    if (m.dead || m.hidden || m.spawnT > 0) continue;
+    const d = dist(x, y, m.x, m.y);
+    if (d < bd) { bd = d; best = m; }
+  }
+  return best;
+}
+
+function updateAim(dt) {
+  if (player.sit || player.dead) { input.aimTarget = null; return; }
+
+  if (aimUsingMouse()) {
+    input.aimTarget = null;
+    const w = screenToWorld(input.mouse.x, input.mouse.y);
+    player.facing = lerpAng(player.facing, angleTo(player.x, player.y, w.x, w.y), 1 - Math.pow(0.0000001, dt));
+    return;
+  }
+
+  if (!input.touch) {
+    let tgt = input.aimTarget;
+    if (tgt && !aimTargetValid(tgt)) tgt = null;
+    if (!tgt && player.moving) tgt = nearestAimTarget(player.x, player.y, AIM_RANGE);
+    input.aimTarget = tgt;
+    if (tgt) {
+      player.facing = lerpAng(player.facing, angleTo(player.x, player.y, tgt.x, tgt.y), 1 - Math.pow(0.000001, dt));
+      return;
+    }
+  } else {
+    input.aimTarget = null;
+  }
+
+  // nothing to lock onto: face where you walk
+  if (player.moving && player.dashTime <= 0) {
+    const dir = currentMoveDir();
+    player.facing = lerpAng(player.facing, Math.atan2(dir.y, dir.x), 1 - Math.pow(0.00001, dt));
+  }
+}
+
 function updatePlayer(dt) {
   // timers always tick, even while being carried back to the bench
   player.atkCd = Math.max(0, player.atkCd - dt);
@@ -4219,7 +4278,6 @@ function updatePlayer(dt) {
     }
   } else if (player.moving) {
     moveWithCollision(player, dir.x * player.speed * dt, dir.y * player.speed * dt);
-    player.facing = lerpAng(player.facing, Math.atan2(dir.y, dir.x), 1 - Math.pow(0.00001, dt));
     player.bob += dt * 9;
     player.stepAcc = (player.stepAcc || 0) + player.speed * dt;
     if (player.stepAcc > 34) {
@@ -4232,11 +4290,7 @@ function updatePlayer(dt) {
   } else {
     player.bob += dt * 2.2;
   }
-  // aim
-  if (!player.sit && !input.touch && input.mouse.active && game.realElapsed - input.mouse.lastMove < 8) {
-    const w = screenToWorld(input.mouse.x, input.mouse.y);
-    player.facing = lerpAng(player.facing, angleTo(player.x, player.y, w.x, w.y), 1 - Math.pow(0.0000001, dt));
-  }
+  updateAim(dt);
   input.aim = player.facing;
   // hold-to-attack
   if (input.attackHeld) doAttack();
@@ -6204,23 +6258,80 @@ function drawScreenFX(w, h) {
   }
 }
 function drawAimReticle() {
-  if (input.touch || !input.mouse.active || game.state !== 'playing') return;
-  if (game.realElapsed - input.mouse.lastMove > 8) return;
+  if (game.state !== 'playing' || player.dead || player.sit) return;
   const g = ctx;
   const c = CLASSES[player.cls];
-  const { x, y } = input.mouse;
-  g.save();
-  g.translate(x, y);
-  g.rotate(player.facing + Math.PI / 2);
-  g.globalAlpha = 0.85;
-  g.strokeStyle = c.dark;
-  g.lineWidth = 2;
-  g.beginPath(); g.arc(0, 0, 10, 0.25, Math.PI - 0.25); g.stroke();
-  g.beginPath(); g.arc(0, 0, 10, Math.PI + 0.25, TAU - 0.25); g.stroke();
-  g.beginPath(); g.moveTo(0, 14); g.lineTo(0, 20); g.stroke();
-  g.fillStyle = c.color2;
-  g.beginPath(); g.arc(0, 0, 2.4, 0, TAU); g.fill();
-  g.restore();
+
+  const crosshair = (x, y, rot, alpha) => {
+    g.save();
+    g.translate(x, y);
+    g.rotate(rot);
+    g.globalAlpha = alpha;
+    g.strokeStyle = c.dark;
+    g.lineWidth = 2;
+    g.lineCap = 'round';
+    g.beginPath(); g.arc(0, 0, 10, 0.25, Math.PI - 0.25); g.stroke();
+    g.beginPath(); g.arc(0, 0, 10, Math.PI + 0.25, TAU - 0.25); g.stroke();
+    g.beginPath(); g.moveTo(0, 14); g.lineTo(0, 20); g.stroke();
+    g.fillStyle = c.color2;
+    g.beginPath(); g.arc(0, 0, 2.4, 0, TAU); g.fill();
+    g.restore();
+  };
+
+  // touch: a small pip that leads the walk, so the stick reads as aiming
+  if (input.touch) {
+    if (!player.moving) return;
+    const s = worldToScreen(player.x, player.y);
+    const a = player.facing;
+    g.save();
+    g.translate(s.x + Math.cos(a) * 46, s.y + Math.sin(a) * 34);
+    g.rotate(a + Math.PI / 2);
+    g.globalAlpha = 0.5;
+    g.strokeStyle = c.dark;
+    g.lineWidth = 2;
+    g.lineCap = 'round';
+    g.lineJoin = 'round';
+    g.beginPath(); g.moveTo(-6, 5); g.lineTo(0, -4); g.lineTo(6, 5); g.stroke();
+    g.fillStyle = c.color2;
+    g.beginPath(); g.arc(0, 9, 2.2, 0, TAU); g.fill();
+    g.restore();
+    return;
+  }
+
+  if (aimUsingMouse()) {
+    crosshair(input.mouse.x, input.mouse.y, player.facing + Math.PI / 2, 0.85);
+    return;
+  }
+
+  // keyboard: brackets ride the ad the reticle has locked onto
+  const tgt = input.aimTarget;
+  if (tgt && aimTargetValid(tgt)) {
+    const s = worldToScreen(tgt.x, tgt.y - (tgt.r || 14) * 0.1);
+    const R = 15 + (tgt.r || 14) * 0.6 + Math.sin(game.time * 5) * 1.1;
+    g.save();
+    g.translate(s.x, s.y);
+    g.globalAlpha = 0.9;
+    g.strokeStyle = c.dark;
+    g.lineWidth = 2;
+    g.lineCap = 'round';
+    for (let i = 0; i < 4; i++) {
+      g.save();
+      g.rotate(i * Math.PI / 2 + game.time * 0.5);
+      g.beginPath(); g.arc(0, 0, R, 0.16, Math.PI / 2 - 0.16); g.stroke();
+      g.restore();
+    }
+    g.fillStyle = c.color2;
+    drawStar(g, 0, 0, 4, 4.8, 2); g.fill();
+    g.restore();
+    return;
+  }
+
+  // no ad in reach: the reticle just rides along ahead of you
+  if (player.moving) {
+    const s = worldToScreen(player.x, player.y);
+    const a = player.facing;
+    crosshair(s.x + Math.cos(a) * 58, s.y + Math.sin(a) * 46, a + Math.PI / 2, 0.5);
+  }
 }
 function drawBossBar() {
   const m = game.boss;
