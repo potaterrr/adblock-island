@@ -44,6 +44,22 @@ The "MMO" in micro-MMO is currently a polite lie: the other players are bots, an
 
 Until then, the honest description is: a single-player and local co-op cozy micro-MMO with bots, in beta.
 
+## [1.5.4] — 2026-10-29
+
+Beta launch polish.
+
+### Added
+
+- **A social preview card.** `social-card.jpg` is a 1200×630 crop of the title screen with the beta badge, used by Open Graph and Twitter cards, so links to the game unfurl as the island instead of a bare URL.
+- **Fuller link metadata.** The head now carries `og:url`, `og:site_name`, `og:locale`, `og:image` (with type, size and alt text), `twitter:card`, `twitter:title`, `twitter:description` and `twitter:image`, plus a canonical URL and app names for iOS.
+- **Screenshots in the README.** Desktop title screen, a wave-cleared card showing the achievement and the next-wave preview, and the phone title screen.
+- **`robots.txt` and `sitemap.xml`** so the public page is indexable and the beta is easy to find.
+
+### Changed
+
+- The page now has a `<noscript>` card explaining that the island needs JavaScript, instead of a dead title screen.
+- Description and preview copy mention the beta and the current version.
+
 ## [1.5.3] — 2026-10-29
 
 The wave card gets keyboard manners.

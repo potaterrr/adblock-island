@@ -1,6 +1,6 @@
 # AdBlock Island
 
-**v1.5.3 · beta** · [Play it](https://potaterrr.github.io/adblock-island/) · [Patch notes](CHANGELOG.md)
+**v1.5.4 · beta** · [Play it](https://potaterrr.github.io/adblock-island/) · [Patch notes](CHANGELOG.md)
 
 A wholesome micro-MMO in a single HTML file, currently in **beta**. The ads took the beach, the locals kept the kettle on. Pick a class, sweep the static, bonk the ad-monsters, and leave a kind note for whoever washes ashore next.
 
@@ -12,7 +12,7 @@ index.html   ← the entire game (≈300 KB, markup + CSS + renderer + audio + l
 
 ## Status: beta
 
-**v1.5.3 is a beta.** The island is playable end to end — three classes, the wave ladder, medals, items, the Algorithm, kindness notes and same-keyboard co-op — but it is not a finished MMORPG.
+**v1.5.4 is a beta.** The island is playable end to end — three classes, the wave ladder, medals, items, the Algorithm, kindness notes and same-keyboard co-op — but it is not a finished MMORPG.
 
 Still pending, in short:
 
@@ -21,6 +21,16 @@ Still pending, in short:
 - **MMORPG essentials.** Online multiplayer and rooms, accounts and cross-device saves, moderated chat, parties and guilds, quests and raids, trading, anti-cheat and live ops. These need a backend; a static `index.html` on GitHub Pages cannot provide them.
 
 The full, honest list lives in **[Still pending](CHANGELOG.md#still-pending)** at the top of the patch notes.
+
+## Screenshots
+
+| The title screen | A wave cleared |
+| --- | --- |
+| ![AdBlock Island title screen with the beta badge](screenshots/title.png) | ![The wave-cleared card showing an achievement and the next wave preview](screenshots/wave-card.png) |
+
+<p align="center">
+  <img src="screenshots/phone.png" width="280" alt="AdBlock Island's title screen on a phone">
+</p>
 
 ## Backstory
 
@@ -202,6 +212,7 @@ The full history lives in **[CHANGELOG.md](CHANGELOG.md)**, newest first, and th
 
 | Version | Date | Headline |
 | --- | --- | --- |
+| [1.5.4](CHANGELOG.md#154--2026-10-29) | 2026-10-29 | Beta launch polish: social card, richer previews, screenshots |
 | [1.5.3](CHANGELOG.md#153--2026-10-29) | 2026-10-29 | Enter takes the next wave; U opens upgrades from the cleared card |
 | [1.5.2](CHANGELOG.md#152--2026-10-29) | 2026-10-29 | Waves keep running after the island victory; clear popup can no longer be lost |
 | [1.5.1](CHANGELOG.md#151--2026-10-29) | 2026-10-29 | Beta label and version on the splash screen; "Still pending" notes |

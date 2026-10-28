@@ -4,10 +4,28 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
 <meta name="theme-color" content="#bde8f2">
-<meta name="description" content="AdBlock Island — a wholesome micro-MMO, currently in beta (v1.5.3). Clear the static, bonk the ad-monsters, and leave a kind note on the beach.">
-<meta property="og:title" content="AdBlock Island">
-<meta property="og:description" content="A wholesome micro-MMO about clearing an island overrun by annoying ad-monsters.">
+<meta name="description" content="AdBlock Island — a wholesome micro-MMO, currently in beta (v1.5.4). Clear the static, bonk the ad-monsters, and leave a kind note on the beach.">
+<meta name="author" content="potaterrr">
+<meta name="application-name" content="AdBlock Island">
+<meta name="apple-mobile-web-app-title" content="AdBlock Island">
+<meta name="color-scheme" content="light">
+<link rel="canonical" href="https://potaterrr.github.io/adblock-island/">
+<meta property="og:site_name" content="AdBlock Island">
+<meta property="og:title" content="AdBlock Island · a wholesome micro-MMO (beta)">
+<meta property="og:description" content="The ads took the beach. The locals kept the kettle on. Pick a class, bonk the ad-monsters, and leave a kind note for whoever washes ashore next. A single-file micro-MMO, in beta.">
 <meta property="og:type" content="website">
+<meta property="og:url" content="https://potaterrr.github.io/adblock-island/">
+<meta property="og:locale" content="en_GB">
+<meta property="og:image" content="https://potaterrr.github.io/adblock-island/social-card.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The AdBlock Island title screen: a pastel drawing of the island, the game logo, a beta badge, and a wash ashore button.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="AdBlock Island · a wholesome micro-MMO (beta)">
+<meta name="twitter:description" content="The ads took the beach. The locals kept the kettle on. Pick a class, bonk the ad-monsters, and leave a kind note for whoever washes ashore next.">
+<meta name="twitter:image" content="https://potaterrr.github.io/adblock-island/social-card.jpg">
+<meta name="twitter:image:alt" content="The AdBlock Island title screen with the beta badge and wash ashore button.">
 <title>AdBlock Island · a wholesome micro-MMO (beta)</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23fff8ec'/%3E%3Cpath d='M8 40c8-6 16 6 24 0s16 6 24 0v16H8z' fill='%238ad7e8'/%3E%3Ccircle cx='32' cy='28' r='12' fill='%23ffd98a'/%3E%3Cpath d='M32 18l7 5-2 9h-10l-2-9z' fill='%23ff9eb5'/%3E%3C/svg%3E">
 <style>
@@ -41,6 +59,17 @@
   --ease:cubic-bezier(.22,.9,.3,1.2);
 }
 *{box-sizing:border-box}
+.sr-only{
+  position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
+  clip:rect(0,0,0,0);white-space:nowrap;border:0;
+}
+.noscript-card{
+  position:fixed;inset:0;z-index:9999;display:grid;place-content:center;gap:8px;
+  padding:24px;text-align:center;background:#fff8ec;color:#3c3453;
+  font-family:"Trebuchet MS","Segoe UI",system-ui,sans-serif;
+}
+.noscript-card h2{margin:0;font-size:24px}
+.noscript-card p{max-width:420px;margin:0 auto;line-height:1.55;color:#6d6388}
 html,body{
   margin:0;padding:0;height:100%;width:100%;
   overflow:hidden;overscroll-behavior:none;
@@ -1119,6 +1148,12 @@ body.scanlines::after{
 </style>
 </head>
 <body>
+<noscript>
+  <div class="noscript-card">
+    <h2>AdBlock Island needs JavaScript</h2>
+    <p>The whole island — the canvas, the music and the save file — runs in your browser. Turn JavaScript on and reload to wash ashore.</p>
+  </div>
+</noscript>
 
 <canvas id="game" tabindex="0" aria-label="AdBlock Island game world. Move with WASD, attack with J, use skills with Q and E, dash with Space."></canvas>
 
@@ -1230,7 +1265,7 @@ body.scanlines::after{
         <div class="logo-badges">
           <div class="logo-kicker">a wholesome micro-MMO</div>
           <div class="beta-pill" id="betaPill" title="This is a beta build. The patch notes list what is still pending.">
-            <span class="beta-dot"></span>beta · <b id="betaVersion">v1.5.3</b>
+            <span class="beta-dot"></span>beta · <b id="betaVersion">v1.5.4</b>
           </div>
         </div>
         <h1 class="logo">ADBLOCK<br><span>ISLAND</span></h1>
@@ -1386,7 +1421,7 @@ const ICONS = {
 };
 const svg = (name) => ICONS[name] || ICONS.spark;
 
-const VERSION = '1.5.3';
+const VERSION = '1.5.4';
 
 /* ------------------------------- classes -------------------------------- */
 const CLASSES = {
