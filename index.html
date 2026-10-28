@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
 <meta name="theme-color" content="#bde8f2">
-<meta name="description" content="AdBlock Island — a wholesome micro-MMO, currently in beta (v1.5.2). Clear the static, bonk the ad-monsters, and leave a kind note on the beach.">
+<meta name="description" content="AdBlock Island — a wholesome micro-MMO, currently in beta (v1.5.3). Clear the static, bonk the ad-monsters, and leave a kind note on the beach.">
 <meta property="og:title" content="AdBlock Island">
 <meta property="og:description" content="A wholesome micro-MMO about clearing an island overrun by annoying ad-monsters.">
 <meta property="og:type" content="website">
@@ -396,6 +396,16 @@ body.has-touch #coopBtn{display:none}
   margin-left:auto;font-family:var(--ui);font-size:9px;font-weight:900;letter-spacing:.04em;
   background:rgba(60,52,83,.07);border-radius:99px;padding:2px 8px;
 }
+.wave-keys{
+  display:flex;align-items:center;gap:6px;margin-top:10px;
+  font-family:var(--ui);font-size:9.5px;letter-spacing:.04em;color:var(--ink-faint);
+}
+.wave-keys span{opacity:.6}
+.wave-keys kbd{
+  border:1.5px solid var(--line);border-bottom-width:2.5px;border-radius:4px;
+  padding:1px 5px;background:#fff;color:var(--ink);font-family:var(--ui);font-size:9px;
+}
+body.touch .wave-keys{display:none}
 .ach-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:4px}
 .ach-badge{
   display:flex;align-items:center;gap:7px;padding:6px 8px;border:2px solid var(--line);
@@ -1220,7 +1230,7 @@ body.scanlines::after{
         <div class="logo-badges">
           <div class="logo-kicker">a wholesome micro-MMO</div>
           <div class="beta-pill" id="betaPill" title="This is a beta build. The patch notes list what is still pending.">
-            <span class="beta-dot"></span>beta · <b id="betaVersion">v1.5.2</b>
+            <span class="beta-dot"></span>beta · <b id="betaVersion">v1.5.3</b>
           </div>
         </div>
         <h1 class="logo">ADBLOCK<br><span>ISLAND</span></h1>
@@ -1376,7 +1386,7 @@ const ICONS = {
 };
 const svg = (name) => ICONS[name] || ICONS.spark;
 
-const VERSION = '1.5.2';
+const VERSION = '1.5.3';
 
 /* ------------------------------- classes -------------------------------- */
 const CLASSES = {
@@ -2467,6 +2477,18 @@ function bindUI() {
       else if (game.state === 'paused') closePanel();
       return;
     }
+    // the wave-cleared card has two buttons and two keys: Enter takes the
+    // next wave, U opens the shop without dismissing the choice.
+    if (game.state === 'modal' && game.modalType === 'wave') {
+      if (k === 'enter') { e.preventDefault(); startWaveCountdown(); return; }
+      if (k === 'u') { e.preventDefault(); openPanel('upgrades'); return; }
+    }
+    // if the card was dismissed, Enter brings it back rather than skipping it
+    if (game.state === 'playing' && game.waveState === 'cleared' && k === 'enter') {
+      e.preventDefault();
+      openPanel('wave');
+      return;
+    }
     if (game.state === 'modal' || game.state === 'paused' || game.state === 'victory') return;
     if (game.coop) {
       if (k === 'arrowup') input.p2.up = true;
@@ -2938,7 +2960,7 @@ function closePanel() {
 }
 function panelFoot(buttons) {
   ui.modalFoot.innerHTML = buttons.map((b) =>
-    `<button class="btn ${b.kind || ''}" data-panel-action="${b.action}" ${b.disabled ? 'disabled' : ''}>${b.label}</button>`
+    `<button class="btn ${b.kind || ''}" data-panel-action="${b.action}" ${b.title ? `title="${b.title}"` : ''} ${b.disabled ? 'disabled' : ''}>${b.label}</button>`
   ).join('');
   $$('[data-panel-action]', ui.modalFoot).forEach((btn) => {
     btn.addEventListener('click', () => {
@@ -3156,7 +3178,7 @@ function buildHelpPanel() {
         <p><kbd>WASD</kbd>/<kbd>arrows</kbd> move · <kbd>J</kbd> or click attack (hold to keep bonking)<br>
         <kbd>Q</kbd> skill one · <kbd>E</kbd> skill two · <kbd>Space</kbd> dash<br>
         <kbd>F</kbd> sit at the kindness bench · <kbd>U</kbd> upgrades<br>
-        <kbd>N</kbd> wave choice · <kbd>C</kbd> chat · <kbd>H</kbd> help · <kbd>Esc</kbd> pause</p>
+        <kbd>N</kbd> wave choice · <kbd>Enter</kbd> next wave · <kbd>U</kbd> upgrade · <kbd>C</kbd> chat · <kbd>H</kbd> help · <kbd>Esc</kbd> pause</p>
       </div>
       <div class="help-block">
         <h4>Ads, explained</h4>
@@ -3371,6 +3393,7 @@ function buildWavePanel() {
       <span>${next.tier.note}</span>
       <span class="wn-count">${next.count} ads · wave ${n + 1}</span>
     </div>
+    <div class="wave-keys"><kbd>Enter</kbd> next wave <span>·</span> <kbd>U</kbd> upgrade</div>
     <div class="kind-row" style="margin-top:12px">
       <span class="chip on">✿ ${Math.floor(player.joy)} Joy to spend</span>
       <span class="chip">Level ${player.level}</span>
@@ -3379,9 +3402,9 @@ function buildWavePanel() {
   `;
 
   panelFoot([
-    { label: 'Upgrade', action: 'upgrades' },
+    { label: 'Upgrade', action: 'upgrades', title: 'Press U' },
     { label: 'Not yet', action: 'close' },
-    { label: n >= 10 ? 'Keep going · 10s' : 'Next wave · 10s', action: 'nextwave', kind: 'primary' }
+    { label: n >= 10 ? 'Keep going · 10s' : 'Next wave · 10s', action: 'nextwave', kind: 'primary', title: 'Press Enter' }
   ]);
 }
 

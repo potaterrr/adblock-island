@@ -44,6 +44,20 @@ The "MMO" in micro-MMO is currently a polite lie: the other players are bots, an
 
 Until then, the honest description is: a single-player and local co-op cozy micro-MMO with bots, in beta.
 
+## [1.5.3] — 2026-10-29
+
+The wave card gets keyboard manners.
+
+### Added
+
+- **`Enter` takes the next wave.** With the wave-cleared card open, `Enter` does exactly what the pink *Next wave · 10s* button does and starts the countdown. If you dismissed the card, `Enter` brings it back instead of skipping the choice.
+- **`U` opens upgrades from the card.** Pressing `U` while the card is open jumps straight to the shop, same as the *Upgrade* button, and leaves the wave cleared and waiting for you.
+- A quiet `Enter next wave · U upgrade` hint sits under the next-wave preview on desktop, and both buttons carry a tooltip. The hint is hidden on touch, where the buttons are the only input.
+
+### Changed
+
+- The help panel's controls line now lists `Enter` next to `N` wave choice and `U` upgrades.
+
 ## [1.5.2] — 2026-10-29
 
 The wave ladder keeps its promise.
