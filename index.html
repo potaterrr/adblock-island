@@ -1139,7 +1139,7 @@ const ICONS = {
 };
 const svg = (name) => ICONS[name] || ICONS.spark;
 
-const VERSION = '1.3.0';
+const VERSION = '1.3.1';
 
 /* ------------------------------- classes -------------------------------- */
 const CLASSES = {
@@ -1817,7 +1817,10 @@ const input = {
   mouse: { x: 0, y: 0, down: false, active: false, lastMove: -99 },
   aim: 0,
   attackHeld: false,
-  touch: false
+  touch: false,
+  // which device aimed last: 'mouse' (or pen) vs 'touch'. A touchscreen laptop
+  // can be both, so this flips as soon as either one is actually used.
+  pointer: 'mouse'
 };
 const player = {
   x: SPAWN.x, y: SPAWN.y, r: 15, cls: 'blocker', name: 'you',
@@ -2059,6 +2062,7 @@ function initUI() {
   ui.confettiLayer = $('#confettiLayer');
 
   input.touch = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+  input.pointer = input.touch ? 'touch' : 'mouse';
   if (input.touch) document.body.classList.add('touch');
 
   ui.muteBtn.innerHTML = svg(settings.muted ? 'mute' : 'sound');
@@ -2204,18 +2208,32 @@ function bindUI() {
 function setupPointerInput() {
   const canvas = $('#game');
   canvas.addEventListener('contextmenu', (e) => e.preventDefault());
-  canvas.addEventListener('pointermove', (e) => {
+
+  // Track what is actually aiming. `pointer: coarse` alone is not enough: a
+  // touchscreen laptop, tablet with a trackpad, or Chromebook matches it while
+  // a real mouse is in use, which used to leave the mouse doing nothing.
+  const notePointer = (e) => {
+    if (e.pointerType === 'touch') input.pointer = 'touch';
+    else if (e.pointerType === 'mouse' || e.pointerType === 'pen') input.pointer = 'mouse';
+  };
+  window.addEventListener('pointerdown', notePointer, { passive: true });
+
+  // window-level so the aim still updates while the cursor crosses the HUD
+  window.addEventListener('pointermove', (e) => {
+    notePointer(e);
+    if (e.pointerType === 'touch') return; // the stick owns aiming on touch
     const rect = canvas.getBoundingClientRect();
     input.mouse.x = e.clientX - rect.left;
     input.mouse.y = e.clientY - rect.top;
     input.mouse.lastMove = game.realElapsed;
     input.mouse.active = true;
-  });
+  }, { passive: true });
+
   canvas.addEventListener('pointerdown', (e) => {
     if (game.state !== 'playing') return;
     const rect = canvas.getBoundingClientRect();
     const sx = e.clientX - rect.left, sy = e.clientY - rect.top;
-    if (e.pointerType === 'touch' || input.touch) {
+    if (e.pointerType === 'touch' || input.pointer === 'touch') {
       const w = screenToWorld(sx, sy);
       player.facing = angleTo(player.x, player.y, w.x, w.y);
       input.aim = player.facing;
@@ -3029,7 +3047,8 @@ function buzz(ms) {
   if (navigator.vibrate) { try { navigator.vibrate(ms); } catch (e) {} }
 }
 function currentAim() {
-  if (!input.touch && input.mouse.active && game.realElapsed - input.mouse.lastMove < 8) {
+  if (input.pointer === 'mouse' && input.mouse.active &&
+      game.realElapsed - input.mouse.lastMove < AIM_MOUSE_IDLE) {
     const w = screenToWorld(input.mouse.x, input.mouse.y);
     return angleTo(player.x, player.y, w.x, w.y);
   }
@@ -3100,7 +3119,7 @@ function doAttack() {
   player.atkAnim = 0.26;
   // snap onto the nearest ad inside the aim cone, if there is one
   const reach = cls === 'blocker' ? 96 : 540;
-  const cone = input.touch ? AIM_ASSIST_CONE + 0.18 : AIM_ASSIST_CONE;
+  const cone = input.pointer === 'touch' ? AIM_ASSIST_CONE + 0.18 : AIM_ASSIST_CONE;
   player.atkDir = assistAim(currentAim(), reach, cone);
   player.facing = player.atkDir;
   player.moving = true;
@@ -4192,7 +4211,7 @@ const AIM_MOUSE_IDLE = 8;     // seconds of pointer silence before walking takes
 const AIM_ASSIST_CONE = 0.42; // half-angle of the attack snap, radians
 
 function aimUsingMouse() {
-  return !input.touch && input.mouse.active &&
+  return input.pointer === 'mouse' && input.mouse.active &&
     game.realElapsed - input.mouse.lastMove < AIM_MOUSE_IDLE;
 }
 
@@ -4222,8 +4241,9 @@ function updateAim(dt) {
   if (player.sit || player.dead) return;
 
   if (aimUsingMouse()) {
+    // the pointer is the aim: no smoothing, so the hero never drags behind it
     const w = screenToWorld(input.mouse.x, input.mouse.y);
-    player.facing = lerpAng(player.facing, angleTo(player.x, player.y, w.x, w.y), 1 - Math.pow(0.0000001, dt));
+    player.facing = angleTo(player.x, player.y, w.x, w.y);
     return;
   }
 
@@ -4331,8 +4351,8 @@ function updateCamera(dt) {
   const w = window.innerWidth, h = window.innerHeight;
   cam.targetZoom = clamp(Math.min(w / 1000, h / 620), 0.68, 1.0);
   cam.zoom = lerp(cam.zoom, cam.targetZoom, 1 - Math.pow(0.002, dt));
-  const aimShiftX = (!input.touch && input.mouse.active) ? clamp((input.mouse.x - w / 2) / w, -0.5, 0.5) * 90 / cam.zoom : 0;
-  const aimShiftY = (!input.touch && input.mouse.active) ? clamp((input.mouse.y - h / 2) / h, -0.5, 0.5) * 60 / cam.zoom : 0;
+  const aimShiftX = (input.pointer === 'mouse' && input.mouse.active) ? clamp((input.mouse.x - w / 2) / w, -0.5, 0.5) * 90 / cam.zoom : 0;
+  const aimShiftY = (input.pointer === 'mouse' && input.mouse.active) ? clamp((input.mouse.y - h / 2) / h, -0.5, 0.5) * 60 / cam.zoom : 0;
   const tx = player.x + aimShiftX, ty = player.y - 30 + aimShiftY;
   cam.x = lerp(cam.x, tx, 1 - Math.pow(0.0015, dt));
   cam.y = lerp(cam.y, ty, 1 - Math.pow(0.0015, dt));
@@ -5766,8 +5786,18 @@ function drawPlayer() {
     g.beginPath(); g.arc(player.x, player.y, 26, 0, TAU); g.fill(); g.restore();
   }
   // aim hand
-  if (!input.touch && input.mouse.active && game.state === 'playing') {
+  if (input.pointer === 'mouse' && input.mouse.active && game.state === 'playing') {
     const a = currentAim();
+    // a couple of fading pips so the aim direction reads at a glance
+    g.save();
+    g.fillStyle = CLASSES[player.cls].color2;
+    for (let i = 1; i <= 2; i++) {
+      g.globalAlpha = 0.34 / i;
+      g.beginPath();
+      g.arc(player.x + Math.cos(a) * (26 + i * 13), player.y + Math.sin(a) * (24 + i * 12), 2.6 / i, 0, TAU);
+      g.fill();
+    }
+    g.restore();
     const hx = player.x + Math.cos(a) * 26, hy = player.y + Math.sin(a) * 24;
     g.save();
     g.globalAlpha = 0.8;
@@ -6336,7 +6366,7 @@ function drawAimReticle() {
   };
 
   // touch: a small pip that leads the walk, so the stick reads as aiming
-  if (input.touch) {
+  if (input.pointer === 'touch') {
     if (!player.moving) return;
     const s = worldToScreen(player.x, player.y);
     const a = player.facing;

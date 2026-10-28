@@ -4,6 +4,20 @@ All notable changes to AdBlock Island. The game is a single `index.html`, and th
 
 Format: [Semantic Versioning](https://semver.org/). Dates are YYYY-MM-DD.
 
+## [1.3.1] — 2026-10-29
+
+The mouse works everywhere now.
+
+### Fixed
+
+- **Mouse aim on hybrid devices.** The game used to pick touch mode purely from the `(pointer: coarse)` media query, so a touchscreen laptop, a tablet with a trackpad, or a Chromebook treated the mouse as if it did not exist. Aim now follows whichever device was used last: move the mouse and it takes over instantly, tap the screen and the thumbstick takes over again.
+- **Aim keeps updating over the HUD.** Pointer moves were only tracked on the canvas, so the aim froze while the cursor crossed the minimap, chat, or top bar. They are tracked window-wide now.
+- **Mouse aim is instant.** The hero used to ease toward the cursor with a short smoothing delay, which read as an unresponsive aim. It now points at the cursor exactly.
+
+### Added
+
+- Two faint pips in front of the hero show the aim direction at a glance.
+
 ## [1.3.0] — 2026-10-29
 
 Aiming, weapons, and paperwork.

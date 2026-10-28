@@ -1,6 +1,6 @@
 # AdBlock Island
 
-**v1.3.0** · [Play it](https://potaterrr.github.io/adblock-island/) · [Patch notes](CHANGELOG.md)
+**v1.3.1** · [Play it](https://potaterrr.github.io/adblock-island/) · [Patch notes](CHANGELOG.md)
 
 A wholesome micro-MMO in a single HTML file. The ads took the beach, the locals kept the kettle on. Pick a class, sweep the static, bonk the ad-monsters, and leave a kind note for whoever washes ashore next.
 
@@ -26,7 +26,7 @@ Audio starts after the first click, as browsers require.
 | Action | Keyboard / mouse | Touch |
 | --- | --- | --- |
 | Move | `WASD` / arrow keys | left thumb stick |
-| Aim | mouse cursor (free aim, even while walking) | aims where the stick points |
+| Aim | mouse cursor (free aim, even while walking; a mouse takes over from touch on hybrid devices) | aims where the stick points |
 | Attack | `J` or click / hold | BONK button |
 | Skill one | `Q` | SKILL button |
 | Skill two | `E` | SKILL button |
