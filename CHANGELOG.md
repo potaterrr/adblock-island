@@ -4,6 +4,24 @@ All notable changes to AdBlock Island. The game is a single `index.html`, and th
 
 Format: [Semantic Versioning](https://semver.org/). Dates are YYYY-MM-DD.
 
+## [1.4.0] — 2026-10-29
+
+Waves, a friend on the arrow keys, and aim that stops guessing.
+
+### Added
+
+- **Waves.** Ads now arrive in crews instead of trickling in. Difficulty climbs from **Super Easy** through **Easy**, **Normal**, **Hard**, **Super Hard**, into endless **Super Hard+**, with more ads, more health, more damage, and faster movement each step. Clearing a crew pays bonus Joy and XP, then the island takes a 4–5 second breath.
+- **Wave notifications.** A banner announces every wave and every clear, a HUD card under your portrait tracks the current wave, tier, and remaining ads (or the countdown to the next one), and the locals comment in chat. The boss interrupts the schedule, and the card says so.
+- **Same-keyboard co-op.** Turn on "play with a friend" on the title screen for a second hero on the arrow keys. They move with arrows, auto-swing at whatever they face, take real damage, and share the camera, the wave, and the Joy. The camera holds both heroes and leashes player 2 to one screen.
+
+### Changed
+
+- **Aim no longer depends on device detection at all.** If the mouse moved or clicked recently, the mouse is aiming — no media query, no pointer-kind flag. Touch input simply clears the flag. Moving a mouse on a touchscreen laptop also flips the HUD back to the desktop layout, so the mode is always visible.
+
+### Fixed
+
+- The AdBlocker's auto-sword could still draw attention to the wrong direction; it now has its own arc colour and never modifies the aim.
+
 ## [1.3.2] — 2026-10-29
 
 Attacks now go where you point.

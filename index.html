@@ -269,6 +269,60 @@ h1.logo span{color:var(--sun);display:inline-block;transform:translateX(34px) ro
   letter-spacing:.05em;color:var(--ink-faint);
 }
 .title-foot span{white-space:nowrap}
+.text-btn.on{color:var(--rose)}
+/* co-op needs a keyboard: hide it on touch-first devices. This is a
+   capability flag, not the live input mode, so a stray mouse event on a
+   phone cannot bring it back. */
+body.has-touch #coopBtn{display:none}
+/* ---- waves ---- */
+.wave-card{
+  display:flex;align-items:center;gap:10px;padding:9px 13px;margin-top:8px;
+  background:rgba(255,253,244,.92);
+}
+.wave-card .wave-dot{
+  width:11px;height:11px;border-radius:50%;flex:0 0 auto;
+  background:var(--mint);box-shadow:0 0 0 3px rgba(169,232,201,.35);
+  transition:background .3s,box-shadow .3s;
+}
+.wave-card .wave-body{min-width:0}
+.wave-card .wv-num{
+  font-family:var(--ui);font-size:9px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--ink-faint);
+}
+.wave-card .wv-label{font-size:13px;font-weight:700;line-height:1.15;color:var(--ink)}
+.wave-card .wv-left{font-size:10px;color:var(--ink-soft);margin-top:1px}
+.wave-card.breaking .wave-dot{animation:wavePulse 1s infinite ease-in-out}
+@keyframes wavePulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.35);opacity:.55}}
+
+.wave-banner{
+  position:fixed;left:50%;top:14%;z-index:47;pointer-events:none;
+  transform:translate(-50%,-16px) scale(.9);opacity:0;
+  padding:13px 36px 15px;text-align:center;
+  background:rgba(255,250,239,.96);
+  border:2.5px solid var(--line);border-radius:24px;
+  box-shadow:0 8px 0 rgba(60,52,83,.14), 0 22px 44px rgba(60,52,83,.20);
+  transition:opacity .22s ease, transform .38s cubic-bezier(.2,1.5,.4,1);
+}
+.wave-banner.show{opacity:1;transform:translate(-50%,0) scale(1)}
+.wave-banner .wb-kicker{
+  font-family:var(--ui);font-size:9.5px;letter-spacing:.34em;
+  text-transform:uppercase;color:var(--ink-faint);
+}
+.wave-banner .wb-label{
+  font-size:32px;font-weight:800;line-height:1.02;margin:3px 0 2px;
+  color:var(--ink);letter-spacing:-.01em;
+}
+.wave-banner .wb-note{font-size:11.5px;color:var(--ink-soft)}
+.wave-banner .wb-count{
+  display:inline-block;margin-top:7px;padding:2px 9px;border-radius:99px;
+  font-family:var(--ui);font-size:10px;letter-spacing:.08em;
+  background:rgba(60,52,83,.06);color:var(--ink-soft);
+}
+.wave-banner.cleared .wb-label{color:#2e8a68}
+.wave-banner.warn .wb-label{color:var(--danger)}
+/* keep the banner clear of the stacked HUD on phones */
+body.touch .wave-banner{top:23%;padding:10px 24px 12px;max-width:88vw}
+body.touch .wave-banner .wb-label{font-size:24px}
 .title-foot .build-tag{
   margin-left:auto;padding:1px 7px;border-radius:99px;
   border:1.5px solid rgba(60,52,83,.25);background:rgba(255,255,255,.55);
@@ -897,6 +951,12 @@ body.scanlines::after{
 
 <!-- ============================ HUD ============================ -->
 <div id="hud" class="hud hidden">
+  <div class="wave-banner" id="waveBanner" aria-live="polite">
+    <div class="wb-kicker" id="waveKicker">wave 1</div>
+    <div class="wb-label" id="waveLabel">Super Easy</div>
+    <div class="wb-note" id="waveNote">barely a bother</div>
+    <div class="wb-count" id="waveCount">4 ads</div>
+  </div>
   <div class="hud-left">
     <div class="player-card card">
       <canvas id="avatar" width="104" height="104" aria-hidden="true"></canvas>
@@ -910,6 +970,14 @@ body.scanlines::after{
       </div>
       <div class="joy-box" id="joyBox" title="Joy — earned by cleansing tiles and bonking ads">
         <span class="joy-icon">✿</span><b id="joyCount">0</b><small>JOY</small>
+      </div>
+    </div>
+    <div class="wave-card card" id="waveCard">
+      <span class="wave-dot" id="waveDot"></span>
+      <div class="wave-body">
+        <div class="wv-num" id="waveChipNum">wave 1</div>
+        <div class="wv-label" id="waveChipLabel">Super Easy</div>
+        <div class="wv-left" id="waveChipLeft">4 ads left</div>
       </div>
     </div>
     <div id="statusChips" class="status-chips"></div>
@@ -995,6 +1063,7 @@ body.scanlines::after{
         <input id="nameInput" maxlength="16" placeholder="a friendly nickname" autocomplete="off" spellcheck="false">
         <button class="big-btn" id="startBtn">wash ashore →</button>
         <button class="text-btn" id="titleHelpBtn">how to play &amp; controls</button>
+        <button class="text-btn" id="coopBtn">play with a friend: off</button>
         <div class="audio-hint">♪ ocean + lo-fi starts when you do</div>
       </div>
     </div>
@@ -1139,7 +1208,7 @@ const ICONS = {
 };
 const svg = (name) => ICONS[name] || ICONS.spark;
 
-const VERSION = '1.3.2';
+const VERSION = '1.4.0';
 
 /* ------------------------------- classes -------------------------------- */
 const CLASSES = {
@@ -1480,6 +1549,7 @@ class AudioEngine {
       case 'slam': this.noiseBurst(t, 0.35, 0.12, 'lowpass', 260); this.tone(70, t, 0.4, 'square', 0.06, 0.005); break;
       case 'mark': this.tone(1100, t, 0.06, 'sine', 0.03); this.tone(1460, t + 0.05, 0.12, 'sine', 0.03); break;
       case 'ui': this.tone(880, t, 0.045, 'sine', 0.02); break;
+      case 'wave': this.tone(523, t, 0.35, 'triangle', 0.05, 0.01); this.tone(784, t + 0.12, 0.4, 'triangle', 0.045, 0.01); break;
       case 'error': this.tone(160, t, 0.12, 'square', 0.03); break;
       case 'splash': this.noiseBurst(t, 0.5, 0.07, 'lowpass', 900); break;
       default: this.tone(600, t, 0.05, 'sine', 0.02);
@@ -1502,7 +1572,7 @@ const defaultSave = () => ({
   name: '', cls: 'blocker', level: 1, xp: 0, joy: 0, totalJoy: 0,
   upgrades: {}, cosmetics: ['none'], equipped: 'none',
   stats: { tiles: 0, kills: 0, notes: 0, bosses: 0, seconds: 0 },
-  corruption: null, bossSpawned: false, bossDefeated: false, won: false,
+  corruption: null, bossSpawned: false, bossDefeated: false, won: false, wave: 1, coop: false,
   seed: Math.floor(Math.random() * 1e9), createdAt: Date.now()
 });
 let save = Object.assign(defaultSave(), store.get(SAVE_KEY, {}) || {});
@@ -1808,7 +1878,8 @@ const game = {
   lastSave: 0, boss: null, bossSpawned: false, bossDefeated: false,
   won: false, modalType: null, introShown: false,
   chatCd: 3, ambientChatCd: 12, popupCheck: 0, tutorialT: 0,
-  victoryT: 0, deathT: 0, lastFrame: 0, pausedFrame: 0
+  victoryT: 0, deathT: 0, lastFrame: 0, pausedFrame: 0,
+  wave: 0, waveState: 'idle', waveT: 0, waveTotal: 0, coop: false
 };
 const cam = { x: SPAWN.x, y: SPAWN.y, zoom: 1, shake: 0, shakeX: 0, shakeY: 0, targetZoom: 1 };
 const input = {
@@ -1816,6 +1887,7 @@ const input = {
   joy: { x: 0, y: 0, active: false, id: null },
   mouse: { x: 0, y: 0, down: false, active: false, lastMove: -99 },
   aim: 0,
+  p2: { up: false, down: false, left: false, right: false },
   attackHeld: false,
   touch: false,
   // which device aimed last: 'mouse' (or pen) vs 'touch'. A touchscreen laptop
@@ -2005,6 +2077,37 @@ let likedNotes = new Set();
 let resetArmed = false;
 let toastTimer = null;
 
+let hintFadeT = null;
+
+function refreshHintBar() {
+  if (!ui.hintBar) return;
+  ui.hintBar.innerHTML = input.touch
+    ? 'left pad move · right buttons bonk · <b>sit</b> near the bench'
+    : '<kbd>J</kbd> bonk · <kbd>Q</kbd>/<kbd>E</kbd> skills · <kbd>Space</kbd> dash · <kbd>F</kbd> sit';
+  ui.hintBar.classList.remove('fade');
+  if (hintFadeT) clearTimeout(hintFadeT);
+  hintFadeT = setTimeout(() => ui.hintBar.classList.add('fade'), 14000);
+}
+
+/* Swap between the desktop HUD and the thumbstick layout when the player
+   actually changes input device. Cheap, and it makes the aim mode obvious. */
+function setInputMode(mode) {
+  const touch = mode === 'touch';
+  if (input.touch === touch) return;
+  input.touch = touch;
+  document.body.classList.toggle('touch', touch);
+  if (touch) document.body.classList.add('has-touch');
+  refreshHintBar();
+  if (touch && typeof resetJoystickVisual === 'function') resetJoystickVisual();
+}
+
+function syncCoopBtn() {
+  const btn = $('#coopBtn');
+  if (!btn) return;
+  btn.textContent = 'play with a friend: ' + (coopEnabled ? 'on' : 'off');
+  btn.classList.toggle('on', coopEnabled);
+}
+
 function initUI() {
   ui.hud = $('#hud');
   ui.avatar = $('#avatar');
@@ -2032,6 +2135,16 @@ function initUI() {
   ui.interactPrompt = $('#interactPrompt');
   ui.hintBar = $('#hintBar');
   ui.toastLayer = $('#toastLayer');
+  ui.waveBanner = $('#waveBanner');
+  ui.waveKicker = $('#waveKicker');
+  ui.waveLabel = $('#waveLabel');
+  ui.waveNote = $('#waveNote');
+  ui.waveCount = $('#waveCount');
+  ui.waveCard = $('#waveCard');
+  ui.waveDot = $('#waveDot');
+  ui.waveChipNum = $('#waveChipNum');
+  ui.waveChipLabel = $('#waveChipLabel');
+  ui.waveChipLeft = $('#waveChipLeft');
   ui.minimap = $('#minimap');
   ui.minimapCtx = ui.minimap.getContext('2d');
   ui.modalLayer = $('#modalLayer');
@@ -2061,9 +2174,13 @@ function initUI() {
   ui.popupLayer = $('#popupLayer');
   ui.confettiLayer = $('#confettiLayer');
 
-  input.touch = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+  coopEnabled = !!save.coop;
+  syncCoopBtn();
+  const mq = (q) => !!(window.matchMedia && window.matchMedia(q).matches);
+  input.touch = mq('(pointer: coarse)') || (navigator.maxTouchPoints > 0 && !mq('(hover: hover)'));
   input.pointer = input.touch ? 'touch' : 'mouse';
   if (input.touch) document.body.classList.add('touch');
+  if (input.touch) document.body.classList.add('has-touch');
 
   ui.muteBtn.innerHTML = svg(settings.muted ? 'mute' : 'sound');
   ui.chatToggleBtn.innerHTML = svg('chat');
@@ -2117,6 +2234,12 @@ function bindUI() {
   $('#startBtn').addEventListener('click', startGame);
   ui.nameInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') startGame(); });
   $('#titleHelpBtn').addEventListener('click', () => openPanel('help'));
+  $('#coopBtn').addEventListener('click', () => {
+    coopEnabled = !coopEnabled;
+    save.coop = coopEnabled;
+    syncCoopBtn();
+    audio.sfx('ui');
+  });
   ui.muteBtn.addEventListener('click', () => {
     settings.muted = !settings.muted;
     audio.setMuted(settings.muted);
@@ -2165,10 +2288,21 @@ function bindUI() {
       return;
     }
     if (game.state === 'modal' || game.state === 'paused' || game.state === 'victory') return;
-    if (k === 'w' || k === 'arrowup') input.keys.up = true;
-    if (k === 's' || k === 'arrowdown') input.keys.down = true;
-    if (k === 'a' || k === 'arrowleft') input.keys.left = true;
-    if (k === 'd' || k === 'arrowright') input.keys.right = true;
+    if (game.coop) {
+      if (k === 'arrowup') input.p2.up = true;
+      if (k === 'arrowdown') input.p2.down = true;
+      if (k === 'arrowleft') input.p2.left = true;
+      if (k === 'arrowright') input.p2.right = true;
+    } else {
+      if (k === 'arrowup') input.keys.up = true;
+      if (k === 'arrowdown') input.keys.down = true;
+      if (k === 'arrowleft') input.keys.left = true;
+      if (k === 'arrowright') input.keys.right = true;
+    }
+    if (k === 'w') input.keys.up = true;
+    if (k === 's') input.keys.down = true;
+    if (k === 'a') input.keys.left = true;
+    if (k === 'd') input.keys.right = true;
     if (k === 'j') { input.attackHeld = true; doAttack(); }
     if (k === 'q') useSkill(1);
     if (k === 'e') useSkill(2);
@@ -2181,14 +2315,19 @@ function bindUI() {
   });
   document.addEventListener('keyup', (e) => {
     const k = e.key.toLowerCase();
-    if (k === 'w' || k === 'arrowup') input.keys.up = false;
-    if (k === 's' || k === 'arrowdown') input.keys.down = false;
-    if (k === 'a' || k === 'arrowleft') input.keys.left = false;
-    if (k === 'd' || k === 'arrowright') input.keys.right = false;
+    if (k === 'arrowup') { input.keys.up = false; input.p2.up = false; }
+    if (k === 'arrowdown') { input.keys.down = false; input.p2.down = false; }
+    if (k === 'arrowleft') { input.keys.left = false; input.p2.left = false; }
+    if (k === 'arrowright') { input.keys.right = false; input.p2.right = false; }
+    if (k === 'w') input.keys.up = false;
+    if (k === 's') input.keys.down = false;
+    if (k === 'a') input.keys.left = false;
+    if (k === 'd') input.keys.right = false;
     if (k === 'j') input.attackHeld = false;
   });
   window.addEventListener('blur', () => {
     input.keys = Object.create(null);
+    input.p2.up = input.p2.down = input.p2.left = input.p2.right = false;
     input.attackHeld = false;
     input.joy.x = input.joy.y = 0;
     input.joy.active = false;
@@ -2209,12 +2348,19 @@ function setupPointerInput() {
   const canvas = $('#game');
   canvas.addEventListener('contextmenu', (e) => e.preventDefault());
 
-  // Track what is actually aiming. `pointer: coarse` alone is not enough: a
-  // touchscreen laptop, tablet with a trackpad, or Chromebook matches it while
-  // a real mouse is in use, which used to leave the mouse doing nothing.
+  // The pointer that was used last decides everything. `pointer: coarse` alone
+  // is not enough: touchscreen laptops, tablets with a trackpad, and Chromebooks
+  // report coarse while a real mouse is in use. A mouse move also flips the HUD
+  // back to desktop, and a touch flips it to the thumbstick layout.
   const notePointer = (e) => {
-    if (e.pointerType === 'touch') input.pointer = 'touch';
-    else if (e.pointerType === 'mouse' || e.pointerType === 'pen') input.pointer = 'mouse';
+    if (e.pointerType === 'touch') {
+      input.pointer = 'touch';
+      input.mouse.active = false;
+      setInputMode('touch');
+    } else if (e.pointerType === 'mouse' || e.pointerType === 'pen') {
+      input.pointer = 'mouse';
+      setInputMode('mouse');
+    }
   };
   window.addEventListener('pointerdown', notePointer, { passive: true });
 
@@ -2233,11 +2379,14 @@ function setupPointerInput() {
     if (game.state !== 'playing') return;
     const rect = canvas.getBoundingClientRect();
     const sx = e.clientX - rect.left, sy = e.clientY - rect.top;
-    if (e.pointerType === 'touch' || input.pointer === 'touch') {
+    if (e.pointerType === 'touch') {
+      input.mouse.active = false;
       const w = screenToWorld(sx, sy);
       player.facing = angleTo(player.x, player.y, w.x, w.y);
       input.aim = player.facing;
     } else {
+      // a click aims too, even if the pointer never emitted a move
+      input.mouse.x = sx; input.mouse.y = sy;
       input.mouse.active = true;
       input.mouse.lastMove = game.realElapsed;
     }
@@ -2433,6 +2582,8 @@ function updateHUD(force = false) {
   if (player.marked > 0) chips.push({ t: 'Tracked', cls: 'bad' });
   if (player.hp / player.maxHp < 0.35) chips.push({ t: 'Take a breather', cls: 'bad' });
   if (player.sit) chips.push({ t: 'Sitting', cls: 'good' });
+  const mate = partnerBot();
+  if (mate) chips.push({ t: 'friend ' + Math.ceil(mate.hp) + ' hp', cls: mate.hp / mate.maxHp < 0.35 ? 'bad' : 'good' });
   if (game.bossSpawned && !game.bossDefeated) {
     chips.push({ t: game.boss && !game.boss.dead && game.boss.adBreak > 0 ? 'Ad break' : 'Boss live', cls: 'bad' });
   }
@@ -2444,6 +2595,7 @@ function updateHUD(force = false) {
   ui.touchInteract.classList.toggle('show', nearBench && game.state === 'playing');
   if (ui.touchInteract) ui.touchInteract.style.display = '';
   updateActionCooldowns(force);
+  updateWaveChip();
   updateHpUI();
   updateXpUI();
   updateJoyUI();
@@ -2826,6 +2978,14 @@ function buildHelpPanel() {
         <p>Use the left thumb pad to move. The right buttons are <b>Bonk</b>, two skills, and dash. The bench prompt appears when you are close. Tap an [X] to close a pop-up. Landscape is comfier, but portrait works too.</p>
       </div>
       <div class="help-block">
+        <h4>Waves</h4>
+        <p>Ads now arrive in waves, from <b>Super Easy</b> up to <b>Super Hard+</b>. Clear the crew and you get a few seconds and some Joy before the next one. The Algorithm still interrupts everything when the island gets clear enough to wake it.</p>
+      </div>
+      <div class="help-block">
+        <h4>Play with a friend</h4>
+        <p>Turn on <b>play with a friend</b> on the title screen for same-keyboard co-op. You keep <kbd>WASD</kbd>, <kbd>J</kbd>, <kbd>Q</kbd>, <kbd>E</kbd>; your friend moves with the <kbd>arrow keys</kbd> and auto-swings at whatever they face. The camera holds you both, so stay within a screen of each other.</p>
+      </div>
+      <div class="help-block">
         <h4>This build</h4>
         <p>AdBlock Island <b>v${VERSION}</b> — one HTML file, no build step, no trackers, no accounts. Notes are saved in this browser only. Patch notes live in <code>CHANGELOG.md</code>.</p>
       </div>
@@ -2982,18 +3142,18 @@ function startGame() {
   game.bossSpawned = false;
   game.bossDefeated = !!save.bossDefeated;
   game.won = !!save.won;
+  // waves: pick up where the save left off, or welcome them with wave one
+  monsters.length = 0;
+  game.boss = null;
   if (save.bossSpawned && !save.bossDefeated) {
     spawnBoss(true);
   }
-  // spawn initial ads after the world exists
-  const initial = clamp(5 + Math.floor(player.level * 0.4) + Math.floor(world.cleansePercent() * 4), 5, 14);
-  for (let i = 0; i < initial; i++) spawnMonster(pick(['popimp', 'popimp', 'mimic', 'banner', 'behemoth']));
+  startWave(clamp(Math.round(save.wave || 1), 1, 99), { silent: false });
+  game.coop = !!coopEnabled;
+  if (game.coop) spawnPartner();
   ui.titleScreen.classList.add('hidden');
   ui.hud.classList.remove('hidden');
-  ui.hintBar.innerHTML = input.touch
-    ? 'left pad move · right buttons bonk · <b>sit</b> near the bench'
-    : '<kbd>J</kbd> bonk · <kbd>Q</kbd>/<kbd>E</kbd> skills · <kbd>Space</kbd> dash · <kbd>F</kbd> sit';
-  setTimeout(() => ui.hintBar.classList.add('fade'), 14000);
+  refreshHintBar();
   ui.screenFade.classList.remove('hidden');
   ui.screenFade.classList.remove('out');
   // force a reflow so the fade actually animates from cream to the island
@@ -3047,8 +3207,7 @@ function buzz(ms) {
   if (navigator.vibrate) { try { navigator.vibrate(ms); } catch (e) {} }
 }
 function currentAim() {
-  if (input.pointer === 'mouse' && input.mouse.active &&
-      game.realElapsed - input.mouse.lastMove < AIM_MOUSE_IDLE) {
+  if (aimUsingMouse()) {
     const w = screenToWorld(input.mouse.x, input.mouse.y);
     return angleTo(player.x, player.y, w.x, w.y);
   }
@@ -3119,7 +3278,7 @@ function doAttack() {
   player.atkAnim = 0.26;
   // snap onto the nearest ad inside the aim cone, if there is one
   const reach = cls === 'blocker' ? 96 : 540;
-  const cone = input.pointer === 'touch' ? AIM_ASSIST_CONE + 0.18 : AIM_ASSIST_CONE;
+  const cone = aimUsingMouse() ? AIM_ASSIST_CONE : AIM_ASSIST_CONE + 0.18;
   player.atkDir = assistAim(currentAim(), reach, cone);
   player.facing = player.atkDir;
   player.moving = true;
@@ -3593,7 +3752,7 @@ function updatePopups(dt) {
 function spawnMonster(type, opts = {}) {
   if (type === 'algorithm') { spawnBoss(); return null; }
   const cap = game.bossSpawned && !game.bossDefeated ? 18 : 22;
-  if (monsters.filter((m) => !m.dead).length >= cap) return null;
+  if (!opts.force && monsters.filter((m) => !m.dead).length >= cap) return null;
   const def = MONSTER_TYPES[type] || MONSTER_TYPES.popimp;
   let x = opts.x, y = opts.y;
   if (x == null || y == null) {
@@ -3637,6 +3796,172 @@ function revealMimic(m, bonked) {
   floatingText(m.x, m.y - m.r - 25, bonked ? 'SURPRISE BONK!' : 'GOTCHA!', PAL.rose, 13, 1);
   audio.sfx(bonked ? 'crit' : 'popbad');
 }
+/* ================================ waves ===================================
+   Ads arrive in waves that climb from a polite warm-up to something genuinely
+   rude. Each wave spawns a fixed crew; clear it and the island takes a breath
+   before the next one. The Algorithm still interrupts everything when the
+   island is clear enough to wake it up. */
+const WAVE_TIERS = [
+  { max: 2, label: 'Super Easy', note: 'barely a bother', color: '#3f8f6b', dot: '#a9e8c9' },
+  { max: 4, label: 'Easy', note: 'polite static', color: '#33806a', dot: '#a9e8c9' },
+  { max: 6, label: 'Normal', note: 'the ads brought friends', color: '#2f7f9c', dot: '#8ad7e8' },
+  { max: 8, label: 'Hard', note: 'banners on every tile', color: '#9a6b1f', dot: '#ffe39a' },
+  { max: 10, label: 'Super Hard', note: 'hold the line', color: '#c2375f', dot: '#ff8fa3' },
+  { max: Infinity, label: 'Super Hard+', note: 'they keep coming', color: '#a02a4e', dot: '#ff6b8b' }
+];
+
+function waveTier(n) {
+  for (const t of WAVE_TIERS) if (n <= t.max) return t;
+  return WAVE_TIERS[WAVE_TIERS.length - 1];
+}
+
+function wavePlan(n) {
+  const tier = waveTier(n);
+  const count = Math.min(20, 4 + Math.round((n - 1) * 0.9));
+  const hp = 0.5 + (n - 1) * 0.16;
+  const dmg = 0.5 + (n - 1) * 0.085;
+  const speed = 0.85 + Math.min(0.3, (n - 1) * 0.028);
+  let types;
+  if (n <= 2) types = ['popimp', 'popimp', 'banner'];
+  else if (n <= 4) types = ['popimp', 'popimp', 'banner', 'mimic'];
+  else if (n <= 6) types = ['popimp', 'banner', 'mimic'];
+  else types = ['popimp', 'banner', 'mimic', 'behemoth'];
+  return { n, tier, count, hp, dmg, speed, types };
+}
+
+function waveAlive() {
+  let n = 0;
+  for (const m of monsters) if (!m.dead && !m.isBoss && m.wave === game.wave) n++;
+  return n;
+}
+
+function waveSpawnPoint(cx, cy) {
+  for (let i = 0; i < 90; i++) {
+    const a = rand(TAU), r = rand(440, 300);
+    const x = clamp(cx + Math.cos(a) * r, 50, WORLD_W - 50);
+    const y = clamp(cy + Math.sin(a) * r, 50, WORLD_H - 50);
+    if (world.tileAt(x, y) === T_WATER || !world.canWalk(x, y, 18)) continue;
+    if (dist(x, y, BENCH.x, BENCH.y) < 170) continue;
+    return { x, y };
+  }
+  return { x: clamp(cx + rand(320, -320), 60, WORLD_W - 60), y: clamp(cy + rand(320, -320), 60, WORLD_H - 60) };
+}
+
+function startWave(n, opts = {}) {
+  const plan = wavePlan(n);
+  game.wave = n;
+  game.waveState = 'fight';
+  game.waveT = 0;
+  game.waveTotal = 0;
+  save.wave = n;
+  if (game.boss && !game.boss.dead) {
+    // the boss interrupted the schedule: hold the wave until it is dealt with
+    updateWaveChip();
+    return;
+  }
+  for (let i = 0; i < plan.count; i++) {
+    const pt = waveSpawnPoint(player.x, player.y);
+    const m = spawnMonster(pick(plan.types), { x: pt.x, y: pt.y, force: true });
+    if (!m) continue;
+    m.hp = m.maxHp = m.maxHp * plan.hp;
+    m.dmg *= plan.dmg;
+    m.speed *= plan.speed;
+    m.wave = n;
+    m.spawnT = 0.55 + i * 0.1;
+    m.aggro = true;
+    game.waveTotal++;
+  }
+  if (opts.silent) { updateWaveChip(); return; }
+  waveBannerShow({
+    kicker: 'wave ' + n,
+    label: plan.tier.label,
+    note: plan.tier.note,
+    count: plan.count + (plan.count === 1 ? ' ad' : ' ads') + ' incoming'
+  });
+  audio.sfx(n >= 7 ? 'boss' : 'wave');
+  const bot = pick(bots.filter((b) => b.bubbleT <= 0));
+  if (bot) botSay(bot, pick([
+    'wave ' + n + '. we have done worse.',
+    'heads up, ' + plan.count + ' of them this time',
+    plan.tier.label.toLowerCase() + '? okay. okay okay.',
+    'breathe. then bonk.'
+  ]));
+  updateWaveChip();
+  saveGame();
+}
+
+function updateWaves(dt) {
+  if (game.state !== 'playing' || game.won) return;
+  if (game.boss && !game.boss.dead) return; // boss fight overrides the schedule
+  if (!game.wave) { startWave(1); return; }
+  if (game.waveState === 'break') {
+    game.waveT -= dt;
+    if (game.waveT <= 0) startWave(game.wave + 1);
+    return;
+  }
+  if (waveAlive() > 0) return;
+
+  const n = game.wave;
+  const bonus = 10 + n * 4;
+  player.joy += bonus;
+  save.totalJoy = (save.totalJoy || 0) + bonus;
+  gainXp(5 + n * 2);
+  save.stats.waves = (save.stats.waves || 0) + 1;
+  game.waveState = 'break';
+  game.waveT = 4.6;
+  waveBannerShow({
+    kicker: 'wave ' + n + ' cleared',
+    label: 'Nice work',
+    note: '+' + bonus + ' joy · next one in a moment',
+    cls: 'cleared',
+    hold: 2400
+  });
+  audio.sfx('levelup');
+  const bot = pick(bots.filter((b) => b.bubbleT <= 0));
+  if (bot) botSay(bot, pick([
+    'that is the lot. kettle is on.',
+    'clean sweep! literally.',
+    'okay, small break. you earned it',
+    'they will be back, but so will we'
+  ]));
+  updateWaveChip();
+  saveGame();
+}
+
+let waveBannerT = null;
+function waveBannerShow(o) {
+  const el = ui.waveBanner;
+  if (!el) return;
+  ui.waveKicker.textContent = o.kicker || '';
+  ui.waveLabel.textContent = o.label || '';
+  ui.waveNote.textContent = o.note || '';
+  ui.waveCount.textContent = o.count || '';
+  ui.waveCount.style.display = o.count ? '' : 'none';
+  el.className = 'wave-banner show ' + (o.cls || '');
+  if (waveBannerT) clearTimeout(waveBannerT);
+  waveBannerT = setTimeout(() => el.classList.remove('show'), o.hold || 3200);
+}
+
+function updateWaveChip() {
+  if (!ui.waveChipLabel) return;
+  const n = game.wave || 1;
+  const tier = waveTier(n);
+  ui.waveChipNum.textContent = 'wave ' + n;
+  ui.waveChipLabel.textContent = tier.label;
+  ui.waveChipLabel.style.color = tier.color;
+  ui.waveDot.style.background = tier.dot;
+  ui.waveDot.style.boxShadow = '0 0 0 3px ' + tier.dot + '55';
+  ui.waveCard.classList.toggle('breaking', game.waveState === 'break');
+  if (game.boss && !game.boss.dead) {
+    ui.waveChipLeft.textContent = 'paused — boss on the island';
+  } else if (game.waveState === 'break') {
+    ui.waveChipLeft.textContent = 'next wave in ' + Math.max(1, Math.ceil(game.waveT)) + 's';
+  } else {
+    const left = waveAlive();
+    ui.waveChipLeft.textContent = left + (left === 1 ? ' ad left' : ' ads left');
+  }
+}
+
 function updateMonsters(dt) {
   const targets = [];
   for (const m of monsters) {
@@ -3753,19 +4078,7 @@ function updateMonsters(dt) {
   for (let i = monsters.length - 1; i >= 0; i--) {
     if (monsters[i].dead && monsters[i].deathT <= 0) monsters.splice(i, 1);
   }
-  // spawn maintenance
-  if (!game.won && game.state === 'playing') {
-    const alive = monsters.filter((m) => !m.dead && !m.isBoss).length;
-    const target = clamp(5 + Math.floor(player.level * 0.8) + Math.floor((1 - world.cleansePercent()) * 10), 5, 20);
-    mSpawnT = (mSpawnT || 0) - dt;
-    if (alive < target && mSpawnT <= 0) {
-      mSpawnT = rand(4, 2);
-      const t = player.level > 4
-        ? pick(['popimp', 'popimp', 'mimic', 'banner', 'behemoth'])
-        : pick(['popimp', 'popimp', 'mimic', 'banner']);
-      spawnMonster(t);
-    }
-  }
+  updateWaves(dt);
 }
 let mSpawnT = 0;
 function contactAttack(m, target, dt, multiplier = 1) {
@@ -4050,6 +4363,83 @@ function chooseBotTarget(bot) {
   if (!best) best = { x: PLAZA.x + rand(150, -150), y: PLAZA.y + rand(150, -150) };
   bot.targetX = best.x; bot.targetY = best.y;
 }
+/* ----------------------------- local co-op --------------------------------
+   A second hero on the same keyboard. It lives in the `bots` array so ads
+   target it, hit it, and the renderer draws it for free; the AI is skipped and
+   replaced with arrow-key movement plus a short-range auto-attack. */
+let coopEnabled = false;
+let partnerWarnT = 0;
+
+function partnerBot() {
+  for (const b of bots) if (b.human) return b;
+  return null;
+}
+
+function spawnPartner() {
+  if (partnerBot()) return partnerBot();
+  const cls = pick(['blocker', 'checker', 'reader'].filter((c) => c !== player.cls)) || 'blocker';
+  let x = player.x + 52, y = player.y + 18;
+  if (!world.canWalk(x, y, 16)) { x = player.x - 52; y = player.y; }
+  const b = {
+    id: 'p2', name: 'friend', cls, x, y, homeX: x, homeY: y, r: 14,
+    hp: 130, maxHp: 130, level: Math.max(1, player.level), facing: player.facing,
+    vx: 0, vy: 0, speed: 196, state: 'human', stateT: 999, target: null,
+    chatCd: 999, bubble: '', bubbleT: 0, bob: rand(TAU), cosmetic: 'none',
+    sit: false, atkAnim: 0, atkCd: 0, helpCd: 999, moving: false, human: true
+  };
+  bots.push(b);
+  toast('A friend washed ashore with an arrow-key broom.', 'good', '✦');
+  chatAdd('friend', 'hi! i have the arrow keys. let\'s go.', '', PAL.inkSoft);
+  return b;
+}
+
+const PARTNER_LEASH = 560;
+
+function updatePartner(b, dt) {
+  const k = input.p2;
+  let dx = 0, dy = 0;
+  if (k.left) dx -= 1;
+  if (k.right) dx += 1;
+  if (k.up) dy -= 1;
+  if (k.down) dy += 1;
+  const l = Math.hypot(dx, dy);
+  if (l > 1) { dx /= l; dy /= l; }
+  b.moving = l > 0.05;
+  if (b.moving) {
+    b.facing = Math.atan2(dy, dx);
+    moveWithCollision(b, dx * b.speed * dt, dy * b.speed * dt);
+    b.bob += dt * 7;
+  } else {
+    b.bob += dt * 2.4;
+  }
+
+  // keep both heroes on one screen
+  const d = dist(b.x, b.y, player.x, player.y);
+  if (d > PARTNER_LEASH) {
+    const a = angleTo(b.x, b.y, player.x, player.y);
+    const pull = Math.min(1, dt * 5);
+    moveWithCollision(b, Math.cos(a) * (d - PARTNER_LEASH) * pull, Math.sin(a) * (d - PARTNER_LEASH) * pull);
+    if (game.time - partnerWarnT > 8 && game.state === 'playing') {
+      partnerWarnT = game.time;
+      toast('Stay near your friend — co-op shares one camera.', 'warn', '↔');
+    }
+  }
+
+  b.hp = Math.min(b.maxHp, b.hp + dt * 2.4);
+  if (b.atkCd > 0) return; // already ticked down in updateBots
+  const reach = b.cls === 'blocker' ? 82 : 230;
+  const target = nearestTargetInCone(b.x, b.y, b.facing, reach, 1.05);
+  if (!target) return;
+  b.atkCd = 0.68;
+  b.atkAnim = 0.2;
+  b.facing = angleTo(b.x, b.y, target.x, target.y);
+  const dmg = (b.cls === 'blocker' ? 15 : 12) * (1 + (player.level - 1) * 0.04);
+  damageMonster(target, dmg, { player: false, knock: 0 });
+  if (b.cls === 'checker') target.marked = Math.max(target.marked, 1.4);
+  beamFx(b.x, b.y, b.facing, Math.min(reach, dist(b.x, b.y, target.x, target.y) + 16), 7, CLASSES[b.cls].color2, 0.13);
+  audio.sfx('swing');
+}
+
 function updateBots(dt) {
   for (const b of bots) {
     b.bob += dt * 5;
@@ -4059,6 +4449,7 @@ function updateBots(dt) {
     b.helpCd = Math.max(0, b.helpCd - dt);
     b.stateT -= dt;
     b.hp = Math.min(b.maxHp, b.hp + dt * 1.2);
+    if (b.human) { updatePartner(b, dt); continue; }
     if (b.hp <= 5) b.state = 'flee';
     if (b.stateT <= 0) {
       const nearM = nearestMonster(b.x, b.y, 560);
@@ -4211,8 +4602,9 @@ const AIM_MOUSE_IDLE = 8;     // seconds of pointer silence before walking takes
 const AIM_ASSIST_CONE = 0.42; // half-angle of the attack snap, radians
 
 function aimUsingMouse() {
-  return input.pointer === 'mouse' && input.mouse.active &&
-    game.realElapsed - input.mouse.lastMove < AIM_MOUSE_IDLE;
+  // deliberately no media-query or pointerKind check: if a mouse has moved (or
+  // clicked) recently, the mouse is aiming. Touch input clears the flag.
+  return input.mouse.active && game.realElapsed - input.mouse.lastMove < AIM_MOUSE_IDLE;
 }
 
 /* The ad inside a cone in front of `angle` that sits closest to that angle.
@@ -4361,9 +4753,15 @@ function updateCamera(dt) {
   const w = window.innerWidth, h = window.innerHeight;
   cam.targetZoom = clamp(Math.min(w / 1000, h / 620), 0.68, 1.0);
   cam.zoom = lerp(cam.zoom, cam.targetZoom, 1 - Math.pow(0.002, dt));
-  const aimShiftX = (input.pointer === 'mouse' && input.mouse.active) ? clamp((input.mouse.x - w / 2) / w, -0.5, 0.5) * 90 / cam.zoom : 0;
-  const aimShiftY = (input.pointer === 'mouse' && input.mouse.active) ? clamp((input.mouse.y - h / 2) / h, -0.5, 0.5) * 60 / cam.zoom : 0;
-  const tx = player.x + aimShiftX, ty = player.y - 30 + aimShiftY;
+  const aimShiftX = aimUsingMouse() ? clamp((input.mouse.x - w / 2) / w, -0.5, 0.5) * 90 / cam.zoom : 0;
+  const aimShiftY = aimUsingMouse() ? clamp((input.mouse.y - h / 2) / h, -0.5, 0.5) * 60 / cam.zoom : 0;
+  let tx = player.x + aimShiftX, ty = player.y - 30 + aimShiftY;
+  const mate = partnerBot();
+  if (mate) {
+    tx = (player.x + mate.x) / 2 + aimShiftX * 0.4;
+    ty = (player.y + mate.y) / 2 - 30 + aimShiftY * 0.4;
+    cam.targetZoom = Math.min(cam.targetZoom, 0.86);
+  }
   cam.x = lerp(cam.x, tx, 1 - Math.pow(0.0015, dt));
   cam.y = lerp(cam.y, ty, 1 - Math.pow(0.0015, dt));
   const halfW = w / 2 / cam.zoom, halfH = h / 2 / cam.zoom;
@@ -5809,7 +6207,7 @@ function drawPlayer() {
     g.beginPath(); g.arc(player.x, player.y, 26, 0, TAU); g.fill(); g.restore();
   }
   // aim hand
-  if (input.pointer === 'mouse' && input.mouse.active && game.state === 'playing') {
+  if (aimUsingMouse() && game.state === 'playing') {
     const a = currentAim();
     // a couple of fading pips so the aim direction reads at a glance
     g.save();
@@ -6389,7 +6787,7 @@ function drawAimReticle() {
   };
 
   // touch: a small pip that leads the walk, so the stick reads as aiming
-  if (input.pointer === 'touch') {
+  if (input.touch && !aimUsingMouse()) {
     if (!player.moving) return;
     const s = worldToScreen(player.x, player.y);
     const a = player.facing;
