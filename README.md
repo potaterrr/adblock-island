@@ -1,6 +1,6 @@
 # AdBlock Island
 
-**v1.4.2** · [Play it](https://potaterrr.github.io/adblock-island/) · [Patch notes](CHANGELOG.md)
+**v1.4.3** · [Play it](https://potaterrr.github.io/adblock-island/) · [Patch notes](CHANGELOG.md)
 
 A wholesome micro-MMO in a single HTML file. The ads took the beach, the locals kept the kettle on. Pick a class, sweep the static, bonk the ad-monsters, and leave a kind note for whoever washes ashore next.
 
@@ -9,6 +9,36 @@ Everything is self-contained: no build step, no CDN, no images, no fonts, no bac
 ```
 index.html   ← the entire game (≈300 KB, markup + CSS + renderer + audio + logic)
 ```
+
+## Backstory
+
+The ads came with the tide.
+
+Nobody on the island remembers the exact morning it happened. One day the shoreline was just shoreline, and the next there were pop-ups half-buried in the sand, banners strung between the palms like festival bunting, and one unskippable video ad that has been loading since before anyone can remember. It plays a little further every year.
+
+The locals did not leave. They put the kettle on, swept what they could with brooms and umbrellas, and kept the plaza lit. They got very good at living around the clutter — stepping over it, apologising to it, naming the worst banners after people they disliked. But the static kept creeping inland, and somewhere past the treeline something big started running ad breaks on a schedule.
+
+You wash ashore with a broom, a class, and nowhere else to be. The islanders saved you a spot by the fire and a patch of sand to clean. That is the whole job: push the static back, keep the plaza kind, and leave a note on the bench for whoever washes ashore next.
+
+It is not a sad story. The ocean is still warm, the kettle still works, and the ads are, in the end, only made of paper.
+
+## How to play
+
+**1. Wash ashore.** Pick a class on the title screen — AdBlocker (shield and slam, tough), Fact-Checker (darts and healing), or Reader-Mode (piercing beams, fast and fragile) — type a name, and press **wash ashore**. Your class can be changed later from the pause menu.
+
+**2. Move and aim.** `WASD` to walk, mouse to aim, `J` or click to attack. On a phone, the left thumb stick moves you and points your aim, and the big **BONK** button attacks. Dashes are `Space` or the dash button. Attacks snap to the ad nearest your aim line, so you never have to pixel-hunt.
+
+**3. Clean the static.** Purple static sits on the ground across the island. Walking over it scrubs a little; hitting it with your weapon clears it much faster and pays **Joy** and **XP**. Joy is spent on permanent upgrades (`U`) — damage, health, speed, cleanse radius, and cozy cosmetics.
+
+**4. Survive the waves.** Ads arrive in fixed waves that climb from **Super Easy** to **Super Hard+**. Each wave clears with bonus Joy and XP, then the island takes a four-second breath. Watch the card under your portrait for the wave number, tier, and how many ads are left.
+
+**5. Wake the Algorithm.** When the island is about 64% clear, the boss wakes at the plaza and starts running ad breaks. Dodge the sponsored beams, break its health thresholds, and finish the fight. Waves pause while it is out.
+
+**6. Be a neighbour.** Locals roam, fight beside you, and chat. At the cozy bench (`F`), sit down and pin a note to the kindness wall — it is saved in your browser and read by whoever visits next, including you on a bad day.
+
+**7. Bring a friend (optional).** Choose **play with a friend** on the title screen for same-keyboard co-op: player 2 moves on the arrow keys and attacks automatically, shares Joy and waves, and is a real hero that ads will target.
+
+There is no fail state that erases progress, no timer, and no score to chase. Play for ten minutes or an hour. Progress, notes, and settings save automatically in `localStorage`.
 
 ## Play it
 
@@ -126,6 +156,30 @@ adblock-island/
 
 The renderer targets 60 fps on phones and a calm 30–60 fps on desktop. It is a single canvas with a y-sorted scene, a cached minimap, and throttled floating text. If a machine struggles, the settings panel can turn off particles, screen shake, scanlines, and damage numbers.
 
-## A note on the fiction
+## Patch notes
 
-AdBlock Island is a small, non-commercial joke about ad fatigue. It is not affiliated with any ad blocker, browser, or platform. The ads are fictional, and the only thing they want is for you to sit down for a minute.
+The full history lives in **[CHANGELOG.md](CHANGELOG.md)**, newest first, and the version on the title card always matches its top entry.
+
+| Version | Date | Headline |
+| --- | --- | --- |
+| [1.4.3](CHANGELOG.md#143--2026-10-29) | 2026-10-29 | Backstory and credits in the help panel, documented README |
+| [1.4.2](CHANGELOG.md#142--2026-10-29) | 2026-10-29 | Compact phone class picker; all three classes on one screen |
+| [1.4.1](CHANGELOG.md#141--2026-10-29) | 2026-10-29 | Touch controls and HUD scaled to fit phones |
+| [1.4.0](CHANGELOG.md#140--2026-10-29) | 2026-10-29 | Escalating waves, wave HUD, same-keyboard co-op |
+| [1.3.2](CHANGELOG.md#132--2026-10-29) | 2026-10-29 | Aim follows the player; chibi hero renderer |
+| [1.3.1](CHANGELOG.md#131--2026-10-29) | 2026-10-29 | Kindness wall and bench sitting |
+| [1.3.0](CHANGELOG.md#130--2026-10-29) | 2026-10-29 | The Algorithm boss fight |
+| [1.2.0](CHANGELOG.md#120--2026-10-29) | 2026-10-29 | Upgrade shop, cosmetics, save data |
+| [1.1.0](CHANGELOG.md#110--2026-10-29) | 2026-10-29 | Procedural audio, settings, accessibility toggles |
+| [1.0.0](CHANGELOG.md#100--2026-10-29) | 2026-10-29 | First build: the island, three classes, static cleansing |
+
+## Disclaimer
+
+AdBlock Island is **my own original work** — written, drawn, composed and play-tested by me, [@potaterrr](https://github.com/potaterrr), as a solo project. Every part of it is hand-written: the Canvas 2D renderer, the character art (drawn procedurally in code, no image files), the Web Audio soundtrack and sound effects, the UI, and the writing.
+
+- **No third-party assets.** No images, sprites, fonts, audio files, libraries, frameworks, CDNs or tracking scripts are used. The single `index.html` is the whole thing.
+- **No affiliation.** It is a work of parody and a small non-commercial joke about ad fatigue. It is not affiliated with, endorsed by, or connected to any ad blocker, browser, advertiser, or platform. All ads, brands, and characters in it are fictional.
+- **No data collection.** Nothing is uploaded. Progress, notes, and settings are stored only in your browser's `localStorage` and clearing site data removes them.
+- **Licence.** The source is public so it can be read and learned from; please don't republish it as your own. If you want to reuse a piece of it, ask first.
+
+© 2026 potaterrr. Thanks for washing ashore.

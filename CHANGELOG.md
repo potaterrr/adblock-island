@@ -4,6 +4,20 @@ All notable changes to AdBlock Island. The game is a single `index.html`, and th
 
 Format: [Semantic Versioning](https://semver.org/). Dates are YYYY-MM-DD. Every release since the first build is listed below, newest first.
 
+## [1.4.3] — 2026-10-29
+
+The island gets its story told.
+
+### Added
+
+- **A backstory in the help panel.** Pressing `H` now opens with "The story so far": the ads came with the tide, the locals kept the kettle on, and you wash ashore with a broom and nowhere else to be. Two short paragraphs above the existing plan, class abilities, controls, ads, waves and co-op blocks.
+- **A credit and disclaimer footer.** The bottom of the help panel names it as an original solo project by [@potaterrr](https://github.com/potaterrr), links to the source, and notes that every asset is hand-written — no third-party art, fonts, audio, or libraries — and that the game is a work of parody with no real advertisers involved.
+- **README: backstory, how to play, patch notes, disclaimer.** The readme now opens with the island's story, then a seven-step how-to-play that matches the actual game loop (classes, aim, cleansing, waves, the Algorithm, the bench, co-op), then a patch-notes table covering every release from 1.0.0 to 1.4.3, then a plain-language disclaimer: original work by potaterrr, no third-party assets, no affiliation, no data collection.
+
+### Changed
+
+- The "note on the fiction" paragraph moved into the fuller disclaimer at the end of the README, so the affiliation and parody notice sits next to the ownership statement instead of being buried mid-document.
+
 ## [1.4.2] — 2026-10-29
 
 The title screen gets the phone treatment too.

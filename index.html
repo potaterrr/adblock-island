@@ -866,6 +866,23 @@ body.touch .chat-panel.collapsed .chat-log,body.touch .chat-panel.collapsed #cha
 .help-block{border:2px solid var(--line);border-radius:11px;padding:10px 12px;background:rgba(255,255,255,.4)}
 .help-block h4{margin:0 0 5px;font-family:var(--ui);font-size:10px;letter-spacing:.06em;text-transform:uppercase}
 .help-block p{margin:0;font-size:11px;line-height:1.5;color:var(--ink-soft)}
+.help-story{
+  border:2.5px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:10px;
+  background:linear-gradient(180deg,#fffdf6,#fdf0da);box-shadow:var(--shadow-sm);
+}
+.help-story h4{
+  margin:0 0 6px;font-family:var(--ui);font-size:10px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--ink-soft);
+}
+.help-story p{margin:0;font-size:11.5px;line-height:1.55;color:var(--ink-soft)}
+.help-story p + p{margin-top:6px}
+.help-story b{color:var(--ink)}
+.help-credit{
+  margin-top:11px;padding-top:9px;border-top:1.5px dashed rgba(60,52,83,.2);
+  font-family:var(--ui);font-size:9.5px;line-height:1.6;color:var(--ink-faint);text-align:center;
+}
+.help-credit b{color:var(--ink-soft)}
+.help-credit a{color:var(--ink-soft);text-decoration:underline;text-underline-offset:2px}
 .help-block kbd{
   display:inline-block;border:1.5px solid var(--line);border-bottom-width:2.5px;border-radius:4px;
   padding:0 4px;background:#fff;font-family:var(--ui);font-size:9px;color:var(--ink);margin:1px 1px;
@@ -1265,7 +1282,7 @@ const ICONS = {
 };
 const svg = (name) => ICONS[name] || ICONS.spark;
 
-const VERSION = '1.4.2';
+const VERSION = '1.4.3';
 
 /* ------------------------------- classes -------------------------------- */
 const CLASSES = {
@@ -3009,6 +3026,11 @@ function addKindnessNote(raw) {
 function buildHelpPanel() {
   const c = CLASSES[game.state === 'title' ? selectedClass : player.cls] || CLASSES.blocker;
   ui.modalBody.innerHTML = `
+    <div class="help-story">
+      <h4>The story so far</h4>
+      <p>The ads came with the tide. Pop-ups half-buried in the sand, banners strung between the palms, and one unskippable video that has been loading since before anyone can remember.</p>
+      <p>The locals did not leave. They put the kettle on, swept what they could, and saved you a spot. You wash ashore with a broom and nowhere else to be. Clean the static, keep the plaza kind, and leave a note for whoever comes next.</p>
+    </div>
     <div class="help-grid">
       <div class="help-block">
         <h4>Your gentle plan</h4>
@@ -3049,6 +3071,12 @@ function buildHelpPanel() {
         <h4>This build</h4>
         <p>AdBlock Island <b>v${VERSION}</b> — one HTML file, no build step, no trackers, no accounts. Notes are saved in this browser only. Patch notes live in <code>CHANGELOG.md</code>.</p>
       </div>
+    </div>
+    <div class="help-credit">
+      An original solo project by <b>potaterrr</b><br>
+      <a href="https://github.com/potaterrr/adblock-island" target="_blank" rel="noopener">source, backstory &amp; patch notes</a><br>
+      Hand-written HTML, canvas and Web Audio<br>
+      No third-party assets · a work of parody
     </div>
   `;
   panelFoot([{ label: 'Okay, back to it', action: 'close', kind: 'primary' }]);
