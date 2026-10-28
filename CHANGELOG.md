@@ -4,6 +4,19 @@ All notable changes to AdBlock Island. The game is a single `index.html`, and th
 
 Format: [Semantic Versioning](https://semver.org/). Dates are YYYY-MM-DD.
 
+## [1.3.2] — 2026-10-29
+
+Attacks now go where you point.
+
+### Fixed
+
+- **Aim assist was pulling swings sideways.** It picked the ad nearest to the *player* inside the aim cone, so a closer ad could steal a swing from the one you were actually pointing at. It now picks the ad nearest to your **aim line**, and large bodies get a much smaller amount of extra grace, so a boss standing next to you can no longer drag your attack 30–50° off target.
+- **The AdBlocker's auto-sword was hijacking the aim.** It reused the normal attack direction and swept a full 360°, so every 0.85 s the visible swing snapped to whichever ad was closest — including ones behind you — while your buffered mouse aim appeared to be ignored. The sword now has its own animation, swings only in the forward arc, and never touches the direction you aimed.
+
+### Changed
+
+- The auto-swing draws its own small gold arc, separate from the shield bash, so you can tell the two apart.
+
 ## [1.3.1] — 2026-10-29
 
 The mouse works everywhere now.

@@ -1139,7 +1139,7 @@ const ICONS = {
 };
 const svg = (name) => ICONS[name] || ICONS.spark;
 
-const VERSION = '1.3.1';
+const VERSION = '1.3.2';
 
 /* ------------------------------- classes -------------------------------- */
 const CLASSES = {
@@ -1830,7 +1830,7 @@ const player = {
   dashTime: 0, dashDir: 0, invuln: 0, shield: 0, shieldT: 0, marked: 0,
   hurtFlash: 0, healGlow: 0, dead: false, deadT: 0, potion: 3,
   regenT: 0, footstep: 0, sit: false, cosmetic: 'none', upgradeT: 0,
-  autoAtkCd: 0
+  autoAtkCd: 0, swordAnim: 0, swordDir: 0
 };
 const bots = [];
 const monsters = [];
@@ -4215,18 +4215,25 @@ function aimUsingMouse() {
     game.realElapsed - input.mouse.lastMove < AIM_MOUSE_IDLE;
 }
 
-/* nearest ad inside a cone in front of `angle`, ignoring hidden mimics */
+/* The ad inside a cone in front of `angle` that sits closest to that angle.
+   Picking nearest-to-player here made swings bend toward whichever ad happened
+   to be underfoot; this keeps them on the one you are actually pointing at.
+   Hidden mimics stay invisible to aim assist until revealed. */
 function nearestTargetInCone(x, y, angle, range, cone) {
-  let best = null, bd = Infinity;
+  let best = null, bestOff = Infinity, bestD = Infinity;
   for (const m of monsters) {
     if (m.dead || m.hidden || m.spawnT > 0) continue;
     const d = dist(x, y, m.x, m.y);
     if (d > range + (m.r || 0)) continue;
     let da = Math.atan2(m.y - y, m.x - x) - angle;
     da = Math.atan2(Math.sin(da), Math.cos(da));
-    const slack = Math.atan2(m.r || 0, Math.max(d, 1));
-    if (Math.abs(da) > cone + slack) continue;
-    if (d < bd) { bd = d; best = m; }
+    const off = Math.abs(da);
+    // a big body gets a little grace, but never enough to drag aim sideways
+    const slack = Math.min(Math.atan2(m.r || 0, Math.max(d, 1)), 0.18);
+    if (off > cone + slack) continue;
+    if (off < bestOff - 0.015 || (Math.abs(off - bestOff) <= 0.015 && d < bestD)) {
+      bestOff = off; bestD = d; best = m;
+    }
   }
   return best;
 }
@@ -4262,13 +4269,15 @@ const TANK_SWORD_CD = 0.85;
 function updateAutoSword(dt) {
   player.autoAtkCd = Math.max(0, player.autoAtkCd - dt);
   if (player.sit || player.autoAtkCd > 0 || player.dashTime > 0) return;
-  const t = nearestTargetInCone(player.x, player.y, player.facing, TANK_SWORD_RANGE, Math.PI);
+  // only the front arc: the sword is a guard swing, not a spin attack, and it
+  // must never yank the aim the player set with the mouse
+  const t = nearestTargetInCone(player.x, player.y, player.facing, TANK_SWORD_RANGE, 1.15);
   if (!t) return;
   const a = angleTo(player.x, player.y, t.x, t.y);
-  player.atkDir = a;
-  player.atkAnim = 0.22;
-  damageMonster(t, playerDamage(9), { player: true, knock: 30 });
-  ringFx(player.x + Math.cos(a) * 24, player.y + Math.sin(a) * 24, 6, 36, '#ffe39a', 0.16, 2);
+  player.swordDir = a;
+  player.swordAnim = 0.2;
+  damageMonster(t, playerDamage(9), { player: true, knock: 26 });
+  ringFx(player.x + Math.cos(a) * 24, player.y + Math.sin(a) * 24, 6, 34, '#ffe39a', 0.16, 2);
   audio.sfx('swing');
   player.autoAtkCd = TANK_SWORD_CD * stats.cdMult();
 }
@@ -4284,6 +4293,7 @@ function updatePlayer(dt) {
   player.hurtFlash = Math.max(0, player.hurtFlash - dt);
   player.healGlow = Math.max(0, player.healGlow - dt);
   player.atkAnim = Math.max(0, player.atkAnim - dt);
+  player.swordAnim = Math.max(0, (player.swordAnim || 0) - dt);
   player.bubbleT = Math.max(0, (player.bubbleT || 0) - dt);
   if (player.shieldT > 0) {
     player.shieldT -= dt;
@@ -5761,6 +5771,19 @@ function drawPlayer() {
     g.stroke();
     g.restore();
   }
+  // the auto-swing gets its own little arc, aimed at the ad it hit
+  if (player.swordAnim > 0) {
+    const k = clamp(player.swordAnim / 0.2, 0, 1);
+    g.save();
+    g.globalAlpha = k * 0.7;
+    g.strokeStyle = '#ffe39a';
+    g.lineWidth = 4 * k + 1.5;
+    g.lineCap = 'round';
+    g.beginPath();
+    g.arc(player.x, player.y, 40, player.swordDir - 0.75, player.swordDir + 0.75);
+    g.stroke();
+    g.restore();
+  }
   const alpha = player.invuln > 0 ? (0.55 + Math.sin(t * 30) * 0.3) : 1;
   drawBlobBody(g, player.x, player.y, 17, player.cls, {
     facing: player.facing,
@@ -5773,7 +5796,7 @@ function drawPlayer() {
     level: player.level,
     moving: player.moving,
     phase: player.bob,
-    swing: player.atkAnim > 0 ? player.atkAnim / 0.26 : 0
+    swing: Math.max(player.atkAnim > 0 ? player.atkAnim / 0.26 : 0, player.swordAnim > 0 ? player.swordAnim / 0.2 : 0)
   });
   if (player.healGlow > 0) {
     g.save(); g.globalAlpha = player.healGlow * 0.5;
