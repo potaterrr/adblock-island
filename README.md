@@ -34,7 +34,7 @@ Audio starts after the first click, as browsers require.
 
 ## What is on the island
 
-- **Three classes** with different attacks, skills, and passives: AdBlocker (shield and slam), Fact-Checker (healing and marking), Reader-Mode (piercing text beams).
+- **Three chibi adventurer classes**, each hand-drawn on the canvas with its own armour, weapon, headgear, and idle flourishes: AdBlocker (plumed helm, kite shield, mallet), Fact-Checker (hood and magnifier staff), Reader-Mode (wizard hat, floating tome, quill wand). Gear picks up gold trim from level 3 and a glow from level 6, and every local rolls a slightly different face.
 - **Four ad-monsters plus a boss:** Pop-Up Imps spawn clickable `[X]` windows, Unskippable Behemoths are invulnerable until their SKIP window, Clickbait Mimics hide as free Joy, and Banner Bats throw flyers. The Algorithm runs ad breaks, sponsored beam attacks, and summons more content at health thresholds.
 - **Joy and clarity:** every fully cleansed tile pays Joy and experience. Spend Joy on permanent upgrades or cozy cosmetics.
 - **A living island:** locals roam, fight, cleanse, sit on the bench, and chat in a local log. They react to your messages.
