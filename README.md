@@ -90,11 +90,12 @@ Audio starts after the first click, as browsers require.
 | Skill two | `E` | SKILL button |
 | Dash | `Space` | dash button |
 | Sit / leave a note | `F` near the bench | sit button near the bench |
-| Upgrades | `U` | upgrades tool |
+| Upgrades | `U` | pause → Upgrades |
 | Chat | `C` | chat tool |
 | Wave choice | `N` (when a wave is cleared) | tap the wave card |
 | Next wave / upgrade | `Enter` takes the next wave, `U` opens the shop while the cleared card is open | tap the buttons in the card |
-| Help | `H` | help tool |
+| Help | `H` | pause → How to play |
+| Settings | — | pause → Settings |
 | Pause | `Esc` | pause tool |
 | Mute | `M` | speaker tool |
 
@@ -224,7 +225,7 @@ On a touch screen the HUD is deliberately thinner than the desktop one: a compac
 
 ## Patch notes
 
-The full history lives in **[CHANGELOG.md](CHANGELOG.md)**, newest first, and the version on the title card always matches its top entry.
+The full history lives in **[CHANGELOG.md](CHANGELOG.md)**, newest first, and the version on the title card always matches its top entry. The two most recent releases are the ones worth reading if you have played before: **0.6.0** is the balance pass — the two heroes whose classes you did not pick became your party, the ladder became a table of fixed crews, and class power finally applies to every hit — and **0.6.1** is the phone HUD diet, which folds the top of the screen into one quiet bar.
 
 | Version | Date | Headline |
 | --- | --- | --- |

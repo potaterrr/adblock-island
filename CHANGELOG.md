@@ -46,17 +46,30 @@ Until then, the honest description is: a single-player and local co-op cozy micr
 
 ## [0.6.1] — 2026-10-30
 
-A quieter phone HUD. Nothing about the island changed; the same facts were being told three times and now they are told once.
+A **quieter phone HUD**. Nothing on the island changed — the same handful of facts was being told three times, and now it is told once. Desktop is untouched, and moving a mouse brings the full layout straight back.
+
+### At a glance
+
+| Element | Before | After |
+| --- | --- | --- |
+| Top band | 170 px tall, XP bar, four-line wave card | 144 px tall, `Lv N` chip, two-line wave card |
+| Tool buttons | five unlabelled icons | mute, chat and pause |
+| Clarity card | ring + objective sentence + bar | ring and percentage only |
+| Wave banner | 105 px, 3.2 s on screen | 71 px pill, 1.9 s |
+| Pop-up windows | up to 3 | up to 2, spawned in the middle band |
+| Toast tray | 4 messages, 3 s each | 2 messages, 2.2 s each |
+| Touch buttons | SKILL/BONK label chips | icon only, thinner edges |
+| Companion state | hidden below 860 px | one quiet line under the wave card |
 
 ### Changed
 
-- **The touch HUD consolidates into one quiet top bar.** The player card drops its XP bar (a `Lv N` chip sits beside your name instead) and shrinks to 56px; the wave card goes from four lines to two, with the crew folded onto the count line (`4 left · 4 pop-ups`); the clarity card keeps its ring and percentage and loses the objective sentence and its bar, which repeated what the ring already said. The top band drops from 170px to 144px tall and stops being the loudest thing on screen.
-- **Five tool buttons become three on touch.** Mute, chat and pause stay; help and settings were already one tap away in the pause panel, so they no longer sit over the play area.
-- **The wave banner is a pill, not a paragraph.** On touch it loses the tier note, drops from 105px to 71px tall, and holds for 1.9s instead of 3.2s. It also moved down to 21% of the screen so it clears both top cards while it is up.
-- **Two pop-up windows at a time on a phone** instead of three, spawned in the middle band so they no longer land under the top cards or the thumb buttons. Desktop keeps three.
-- **The toast tray keeps two messages on touch**, for 2.2s instead of 3s, in smaller type.
+- **The top bar consolidates.** The player card drops its XP bar — a `Lv N` chip sits beside your name instead — and shrinks from 66 px to 56 px. The wave card goes from four lines to two, with the crew folded onto the count line (`4 left · 4 pop-ups`). The clarity card keeps its ring and percentage and loses the objective sentence and progress bar, which repeated what the ring already said.
+- **Five tool buttons become three.** Mute, chat and pause stay; help and settings were already one tap away in the pause panel, so they no longer sit over the play area.
+- **The wave banner is a pill, not a paragraph.** It loses the tier note, halves in height, and stays on screen for 1.9 s instead of 3.2 s. It also sits lower now, at 21% of the screen, so it clears both top cards while it is up.
+- **Pop-up ads are capped at two on a phone**, in the middle band, so they never land under the top cards or the thumb buttons.
+- **The toast tray keeps two messages**, for 2.2 s instead of 3 s, in smaller type.
 - **Touch buttons lose their floating SKILL/BONK labels** and carry thinner borders and softer shadows. Tap targets are unchanged in size — thumbs still need them.
-- **Companion state is visible on phones again.** The status chips were `display:none` below 860px, so the health and down timer of your two allies never showed on the platform where it matters. A single quiet line under the wave card now carries it, in rose when someone is down.
+- **Companion state is visible on phones again.** The status chips were `display:none` below 860 px, so the health and down timer of your two allies never showed on the platform where it matters. A single quiet line under the wave card now carries it, in rose when someone is down.
 
 ### Verified
 
@@ -65,22 +78,51 @@ A quieter phone HUD. Nothing about the island changed; the same facts were being
 
 ## [0.6.0] — 2026-10-30
 
-A balance pass across the island: fewer, realer allies, a harder ladder, and damage numbers that finally reflect the class you picked.
+A **balance pass across the whole island**: fewer but realer allies, a ladder that reads like stages instead of a multiplier, and damage numbers that finally reflect the class you picked.
+
+### Your party
+
+The seven roaming locals are gone. Whichever class you leave on the title screen supplies the two heroes already on the island, so the party is always all three classes and always yours.
+
+| Hero | Class | What they bring |
+| --- | --- | --- |
+| **Tidal** | AdBlocker | The line to stand behind: a short, wide swing that keeps ads off you. |
+| **Moss** | Fact-Checker | Marks ads for extra damage and patches you up 8 HP on a cooldown. |
+| **Juniper** | Reader-Mode | Reaches across a crowd from the back and keeps the flanks clean. |
+
+Pick the AdBlocker and you wash ashore beside **Moss** and **Juniper**; pick the Reader and you get **Tidal** and **Moss**. They cleanse, chip ads, mark, heal, and can now be **knocked out** — a downed companion sits out 14 seconds and walks back from the bench at 60% health, and the HUD chips (or, on a phone, the ally line) name each one with their health or their timer.
+
+### The ladder
+
+`STAGE_CREWS` replaces the old type-pool maths. Every stage is a fixed recipe, so the preview on the cleared-wave card always matches the fight, and each tier introduces something instead of just multiplying the last one.
+
+| Wave | Tier | Crew | Health | Damage |
+| --- | --- | --- | --- | --- |
+| 1 | Super Easy | 4 pop-ups | ×0.55 | ×0.60 |
+| 2 | Super Easy | 3 pop-ups, 2 banners | ×0.70 | ×0.72 |
+| 3 | Easy | 4 pop-ups, 2 banners | ×0.85 | ×0.84 |
+| 4 | Easy | 3 pop-ups, 2 banners, 1 mimic | ×1.00 | ×0.95 |
+| 5 | Normal | 4 pop-ups, 2 banners, 2 mimics | ×1.15 | ×1.05 |
+| 6 | Normal | 4 pop-ups, 3 banners, 2 mimics | ×1.30 | ×1.12 |
+| 7 | Hard | 4 pop-ups, 2 banners, 2 mimics, 1 behemoth | ×1.42 | ×1.20 |
+| 8 | Hard | 3 pop-ups, 3 banners, 3 mimics, 2 behemoths | ×1.55 | ×1.28 |
+| 9 | Super Hard | 4 pop-ups, 3 banners, 3 mimics, 3 behemoths | ×1.68 | ×1.36 |
+| 10 | Super Hard | 5 pop-ups, 3 banners, 3 mimics, 3 behemoths | ×1.80 | ×1.45 |
+| 11+ | Super Hard+ | the same shape, one more ad per wave up to 20 | +0.10 a wave | +0.06 a wave |
 
 ### Added
 
-- **The other two heroes are your party.** The seven roaming locals are gone. Whichever class you leave on the title screen supplies the two adventurers already on the island — pick the AdBlocker and you wash ashore beside **Moss** the Fact-Checker and **Juniper** the Reader-Mode. They cleanse, chip ads, mark, heal you 8 HP on a cooldown, and can now be **knocked out**: a downed companion sits out 14 seconds and walks back from the bench at 60% health. The HUD chips name each one and show their health or their down timer.
-- **A crew recipe per stage.** `STAGE_CREWS` replaces the old type-pool maths: wave 1 is four pop-ups, wave 4 brings the first mimic, wave 7 the first behemoth, and Super Hard closes on 14 ads. Waves 11+ follow a fixed endless pattern, so the preview and the fight always agree.
-- **Crew readouts.** The wave card now names what is still standing (`2 pop-ups · 1 behemoth`) instead of only counting it, and the cleared-wave panel previews the next crew by type.
+- **Crew readouts.** The wave card names what is still standing (`2 pop-ups · 1 behemoth`) instead of only counting it, and the cleared-wave panel previews the next crew by type.
+- **Companion down and revival.** A companion knocked to zero HP is out for 14 seconds, then walks back from the bench at 60% health with a line about what they missed.
 
 ### Changed
 
-- **Harder across the board.** Late crews are bigger (13 ads at wave 9, 14 at wave 10, up from 11 and 12), wave damage multipliers climb further (Super Hard is ×1.45, up from ×1.27), contact attacks land every 1.3–0.92s instead of 1.5–1.05s, player invulnerability after a hit drops from 0.62s to 0.5s, and Banner Bat flyers are faster and hit for 9 instead of 8.
-- **The scaling layers no longer stack into sponges.** Monster health carried both a wave multiplier and a level-plus-elapsed-time multiplier; the elapsed-time term is gone and the per-level term drops from 0.13 to 0.05. On a level-10 save, wave 10 is now about 2.6× base health instead of roughly 4.2×, while the stage table carries the curve. A maxed level-10 AdBlocker needs around 40 seconds of clean damage for the Super Hard crew instead of minutes.
-- **Class power is real.** `playerDamage()` now applies the class `damage` stat, which had been defined and then ignored: Fact-Checker 0.92, AdBlocker 1.00, Reader-Mode 1.16. The tank keeps its sustained sword, the checker pays for its healing, the reader gets its advertised output.
+- **Harder across the board.** Late crews are bigger (13 ads at wave 9, 14 at wave 10, up from 11 and 12), wave damage multipliers climb further (Super Hard is ×1.45, up from ×1.27), contact attacks land every 1.3–0.92 s instead of 1.5–1.05 s, player invulnerability after a hit drops from 0.62 s to 0.5 s, and Banner Bat flyers are faster and hit for 9 instead of 8.
+- **The scaling layers no longer stack into sponges.** Monster health carried both a wave multiplier and a level-plus-elapsed-time multiplier; the elapsed-time term is gone and the per-level term drops from 0.13 to 0.05. On a level-10 save, wave 10 is about 2.6× base health instead of roughly 4.2×, while the stage table carries the curve. A maxed level-10 AdBlocker needs around 40 seconds of clean damage for the Super Hard crew instead of minutes.
+- **Class power is real.** `playerDamage()` now applies the class damage stat, which had been defined and then ignored: Fact-Checker 0.92, AdBlocker 1.00, Reader-Mode 1.16. The tank keeps its sustained sword, the checker pays for its healing, the reader gets its advertised output.
 - **Companions can no longer steal kills.** Their finishing hit used to pay 20% Joy and XP because only player damage counted; a kill is now the party's kill at full value.
 - **The Algorithm fights back.** Its free damage from bystanders is capped at two helpers for about 3.5 DPS (seven locals used to solo the fight), and its health is sized to expected player damage — 1100 + 95 per level, down from 1500 + 170 — with sponsored beams and banner volleys arriving more often and 22 contact damage instead of 20.
-- The help panel no longer promises that "bots are holding the line": it names your companions, explains that they are the classes you did not pick, and says what happened to the locals (they kept the kettle on).
+- **The help panel tells the truth about who is beside you**, naming your companions, explaining that they are the classes you did not pick, and leaving the other locals to the kettle.
 
 ### Fixed
 
