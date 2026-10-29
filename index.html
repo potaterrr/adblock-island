@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
 <meta name="theme-color" content="#bde8f2">
-<meta name="description" content="AdBlock Island — a wholesome micro-MMO, currently in beta (v0.5.4). Clear the static, bonk the ad-monsters, and leave a kind note on the beach.">
+<meta name="description" content="AdBlock Island — a wholesome micro-MMO, currently in beta (v0.6.1). Clear the static, bonk the ad-monsters, and leave a kind note on the beach.">
 <meta name="author" content="potaterrr">
 <meta name="application-name" content="AdBlock Island">
 <meta name="apple-mobile-web-app-title" content="AdBlock Island">
@@ -345,6 +345,10 @@ body.has-touch #coopBtn{display:none}
 }
 .wave-card .wv-label{font-size:13px;font-weight:700;line-height:1.15;color:var(--ink)}
 .wave-card .wv-left{font-size:10px;color:var(--ink-soft);margin-top:1px}
+.wave-card .wv-types{
+  font-size:9px;line-height:1.25;color:var(--ink-faint);margin-top:1px;
+  max-width:186px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
 .wave-card.breaking .wave-dot{animation:wavePulse 1s infinite ease-in-out}
 @keyframes wavePulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.35);opacity:.55}}
 
@@ -425,6 +429,7 @@ body.has-touch #coopBtn{display:none}
   margin-left:auto;font-family:var(--ui);font-size:9px;font-weight:900;letter-spacing:.04em;
   background:rgba(60,52,83,.07);border-radius:99px;padding:2px 8px;
 }
+.wave-next .wn-crew{flex:1 0 100%;font-size:10px;color:var(--ink-faint)}
 .wave-keys{
   display:flex;align-items:center;gap:6px;margin-top:10px;
   font-family:var(--ui);font-size:9.5px;letter-spacing:.04em;color:var(--ink-faint);
@@ -496,6 +501,8 @@ body.touch .wave-banner .wb-label{font-size:24px}
 .joy-box.bump b{animation:joyBump .4s var(--ease)}
 @keyframes joyBump{50%{transform:scale(1.35);color:#e79a2b}}
 .status-chips{display:flex;flex-wrap:wrap;gap:5px}
+.level-tag{display:none}
+.ally-line{display:none}
 .status-chip{
   font-family:var(--ui);font-size:8px;letter-spacing:.07em;text-transform:uppercase;
   border:2px solid var(--line);border-radius:99px;padding:2px 7px;background:var(--sun);
@@ -730,6 +737,50 @@ body.touch #interactPrompt{display:none!important}
    the bars 30px wide and let the tool row sit on top of it. Pin the width to
    the space actually available beside the tools. */
 body.touch .hud-left{width:min(240px,calc(100vw - 192px))}
+
+/* ---- compact touch HUD ----
+   On a phone the same handful of facts was being told three times: the wave
+   card, the banner and the clarity sentence, plus five unlabelled tool buttons
+   over the play area. These rules fold the top of the screen into one quiet
+   bar and keep the middle free for the game. Desktop keeps the full layout. */
+body.touch .hud-left{width:min(232px,calc(100vw - 176px));gap:6px}
+body.touch .player-card{padding:6px 8px;gap:8px}
+body.touch #avatar{width:38px;height:38px;flex-basis:38px;border-width:2px;border-radius:10px}
+body.touch .level-tag{display:inline-block;font-size:8px;padding:1px 4px}
+body.touch .bar.xp{display:none}
+body.touch .wave-card{padding:6px 10px;gap:9px;margin-top:0}
+body.touch .wave-card .wave-dot{width:9px;height:9px}
+body.touch .wave-card .wv-num{display:inline;font-size:8px;letter-spacing:.12em}
+body.touch .wave-card .wv-label{display:inline;font-size:12px;margin-left:5px}
+body.touch .wave-card .wv-left{font-size:9.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+body.touch #waveChipTypes{display:none!important}
+body.touch .ally-line{
+  display:block;padding-left:2px;font-family:var(--ui);font-size:9px;letter-spacing:.02em;
+  color:var(--ink-faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+body.touch .ally-line.warn{color:#c2375f}
+/* top right: mute, chat, pause. Help and settings live one tap away in the
+   pause panel, so they do not need a permanent button over the island. */
+body.touch #helpBtn,body.touch #settingsBtn{display:none}
+body.touch .top-tools{gap:5px}
+body.touch .cleanse-card{padding:6px;gap:0}
+body.touch .cleanse-card .cleanse-meta{display:none}
+body.touch .ring{width:44px;height:44px;flex-basis:44px}
+body.touch .ring-inner{width:31px;height:31px}
+body.touch .ring-inner b{font-size:10px}
+body.touch .ring-inner small{font-size:5px}
+/* the banner keeps the announcement, drops the paragraph */
+body.touch .wave-banner{top:21%;padding:7px 16px 9px;border-width:2px;border-radius:16px}
+body.touch .wave-banner .wb-kicker{font-size:8px;letter-spacing:.22em}
+body.touch .wave-banner .wb-label{font-size:19px;margin:1px 0 0}
+body.touch .wave-banner .wb-note{display:none}
+body.touch .wave-banner .wb-count{margin-top:4px;font-size:9px;padding:1px 7px}
+/* thumbs: same targets, quieter edges */
+body.touch .touch-btn{border-width:2.5px;box-shadow:2px 3px 0 rgba(60,52,83,.22)}
+body.touch .touch-btn .tlabel{display:none}
+body.touch .touch-attack{border-width:3px}
+body.touch .joystick{border-width:2.5px;box-shadow:0 0 0 4px rgba(255,248,236,.16),inset 0 0 14px rgba(60,52,83,.12)}
+body.touch .toast{font-size:10.5px;padding:5px 10px}
 @media (max-width:360px){
   body.touch .hud-left{width:min(240px,calc(100vw - 178px))}
   body.touch .top-tools{gap:2px}
@@ -1172,6 +1223,7 @@ body.scanlines::after{
         <div class="pc-row">
           <span id="playerName">you</span>
           <span id="classTag" class="tag">Reader-Mode</span>
+          <span id="levelTag" class="tag level-tag">Lv 1</span>
         </div>
         <div class="bar hp" id="hpBar"><i id="hpFill"></i><span id="hpText">100 / 100</span></div>
         <div class="bar xp"><i id="xpFill"></i><span id="xpText">Lv 1</span></div>
@@ -1186,8 +1238,10 @@ body.scanlines::after{
         <div class="wv-num" id="waveChipNum">wave 1</div>
         <div class="wv-label" id="waveChipLabel">Super Easy</div>
         <div class="wv-left" id="waveChipLeft">4 ads left</div>
+        <div class="wv-types" id="waveChipTypes"></div>
       </div>
     </div>
+    <div class="ally-line" id="allyLine"></div>
     <div id="statusChips" class="status-chips"></div>
   </div>
 
@@ -1265,7 +1319,7 @@ body.scanlines::after{
         <div class="logo-badges">
           <div class="logo-kicker">a wholesome micro-MMO</div>
           <div class="beta-pill" id="betaPill" title="This is a beta build. The patch notes list what is still pending.">
-            <span class="beta-dot"></span>beta · <b id="betaVersion">v0.5.4</b>
+            <span class="beta-dot"></span>beta · <b id="betaVersion">v0.6.1</b>
           </div>
         </div>
         <h1 class="logo">ADBLOCK<br><span>ISLAND</span></h1>
@@ -1421,7 +1475,7 @@ const ICONS = {
 };
 const svg = (name) => ICONS[name] || ICONS.spark;
 
-const VERSION = '0.5.4';
+const VERSION = '0.6.1';
 
 /* ------------------------------- classes -------------------------------- */
 const CLASSES = {
@@ -1506,9 +1560,13 @@ const COSMETICS = [
   { id: 'crown', name: 'Driftwood Crown', icon: 'star', cost: 300 }
 ];
 
+/* ------------------------------ companions --------------------------------
+   The two heroes who picked the classes you did not are already on the island
+   when you wash ashore, and they are the only allies in the fight. */
+const COMPANION_NAMES = { blocker: 'Tidal', checker: 'Moss', reader: 'Juniper' };
+const COMPANION_LOOKS = { blocker: 'leaf', checker: 'scarf', reader: 'cat' };
+
 /* ------------------------------ chat content ----------------------------- */
-const BOT_NAMES = ['Moss', 'Tidal', 'Juniper', 'Pixel', 'Clover', 'Nimbus', 'Fern', 'Saffron', 'Moth', 'Pebble', 'Dune', 'Bea', 'Kite', 'Marlow'];
-const BOT_CLASSES = ['blocker', 'checker', 'reader'];
 const CHAT = {
   hello: ['oh! hello hello', 'a new face! welcome ashore', 'hi friend, mind the pop-ups', 'you made it! the kettle is still warm', 'welcome in. we saved you a spot on the sand'],
   idle: [
@@ -1560,7 +1618,6 @@ const NOTE_SEEDS = [
   { name: 'Nimbus', cls: 'reader', text: 'Revising my review from "measured" to "genuinely lovely". The source is me. I stand by it.', hearts: 11, ago: 8800 },
   { name: 'Fern', cls: 'reader', text: 'To whoever washed ashore today: hi. You are already doing the thing. That counts.', hearts: 21, ago: 12000 }
 ];
-const BOT_COSMETICS = ['sunhat', 'leaf', 'cat', 'scarf', 'halo', 'antenna', 'crown', 'none', 'sunhat', 'leaf'];
 
 /* ------------------------------- storage -------------------------------- */
 const SAVE_KEY = 'adblock-island.save.v0';
@@ -2136,25 +2193,60 @@ const popups = [];       // clickable [X] overlays
 const adQueue = [];
 let pendingTimeouts = [];
 
-function makeBots() {
+/* The island is you plus the two heroes who picked the other classes. They
+   cleanse, chip ads, patch you up and get knocked out — they never carry a
+   wave on their own, which is the whole point of the ladder. */
+function makeCompanions() {
   bots.length = 0;
-  const names = shuffle(BOT_NAMES).filter((n) => n.toLowerCase() !== player.name.toLowerCase());
-  const count = 7;
-  for (let i = 0; i < count; i++) {
-    const cls = pick(BOT_CLASSES);
-    let x = PLAZA.x + rand(280, -280), y = PLAZA.y + rand(260, -260);
-    if (!world.canWalk(x, y, 16)) { x = SPAWN.x + rand(200, -200); y = SPAWN.y - 90 + rand(80, -60); }
+  for (const cls of ['blocker', 'checker', 'reader']) {
+    if (cls === player.cls) continue;
+    const level = Math.max(1, player.level);
+    const maxHp = Math.round(92 + level * 13);
+    let x = PLAZA.x + rand(190, -190), y = PLAZA.y + rand(180, -180);
+    if (!world.canWalk(x, y, 16)) { x = SPAWN.x + rand(180, -180); y = SPAWN.y - 90 + rand(60, -60); }
     bots.push({
-      id: 'bot' + i, name: names[i % names.length] || ('friend' + i),
+      id: 'ally-' + cls, name: COMPANION_NAMES[cls],
       cls, x, y, homeX: x, homeY: y, r: 14,
-      hp: 80, maxHp: 80, level: 1 + ((i * 2 + 1) % 6), facing: rand(TAU), vx: 0, vy: 0,
-      speed: (cls === 'reader' ? 150 : cls === 'blocker' ? 132 : 142) * rand(1.1, 0.9),
+      hp: maxHp, maxHp, level, facing: rand(TAU), vx: 0, vy: 0,
+      speed: cls === 'reader' ? 166 : cls === 'blocker' ? 150 : 158,
       state: 'wander', stateT: rand(5, 1), target: null, targetX: x, targetY: y,
       chatCd: rand(14, 4), bubble: '', bubbleT: 0, bob: rand(TAU),
-      cosmetic: BOT_COSMETICS[i % BOT_COSMETICS.length], sit: false,
+      cosmetic: COMPANION_LOOKS[cls], sit: false, down: false, downT: 0,
       atkAnim: 0, atkCd: 0, helpCd: rand(14, 7), avoidT: 0, avoidX: 0, avoidY: 0
     });
   }
+}
+
+function downCompanion(b) {
+  if (!b || b.down || b.human) return;
+  b.down = true;
+  b.downT = 14;
+  b.hp = 0;
+  b.state = 'down';
+  b.sit = false;
+  b.target = null;
+  b.bubble = pick(['give me a minute', 'ow. okay. ow', 'hold the line without me']);
+  b.bubbleT = 3.5;
+  burst(b.x, b.y, [PAL.rose, PAL.lav, '#fff'], 14, { speed: 90, life: 0.9, size: 3, gravity: 20 });
+  chatAdd(b.name, 'i am down! give me a moment.', '', CLASSES[b.cls].dark);
+  toast(b.name + ' is down. They will be back at the bench in a moment.', 'warn', '·');
+  audio.sfx('hurt');
+}
+
+function reviveCompanion(b) {
+  b.down = false;
+  b.downT = 0;
+  b.hp = Math.round(b.maxHp * 0.6);
+  b.x = BENCH.x + rand(50, -50);
+  b.y = BENCH.y + rand(90, 50);
+  b.state = 'wander';
+  b.stateT = 2;
+  b.target = null;
+  b.sit = false;
+  b.bubble = 'back up. what did i miss?';
+  b.bubbleT = 3;
+  burst(b.x, b.y, [PAL.mint, '#fff'], 16, { speed: 100, life: 0.9, size: 3, gravity: -10 });
+  audio.sfx('heal');
 }
 
 function resetPlayer(keepPos = false) {
@@ -2365,6 +2457,9 @@ function initUI() {
   ui.waveChipNum = $('#waveChipNum');
   ui.waveChipLabel = $('#waveChipLabel');
   ui.waveChipLeft = $('#waveChipLeft');
+  ui.waveChipTypes = $('#waveChipTypes');
+  ui.levelTag = $('#levelTag');
+  ui.allyLine = $('#allyLine');
   ui.minimap = $('#minimap');
   ui.minimapCtx = ui.minimap.getContext('2d');
   ui.modalLayer = $('#modalLayer');
@@ -2786,6 +2881,8 @@ function updateXpUI() {
   const pct = clamp(player.xp / player.xpNext, 0, 1) * 100;
   ui.xpFill.style.width = pct + '%';
   ui.xpText.textContent = 'Lv ' + player.level + ' · ' + Math.floor(player.xp) + '/' + player.xpNext;
+  // on phones the XP bar is replaced by a level chip in the name row
+  if (ui.levelTag) ui.levelTag.textContent = 'Lv ' + player.level;
 }
 function updateJoyUI() {
   if (ui.joyCount) ui.joyCount.textContent = String(Math.floor(player.joy));
@@ -2820,8 +2917,23 @@ function updateHUD(force = false) {
   if (player.marked > 0) chips.push({ t: 'Tracked', cls: 'bad' });
   if (player.hp / player.maxHp < 0.35) chips.push({ t: 'Take a breather', cls: 'bad' });
   if (player.sit) chips.push({ t: 'Sitting', cls: 'good' });
-  const mate = partnerBot();
-  if (mate) chips.push({ t: 'friend ' + Math.ceil(mate.hp) + ' hp', cls: mate.hp / mate.maxHp < 0.35 ? 'bad' : 'good' });
+  for (const b of bots) {
+    if (b.human) {
+      chips.push({ t: 'friend ' + Math.ceil(b.hp) + ' hp', cls: b.hp / b.maxHp < 0.35 ? 'bad' : 'good' });
+    } else if (b.down) {
+      chips.push({ t: b.name + ' down · ' + Math.ceil(b.downT) + 's', cls: 'bad' });
+    } else {
+      chips.push({ t: b.name + ' ' + Math.ceil(b.hp), cls: b.hp / b.maxHp < 0.35 ? 'bad' : 'good' });
+    }
+  }
+  // phones hide the chip row, so the same information rides as one quiet line
+  if (ui.allyLine) {
+    const line = bots.map((b) => b.human
+      ? 'friend ' + Math.ceil(b.hp)
+      : b.down ? b.name + ' down ' + Math.ceil(b.downT) + 's' : b.name + ' ' + Math.ceil(b.hp)).join('  ·  ');
+    if (ui.allyLine.textContent !== line) ui.allyLine.textContent = line;
+    ui.allyLine.classList.toggle('warn', bots.some((b) => b.down || b.hp / b.maxHp < 0.35));
+  }
   if (game.bossSpawned && !game.bossDefeated) {
     chips.push({ t: game.boss && !game.boss.dead && game.boss.adBreak > 0 ? 'Ad break' : 'Boss live', cls: 'bad' });
   }
@@ -2845,8 +2957,9 @@ function toast(msg, kind = '', ico = '') {
   el.className = 'toast ' + kind;
   el.innerHTML = (ico ? `<span class="t-ico">${ico}</span>` : '') + `<span>${msg}</span>`;
   ui.toastLayer.appendChild(el);
-  while (ui.toastLayer.children.length > 4) ui.toastLayer.firstChild.remove();
-  setTimeout(() => { el.classList.add('out'); setTimeout(() => el.remove(), 320); }, 3000);
+  // a phone can only read one message at a time: keep the tray short and quick
+  while (ui.toastLayer.children.length > (input.touch ? 2 : 4)) ui.toastLayer.firstChild.remove();
+  setTimeout(() => { el.classList.add('out'); setTimeout(() => el.remove(), 320); }, input.touch ? 2200 : 3000);
 }
 
 /* -------------------------------- chat ---------------------------------- */
@@ -3202,7 +3315,7 @@ function buildHelpPanel() {
     <div class="help-grid">
       <div class="help-block">
         <h4>Your gentle plan</h4>
-        <p>Walk over to the purple static and <b>bonk it</b>. Cleansing tiles earns Joy and clarity. When the island is 64% clear, something big wakes up at the plaza. You do not have to do it alone — the locals help.</p>
+        <p>Walk over to the purple static and <b>bonk it</b>. Cleansing tiles earns Joy and clarity. When the island is 64% clear, something big wakes up at the plaza. You do not have to do it alone: the two heroes whose classes you did not pick are on the island with you, and they fight, cleanse and heal.</p>
       </div>
       <div class="help-block">
         <h4>${c.name} · ${c.role}</h4>
@@ -3329,7 +3442,7 @@ function buildPausePanel() {
     </div>
     <div class="help-grid">
       <div class="help-block"><h4>A small pause</h4><p>Nothing is chasing you right now. The island will keep. Stretch your shoulders, sip something, blink slowly.</p></div>
-      <div class="help-block"><h4>Current plan</h4><p>${game.waveState === 'cleared' ? `Wave ${game.wave} is cleared. Tap the wave card to upgrade or start the next one.` : game.waveState === 'countdown' ? `Next wave in ${Math.max(1, Math.ceil(game.waveT))} seconds. Upgrades are still open.` : game.bossSpawned ? (game.bossDefeated ? 'The Algorithm is quiet. Wander as long as you like.' : 'The Algorithm is at the plaza. Bots are holding the line with you.') : `Sweep static until the island is ${Math.round(BOSS_CLARITY * 100)}% clear, and clear wave ${game.wave} while you are at it.`}</p></div>
+      <div class="help-block"><h4>Current plan</h4><p>${game.waveState === 'cleared' ? `Wave ${game.wave} is cleared. Tap the wave card to upgrade or start the next one.` : game.waveState === 'countdown' ? `Next wave in ${Math.max(1, Math.ceil(game.waveT))} seconds. Upgrades are still open.` : game.bossSpawned ? (game.bossDefeated ? 'The Algorithm is quiet. Wander as long as you like.' : 'The Algorithm is at the plaza. Your companions are holding the line with you.') : `Sweep static until the island is ${Math.round(BOSS_CLARITY * 100)}% clear, and clear wave ${game.wave} while you are at it.`}</p></div>
     </div>
     <div class="section-title">Medals</div>
     <div class="ach-grid">
@@ -3369,7 +3482,7 @@ function buildVictoryPanel() {
         <div class="stat-box"><b>${fmtTime(s.seconds || 0)}</b><small>time together</small></div>
       </div>
       <div class="v-quote">“You do not have to finish everything today. One tile at a time is still progress.”<small>— Moss, on the kindness wall</small></div>
-      <p style="margin-top:12px;font-size:11px;color:var(--ink-faint)">There is no leaderboard. Stay for the sunset, help the bots finish the corners, or sit on the bench and read the wall.</p>
+      <p style="margin-top:12px;font-size:11px;color:var(--ink-faint)">There is no leaderboard. Stay for the sunset, help your companions finish the corners, or sit on the bench and read the wall.</p>
     </div>
   `;
   panelFoot([
@@ -3427,6 +3540,7 @@ function buildWavePanel() {
       <b>${next.tier.label}</b>
       <span>${next.tier.note}</span>
       <span class="wn-count">${next.count} ads · wave ${n + 1}</span>
+      <span class="wn-crew">${crewSummary(next.crew)}</span>
     </div>
     <div class="wave-keys"><kbd>Enter</kbd> next wave <span>·</span> <kbd>U</kbd> upgrade</div>
     <div class="kind-row" style="margin-top:12px">
@@ -3474,7 +3588,7 @@ function startGame() {
   player.name = save.name;
   resetPlayer();
   generateWorld();
-  makeBots();
+  makeCompanions();
   game.state = 'playing';
   game.bossSpawned = false;
   game.bossDefeated = !!save.bossDefeated;
@@ -3588,7 +3702,10 @@ function monstersOnLine(x, y, angle, length, width) {
   });
 }
 function playerDamage(base) {
-  return base * stats.damageMult() * (1 + 0.035 * (player.level - 1));
+  // the class power stat (0.92 checker, 1.0 blocker, 1.16 reader) is part of
+  // every hit, so the three kits actually differ in raw output
+  const cls = CLASSES[player.cls];
+  return base * (cls ? cls.damage : 1) * stats.damageMult() * (1 + 0.035 * (player.level - 1));
 }
 function currentMoveDir() {
   let dx = 0, dy = 0;
@@ -3893,7 +4010,6 @@ function damageMonster(m, amount, opts = {}) {
   m.hp -= dmg;
   m.flash = 0.16;
   m.aggro = true;
-  if (opts.player) m.playerDamage = (m.playerDamage || 0) + dmg;
   if (opts.knock) {
     const a = angleTo(player.x, player.y, m.x, m.y);
     m.knockX = (m.knockX || 0) + Math.cos(a) * opts.knock;
@@ -3921,7 +4037,7 @@ function damagePlayer(amount, sourceX, sourceY, opts = {}) {
   }
   player.hp -= dmg;
   player.lastHurt = game.elapsed;
-  player.invuln = 0.62;
+  player.invuln = 0.5;
   player.hurtFlash = 0.28;
   player.marked = Math.max(0, player.marked - 1);
   screenShake(4, 0.22);
@@ -3973,9 +4089,9 @@ function killMonster(m) {
   m.deathT = 0.3;
   const isBoss = m.isBoss;
   if (!isBoss) {
-    const playerCredit = (m.playerDamage || 0) > 0.5;
-    const joy = Math.round((m.joy || 5) * (playerCredit ? 1 : 0.2) * stats.joyMult());
-    const xp = Math.round((m.xp || 8) * (playerCredit ? 1 : 0.2));
+    // companions are your party: a kill is a kill, whoever lands the last hit
+    const joy = Math.round((m.joy || 5) * stats.joyMult());
+    const xp = Math.round(m.xp || 8);
     if (joy > 0) pickupJoy(m.x, m.y, joy);
     if (xp > 0) gainXp(xp);
     save.stats.kills = (save.stats.kills || 0) + 1;
@@ -4000,7 +4116,8 @@ const AD_TITLES = ['CONGRATULATIONS!', 'YOU WON (probably)', 'HOT SINGLES NEAR Y
 const AD_SUBS = ['claim prize before it expires', 'just one tiny tap. what could go wrong', 'the X is right there. we believe in you', 'you are the 1,000,000th visitor', 'this ad is legally unskippable (not really)'];
 let popupSeq = 0;
 function spawnAdPopup(monster) {
-  if (popups.length >= 3 || game.state !== 'playing') return;
+  // a thumb can only close so many windows: two at a time on a phone
+  if (popups.length >= (input.touch ? 2 : 3) || game.state !== 'playing') return;
   const w = 230, h = 168;
   let x = 0, y = 0, ok = false;
   const vw = window.innerWidth, vh = window.innerHeight;
@@ -4009,7 +4126,9 @@ function spawnAdPopup(monster) {
   for (let tries = 0; tries < 14; tries++) {
     x = rand(maxX * 0.72, maxX * 0.08);
     y = rand(maxY * 0.62, maxY * 0.10);
-    if (input.touch) { x = rand(maxX * 0.6, 8); y = rand(maxY * 0.5, 46); }
+    // touch: keep the window in the middle band, clear of the top cards and
+    // the thumb buttons at the bottom
+    if (input.touch) { x = rand(maxX * 0.9, 10); y = rand(maxY * 0.62, maxY * 0.34); }
     ok = popups.every((p) => Math.hypot(p.x - x, p.y - y) > 190);
     if (ok) break;
   }
@@ -4112,15 +4231,18 @@ function spawnMonster(type, opts = {}) {
     }
   }
   if (x == null) return null;
-  const scale = 1 + (player.level - 1) * 0.13 + Math.min(0.5, game.elapsed / 900);
+  // The stage ladder carries the difficulty curve now; this term only keeps a
+  // high-level save from meeting paper-thin wave 1 ads again. It used to add an
+  // elapsed-time bonus on top, which turned long sessions into HP sponges.
+  const scale = 1 + (player.level - 1) * 0.05;
   const m = {
     id: 'm' + (Math.random() * 1e9 | 0), type, x, y, r: def.radius,
     hp: def.hp * scale, maxHp: def.hp * scale, speed: def.speed * (0.9 + Math.random() * 0.25),
-    dmg: def.dmg * (1 + (player.level - 1) * 0.05), xp: def.xp, joy: def.joy,
+    dmg: def.dmg * (1 + (player.level - 1) * 0.04), xp: def.xp, joy: def.joy,
     color: def.color, dark: def.dark, name: def.name, spawnT: 0.75,
     facing: rand(TAU), bob: rand(TAU), vx: 0, vy: 0, knockX: 0, knockY: 0,
     flash: 0, marked: 0, stun: 0, dead: false, deathT: 0, atkCd: rand(1.2, 0.4),
-    playerDamage: 0, aggro: false, phase: 'idle', phaseT: rand(1, 0), target: null,
+    aggro: false, phase: 'idle', phaseT: rand(1, 0), target: null,
     popupCd: rand(7, 3), shootCd: rand(3, 1), hidden: type === 'mimic',
     isBoss: false, isSummon: !!opts.summon
   };
@@ -4203,24 +4325,75 @@ function waveStoryFor(n) {
   return WAVE_STORY[n] || WAVE_STORY_ENDLESS[(n - 11) % WAVE_STORY_ENDLESS.length];
 }
 
+/* The ladder itself. Each stage is a fixed recipe plus its own numbers, so a
+   wave reads the same twice, the preview never lies, and every stage is
+   allowed to introduce something rather than just multiplying the last one.
+   `crew` order is spawn order: the pop-ups arrive first, the long ones last. */
+const STAGE_CREWS = [
+  { crew: ['popimp', 'popimp', 'popimp', 'popimp'], hp: 0.55, dmg: 0.60, speed: 0.88, note: 'four pop-ups and a broom' },
+  { crew: ['popimp', 'popimp', 'popimp', 'banner', 'banner'], hp: 0.70, dmg: 0.72, speed: 0.90, note: 'the banners file in' },
+  { crew: ['popimp', 'popimp', 'popimp', 'popimp', 'banner', 'banner'], hp: 0.85, dmg: 0.84, speed: 0.92, note: 'still polite. still static' },
+  { crew: ['popimp', 'popimp', 'popimp', 'banner', 'banner', 'mimic'], hp: 1.00, dmg: 0.95, speed: 0.94, note: 'a free-joy chest? sure. bonk it first' },
+  { crew: ['popimp', 'popimp', 'popimp', 'popimp', 'banner', 'banner', 'mimic', 'mimic'], hp: 1.15, dmg: 1.05, speed: 0.96, note: 'they brought friends' },
+  { crew: ['popimp', 'popimp', 'popimp', 'popimp', 'banner', 'banner', 'banner', 'mimic', 'mimic'], hp: 1.30, dmg: 1.12, speed: 0.98, note: 'the flyers come faster now' },
+  { crew: ['popimp', 'popimp', 'popimp', 'popimp', 'banner', 'banner', 'mimic', 'mimic', 'behemoth'], hp: 1.42, dmg: 1.20, speed: 1.00, note: 'and then something long arrives' },
+  { crew: ['popimp', 'popimp', 'popimp', 'banner', 'banner', 'banner', 'mimic', 'mimic', 'mimic', 'behemoth', 'behemoth'], hp: 1.55, dmg: 1.28, speed: 1.02, note: 'behemoths on both flanks' },
+  { crew: ['popimp', 'popimp', 'popimp', 'popimp', 'banner', 'banner', 'banner', 'mimic', 'mimic', 'mimic', 'behemoth', 'behemoth', 'behemoth'], hp: 1.68, dmg: 1.36, speed: 1.04, note: 'the wave the notebook feared' },
+  { crew: ['popimp', 'popimp', 'popimp', 'popimp', 'popimp', 'banner', 'banner', 'banner', 'mimic', 'mimic', 'mimic', 'behemoth', 'behemoth', 'behemoth'], hp: 1.80, dmg: 1.45, speed: 1.06, note: 'serving ads, one last time' }
+];
+
+/* Waves 11+ keep the Super Hard recipe and grow by a fixed shape, so the
+   endless ladder is a curve rather than a dice roll. */
+function endlessCrew(n) {
+  const extra = Math.max(1, n - STAGE_CREWS.length);
+  const count = Math.min(20, 13 + extra);
+  const crew = [];
+  for (let i = 0; i < count; i++) {
+    const r = i % 10;
+    crew.push(r < 4 ? 'popimp' : r < 7 ? 'banner' : r < 9 ? 'mimic' : 'behemoth');
+  }
+  return crew;
+}
+
 function wavePlan(n) {
   const tier = waveTier(n);
-  const count = Math.min(20, 4 + Math.round((n - 1) * 0.9));
-  const hp = 0.5 + (n - 1) * 0.16;
-  const dmg = 0.5 + (n - 1) * 0.085;
-  const speed = 0.85 + Math.min(0.3, (n - 1) * 0.028);
-  let types;
-  if (n <= 2) types = ['popimp', 'popimp', 'banner'];
-  else if (n <= 4) types = ['popimp', 'popimp', 'banner', 'mimic'];
-  else if (n <= 6) types = ['popimp', 'banner', 'mimic'];
-  else types = ['popimp', 'banner', 'mimic', 'behemoth'];
-  return { n, tier, count, hp, dmg, speed, types };
+  const stage = STAGE_CREWS[n - 1];
+  if (stage) {
+    return { n, tier, crew: stage.crew.slice(), count: stage.crew.length, hp: stage.hp, dmg: stage.dmg, speed: stage.speed, note: stage.note };
+  }
+  const extra = n - STAGE_CREWS.length;
+  const crew = endlessCrew(n);
+  return {
+    n, tier, crew, count: crew.length,
+    hp: 1.80 + extra * 0.10,
+    dmg: 1.45 + extra * 0.06,
+    speed: 1.0 + Math.min(0.18, extra * 0.02),
+    note: 'they keep coming'
+  };
 }
 
 function waveAlive() {
   let n = 0;
   for (const m of monsters) if (!m.dead && !m.isBoss && m.wave === game.wave) n++;
   return n;
+}
+
+/* What is left of a crew, in the order the ads arrived, for the HUD card and
+   the next-wave preview. "3 ads left" is useless when one of them is a
+   behemoth and the other two are pop-ups. */
+const AD_TYPE_LABELS = { popimp: 'pop-up', banner: 'banner', mimic: 'mimic', behemoth: 'behemoth' };
+function crewSummary(crew) {
+  const counts = {};
+  for (const t of crew) counts[t] = (counts[t] || 0) + 1;
+  return ['popimp', 'banner', 'mimic', 'behemoth']
+    .filter((t) => counts[t])
+    .map((t) => counts[t] + ' ' + AD_TYPE_LABELS[t] + (counts[t] > 1 ? 's' : ''))
+    .join(' · ');
+}
+function liveCrew() {
+  const crew = [];
+  for (const m of monsters) if (!m.dead && !m.isBoss && m.wave === game.wave) crew.push(m.type);
+  return crew;
 }
 
 function waveSpawnPoint(cx, cy) {
@@ -4312,7 +4485,7 @@ function startWave(n, opts = {}) {
   }
   for (let i = 0; i < plan.count; i++) {
     const pt = waveSpawnPoint(player.x, player.y);
-    const m = spawnMonster(pick(plan.types), { x: pt.x, y: pt.y, force: true });
+    const m = spawnMonster(plan.crew[i], { x: pt.x, y: pt.y, force: true });
     if (!m) continue;
     m.hp = m.maxHp = m.maxHp * plan.hp;
     m.dmg *= plan.dmg;
@@ -4326,7 +4499,7 @@ function startWave(n, opts = {}) {
   waveBannerShow({
     kicker: 'wave ' + n,
     label: plan.tier.label,
-    note: plan.tier.note,
+    note: plan.note || plan.tier.note,
     count: plan.count + (plan.count === 1 ? ' ad' : ' ads') + ' incoming'
   });
   audio.sfx(n >= 7 ? 'boss' : 'wave');
@@ -4366,7 +4539,7 @@ function waveCleared(n) {
     label: n >= 10 ? 'Super Hard cleared' : 'Nice work',
     note: '+' + bonus + ' joy · ' + (reward.kind === 'achievement' ? 'medal: ' + reward.name : 'item: ' + reward.name),
     cls: 'cleared',
-    hold: 2600
+    hold: input.touch ? 1800 : 2600
   });
   audio.sfx(n >= 10 ? 'victory' : 'levelup');
   if (n >= 10) {
@@ -4449,7 +4622,7 @@ function waveBannerShow(o) {
   ui.waveCount.style.display = o.count ? '' : 'none';
   el.className = 'wave-banner show ' + (o.cls || '');
   if (waveBannerT) clearTimeout(waveBannerT);
-  waveBannerT = setTimeout(() => el.classList.remove('show'), o.hold || 3200);
+  waveBannerT = setTimeout(() => el.classList.remove('show'), o.hold || (input.touch ? 1900 : 3200));
 }
 
 function updateWaveChip() {
@@ -4477,7 +4650,18 @@ function updateWaveChip() {
     ui.waveChipLeft.textContent = 'waiting on the boss';
   } else {
     const left = waveAlive();
-    ui.waveChipLeft.textContent = left + (left === 1 ? ' ad left' : ' ads left');
+    const summary = crewSummary(liveCrew());
+    const countText = left + (left === 1 ? ' ad left' : ' ads left');
+    // phones have no room for a fourth line: the crew rides on the count line
+    ui.waveChipLeft.textContent = input.touch && summary
+      ? left + ' left · ' + summary
+      : countText;
+  }
+  if (ui.waveChipTypes) {
+    const summary = state === 'fight' || state === 'held' ? crewSummary(liveCrew()) : '';
+    ui.waveChipTypes.textContent = summary;
+    ui.waveChipTypes.style.display = summary ? '' : 'none';
+    ui.waveChipTypes.title = summary ? 'still standing: ' + summary : '';
   }
 }
 
@@ -4507,6 +4691,7 @@ function updateMonsters(dt) {
       let t = null, bd = 99999;
       if (!player.dead && dist(m.x, m.y, player.x, player.y) < 760) { t = player; bd = dist(m.x, m.y, player.x, player.y); }
       for (const b of bots) {
+        if (b.down) continue;
         const d = dist(m.x, m.y, b.x, b.y);
         if (d < Math.min(560, bd * 0.92)) { t = b; bd = d; }
       }
@@ -4548,11 +4733,11 @@ function updateMonsters(dt) {
       moveWithCollision(m, Math.cos(ang + Math.PI / 2) * 26 * dt, Math.sin(ang + Math.PI / 2) * 26 * dt);
       m.shootCd -= dt;
       if (m.shootCd <= 0 && td < 520 && t === player && !player.dead) {
-        m.shootCd = rand(3.4, 2.2);
+        m.shootCd = rand(2.9, 1.9);
         const lead = angleTo(m.x, m.y, player.x + (currentMoveDir().x) * 60, player.y + (currentMoveDir().y) * 60);
         spawnProjectile({
-          x: m.x, y: m.y, vx: Math.cos(lead) * 210, vy: Math.sin(lead) * 210,
-          r: 8, life: 4, dmg: 8, kind: 'flyer', friendly: false, color: PAL.coral, angle: lead
+          x: m.x, y: m.y, vx: Math.cos(lead) * 235, vy: Math.sin(lead) * 235,
+          r: 8, life: 4, dmg: 9, kind: 'flyer', friendly: false, color: PAL.coral, angle: lead
         });
         audio.sfx('swing');
       }
@@ -4603,7 +4788,7 @@ let mSpawnT = 0;
 function contactAttack(m, target, dt, multiplier = 1) {
   m.atkCd = (m.atkCd || 0) - dt;
   if (m.atkCd > 0) return;
-  m.atkCd = rand(1.5, 1.05);
+  m.atkCd = rand(1.3, 0.92);
   if (target === player) {
     damagePlayer(m.dmg * multiplier, m.x, m.y, { source: m.type });
     const a = angleTo(m.x, m.y, player.x, player.y);
@@ -4611,11 +4796,12 @@ function contactAttack(m, target, dt, multiplier = 1) {
     m.knockX = -Math.cos(a) * 40; m.knockY = -Math.sin(a) * 40;
   } else {
     const bot = target;
+    if (bot.down) return;
     bot.hp = Math.max(0, bot.hp - m.dmg * 0.6);
     bot.bubble = pick(['eep!', 'rude!', 'i am okay!', 'bonk it back!']);
     bot.bubbleT = 2;
-    if (bot.hp <= 5) { bot.state = 'flee'; bot.stateT = 6; bot.target = null; }
     burst(bot.x, bot.y, PAL.rose, 5, { speed: 50, life: 0.4, size: 2 });
+    if (bot.hp <= 0 && !bot.human) downCompanion(bot);
   }
 }
 function updateHazards(dt) {
@@ -4645,14 +4831,16 @@ function spawnBoss(silent = false) {
   game.bossSpawned = true;
   save.bossSpawned = true;
   const def = MONSTER_TYPES.algorithm;
-  const hp = 1500 + player.level * 170;
+  // sized so a focused fight lasts about half a minute at any level, and the
+  // companions' chip damage is a garnish rather than the whole meal
+  const hp = 1100 + player.level * 95;
   const m = {
     id: 'boss', type: 'algorithm', isBoss: true, x: PLAZA.x, y: PLAZA.y - 20, r: 64,
-    hp, maxHp: hp, speed: 34, dmg: 20, xp: 320, joy: 220,
+    hp, maxHp: hp, speed: 34, dmg: 22, xp: 320, joy: 220,
     color: def.color, dark: def.dark, name: def.name, spawnT: 0,
     facing: Math.PI / 2, bob: 0, vx: 0, vy: 0, knockX: 0, knockY: 0,
     flash: 0, marked: 0, stun: 0, dead: false, deathT: 0, atkCd: 1,
-    playerDamage: 0, aggro: true, phase: 'active', phaseT: 9,
+    aggro: true, phase: 'active', phaseT: 9,
     adBreak: 0, attackT: 2.5, beamT: 6, summonStage: 0, targetT: 0
   };
   monsters.push(m);
@@ -4691,7 +4879,7 @@ function updateBoss(m, dt) {
     else if (td < 160) moveWithCollision(m, -Math.cos(ang) * m.speed * 0.7 * dt, -Math.sin(ang) * m.speed * 0.7 * dt);
     // sponsored beam telegraph
     if (m.beamT <= 0) {
-      m.beamT = rand(7.5, 5);
+      m.beamT = rand(6.6, 4.2);
       hazards.push({
         x: m.x, y: m.y, angle: ang + rand(0.16, -0.16), length: 720, width: 58,
         windup: 1.15, t: 0, damage: 16, fired: false, color: PAL.corruptHot
@@ -4700,7 +4888,7 @@ function updateBoss(m, dt) {
     }
     // radial banner burst
     if (m.attackT <= 0) {
-      m.attackT = rand(4.2, 3);
+      m.attackT = rand(3.8, 2.6);
       for (let i = 0; i < 9; i++) {
         const a = (i / 9) * TAU + m.bob * 0.1;
         spawnProjectile({
@@ -4735,14 +4923,14 @@ function updateBoss(m, dt) {
     m.summonStage = 2;
     summonBossAdds(m, 3);
   }
-  // bot chip damage
+  // companions chip the boss a little, but never enough to finish it for you
   m.botCd = (m.botCd || 0) - dt;
   if (m.botCd <= 0) {
-    m.botCd = 1.4;
-    const helpers = bots.filter((b) => dist(b.x, b.y, m.x, m.y) < 700);
-    if (helpers.length) {
-      const dmg = helpers.length * rand(4.5, 1.8);
-      m.hp -= dmg; m.flash = 0.1;
+    m.botCd = 1.6;
+    const helpers = bots.filter((b) => !b.down && !b.human && dist(b.x, b.y, m.x, m.y) < 620);
+    const capped = Math.min(2, helpers.length);
+    if (capped) {
+      m.hp -= capped * rand(3.2, 1.4); m.flash = 0.1;
       if (m.hp <= 0) killMonster(m);
     }
   }
@@ -4964,15 +5152,20 @@ function updatePartner(b, dt) {
 
 function updateBots(dt) {
   for (const b of bots) {
-    b.bob += dt * 5;
+    b.bob += dt * (b.down ? 1.3 : 5);
     b.bubbleT = Math.max(0, b.bubbleT - dt);
     b.atkCd = Math.max(0, b.atkCd - dt);
     b.atkAnim = Math.max(0, b.atkAnim - dt);
     b.helpCd = Math.max(0, b.helpCd - dt);
     b.stateT -= dt;
-    b.hp = Math.min(b.maxHp, b.hp + dt * 1.2);
+    if (b.down) {
+      // a knocked-out companion sits out the fight and walks back from the bench
+      b.downT -= dt;
+      if (b.downT <= 0) reviveCompanion(b);
+      continue;
+    }
+    b.hp = Math.min(b.maxHp, b.hp + dt * 0.5);
     if (b.human) { updatePartner(b, dt); continue; }
-    if (b.hp <= 5) b.state = 'flee';
     if (b.stateT <= 0) {
       const nearM = nearestMonster(b.x, b.y, 560);
       const nearC = nearestCorrupt(b.x, b.y, 480);
@@ -4999,23 +5192,23 @@ function updateBots(dt) {
             b.atkAnim = 0.2;
             b.facing = angleTo(b.x, b.y, m.x, m.y);
             if (b.cls === 'blocker') {
-              damageMonster(m, rand(11, 6) * (1 + player.level * 0.05), { player: false });
+              damageMonster(m, rand(9, 5) * (1 + player.level * 0.04), { player: false });
               beamFx(b.x, b.y, b.facing, Math.min(d + 20, 100), 10, CLASSES.blocker.color, 0.14);
             } else if (b.cls === 'checker') {
-              damageMonster(m, rand(9, 5) * (1 + player.level * 0.05), { player: false });
+              damageMonster(m, rand(7, 4) * (1 + player.level * 0.04), { player: false });
               m.marked = Math.max(m.marked, 1.6);
               beamFx(b.x, b.y, b.facing, d, 5, CLASSES.checker.color, 0.2, { kind: 'chain' });
             } else {
-              damageMonster(m, rand(10, 5) * (1 + player.level * 0.05), { player: false });
+              damageMonster(m, rand(8, 4) * (1 + player.level * 0.04), { player: false });
               beamFx(b.x, b.y, b.facing, d, 7, CLASSES.reader.color, 0.16);
             }
             if (chance(0.2)) audio.sfx('beam');
           }
           // heal player if checker
           if (b.cls === 'checker' && b.helpCd <= 0 && !player.dead && player.hp < player.maxHp * 0.7 && dist(b.x, b.y, player.x, player.y) < 300) {
-            b.helpCd = rand(18, 11);
-            player.hp = Math.min(player.maxHp, player.hp + 10);
-            floatingText(player.x, player.y - 42, '+10 from ' + b.name, '#68d6a6', 11, 1.2);
+            b.helpCd = rand(20, 13);
+            player.hp = Math.min(player.maxHp, player.hp + 8);
+            floatingText(player.x, player.y - 42, '+8 from ' + b.name, '#68d6a6', 11, 1.2);
             beamFx(b.x, b.y, angleTo(b.x, b.y, player.x, player.y), dist(b.x, b.y, player.x, player.y), 6, PAL.mint, 0.35, { kind: 'heal' });
             updateHpUI(); audio.sfx('heal');
             if (chance(0.4)) b.bubble = pick(CHAT.heal);

@@ -1,18 +1,18 @@
 # AdBlock Island
 
-**v0.5.4 · beta** · [Play it](https://potaterrr.github.io/adblock-island/) · [Patch notes](CHANGELOG.md)
+**v0.6.1 · beta** · [Play it](https://potaterrr.github.io/adblock-island/) · [Patch notes](CHANGELOG.md)
 
 A wholesome micro-MMO in a single HTML file, currently in **beta**. The ads took the beach, the locals kept the kettle on. Pick a class, sweep the static, bonk the ad-monsters, and leave a kind note for whoever washes ashore next.
 
 Everything is self-contained: no build step, no CDN, no images, no fonts, no backend, no accounts, no trackers. The island is drawn with the Canvas 2D API, and the ocean, lo-fi chords, and sound effects are synthesized with the Web Audio API.
 
 ```
-index.html   ← the entire game (≈300 KB, markup + CSS + renderer + audio + logic)
+index.html   ← the entire game (≈370 KB, markup + CSS + renderer + audio + logic)
 ```
 
 ## Status: beta
 
-**v0.5.4 is a beta.** The island is playable end to end — three classes, the wave ladder, medals, items, the Algorithm, kindness notes and same-keyboard co-op — but it is not a finished MMORPG.
+**v0.6.1 is a beta.** The island is playable end to end — three classes, two companions, the wave ladder, medals, items, the Algorithm, kindness notes and same-keyboard co-op — but it is not a finished MMORPG.
 
 Versions count from zero while the game is in beta, so every release is `0.x`; the title card's build tag and the top entry of the patch notes always agree.
 
@@ -62,7 +62,7 @@ It is not a sad story. The ocean is still warm, the kettle still works, and the 
 
 **6. Wake the Algorithm.** When the island is about 64% clear, the boss wakes at the plaza and starts running ad breaks. Dodge the sponsored beams, break its health thresholds, and finish the fight. Waves pause while it is out.
 
-**7. Be a neighbour.** Locals roam, fight beside you, and chat. At the cozy bench (`F`), sit down and pin a note to the kindness wall — it is saved in your browser and read by whoever visits next, including you on a bad day.
+**7. Be a neighbour.** The two heroes whose classes you did not pick are already here: they cleanse, chip ads, heal and chat, and they can be knocked out and carried back to the bench. At the cozy bench (`F`), sit down and pin a note to the kindness wall — it is saved in your browser and read by whoever visits next, including you on a bad day.
 
 **8. Bring a friend (optional).** Choose **play with a friend** on the title screen for same-keyboard co-op: player 2 moves on the arrow keys and attacks automatically, shares Joy and waves, and is a real hero that ads will target.
 
@@ -116,14 +116,16 @@ The camera frames both heroes and gently leashes player 2 to within one screen o
 
 Ads arrive in waves instead of trickling in at random. Each wave has a fixed crew, and the tiers climb:
 
-| Waves | Tier | Feel |
+| Waves | Tier | Crew |
 | --- | --- | --- |
-| 1–2 | Super Easy | a handful of slow pop-ups with paper-thin health |
-| 3–4 | Easy | banners and mimics join in |
-| 5–6 | Normal | more of everything, and they hit harder |
-| 7–8 | Hard | behemoths, faster ads, bigger crews |
-| 9–10 | Super Hard | 11–12 ads at a time, roughly double health |
-| 11+ | Super Hard+ | keeps scaling; the label stops being polite |
+| 1–2 | Super Easy | four pop-ups, then three pop-ups and two banners |
+| 3–4 | Easy | six ads a wave; the first Clickbait Mimic arrives at wave 4 |
+| 5–6 | Normal | eight and nine ads, more mimics, flyers coming faster |
+| 7–8 | Hard | nine and eleven ads; behemoths from wave 7, two of them at wave 8 |
+| 9–10 | Super Hard | thirteen and fourteen ads, three behemoths, damage ×1.36 and ×1.45 |
+| 11+ | Super Hard+ | the same shape, growing a fixed amount each wave up to twenty ads |
+
+Every stage is a fixed recipe (`STAGE_CREWS` in the source), so the preview on the cleared-wave card always matches what actually spawns. The card under your portrait names what is left standing — `2 pop-ups · 1 behemoth` — instead of only counting it.
 
 ### Upgrade or move on
 
@@ -149,17 +151,25 @@ Medals and found items live in the pause screen (`Esc`), and carry over between 
 
 Wave 10 is **Super Hard**. Clear it and the island tells you plainly: *you saved this island from serving ads*. The kettle is on, the plaza is quiet, and the story reaches its last chapter. Keep going if you like — waves 11+ are endless **Super Hard+**, with a few extra island-log entries, and the next visit starts back at Super Easy whenever you want to climb again.
 
-The Algorithm still interrupts the schedule when the island is clear enough to wake it; waves pause until that fight is over. The wave banner announces each new tier, the card under your portrait tracks the wave, its difficulty and what's left, and the locals comment in chat.
+The Algorithm still interrupts the schedule when the island is clear enough to wake it; waves pause until that fight is over. The wave banner announces each new tier, the card under your portrait tracks the wave, its difficulty and what's left, and your companions comment in chat.
 
 ## Classes
 
 | Class | Role | Weapon & look | Signature |
 | --- | --- | --- | --- |
 | **AdBlocker** | shield & slam | plumed helm, kite shield, arming sword | Wide shield bash; auto-swings the sword at anything within arm's reach; takes 15% less damage. |
-| **Fact-Checker** | heal & mark | hood, magnifier staff, satchel | Citation darts mark ads and heal nearby locals; regenerates 1.6 HP/s. |
+| **Fact-Checker** | heal & mark | hood, magnifier staff, satchel | Citation darts mark ads and heal nearby companions; regenerates 1.6 HP/s. |
 | **Reader-Mode** | ranged beams | wizard hat, floating tome, quill wand | Piercing text beams hit every ad in a row; 8% faster, a little fragile. |
 
+Each class has its own power multiplier on every hit: AdBlocker 1.00, Fact-Checker 0.92, Reader-Mode 1.16.
+
 Gear picks up gold trim from level 3 and a soft glow from level 6. Every hero and local rolls their own skin, hair, and level.
+
+## Your companions
+
+The island is you plus the two heroes who picked the other classes. They roam, cleanse static, chip ads, and chat in the local log — and the Fact-Checker among them heals you 8 HP on a cooldown. They are support, not a solution: their damage is a fraction of yours, their chip damage on the Algorithm is capped at two helpers, and a kill is the party's kill so nobody steals your reward.
+
+They can be knocked out. A downed companion sits out 14 seconds and walks back from the bench at 60% health, and the HUD chips show the timer. Keep them standing and they keep the plaza lit.
 
 ## What is on the island
 
@@ -167,7 +177,7 @@ Gear picks up gold trim from level 3 and a soft glow from level 6. Every hero an
 - **Four ad-monsters plus a boss:** Pop-Up Imps spawn clickable `[X]` windows, Unskippable Behemoths are invulnerable until their SKIP window, Clickbait Mimics hide as free Joy, and Banner Bats throw flyers. The Algorithm runs ad breaks, sponsored beam attacks, and summons more content at health thresholds.
 - **Joy and clarity:** every fully cleansed tile pays Joy and experience. Spend Joy on permanent upgrades or cozy cosmetics.
 - **Same-keyboard co-op:** a second hero on the arrow keys, sharing one screen and one wave.
-- **A living island:** locals roam, fight, cleanse, sit on the bench, and chat in a local log. They react to your messages.
+- **A party of three:** the two heroes whose classes you did not pick fight beside you, cleanse, heal, chat, and can be knocked out and revive at the bench.
 - **The kindness wall:** sit at the cozy bench and pin a note for the next person. Notes are saved locally and read by the locals.
 - **Procedural sound:** generated ocean noise, a slow lo-fi chord progression, UI sounds, combat hits, cleansing sparkles, and a boss track that shifts when the fight starts.
 - **Retro-pastel UI:** responsive HUD, minimap, floating damage numbers, speech bubbles, screen shake, particles, scanlines (toggleable), and a reduced-motion option.
@@ -210,12 +220,16 @@ adblock-island/
 
 The renderer targets 60 fps on phones and a calm 30–60 fps on desktop. It is a single canvas with a y-sorted scene, a cached minimap, and throttled floating text. If a machine struggles, the settings panel can turn off particles, screen shake, scanlines, and damage numbers.
 
+On a touch screen the HUD is deliberately thinner than the desktop one: a compact top bar with a level chip instead of an XP bar, a two-line wave card whose second line carries the crew, a clarity ring with no caption, and mute, chat and pause as the only tool buttons (help and settings live in the pause panel). Wave banners shrink to a short pill, the toast tray keeps two messages, and no more than two pop-up windows are open at once. Using a mouse brings the full desktop layout back instantly.
+
 ## Patch notes
 
 The full history lives in **[CHANGELOG.md](CHANGELOG.md)**, newest first, and the version on the title card always matches its top entry.
 
 | Version | Date | Headline |
 | --- | --- | --- |
+| [0.6.1](CHANGELOG.md#061--2026-10-30) | 2026-10-30 | Quieter phone HUD: one top bar, three tool buttons, calmer banners, toasts and pop-ups |
+| [0.6.0](CHANGELOG.md#060--2026-10-30) | 2026-10-30 | Balance pass: two companions replace the locals, harder stage ladder, live class power |
 | [0.5.4](CHANGELOG.md#054--2026-10-29) | 2026-10-29 | Beta launch polish: social card, richer previews, screenshots |
 | [0.5.3](CHANGELOG.md#053--2026-10-29) | 2026-10-29 | Enter takes the next wave; U opens upgrades from the cleared card |
 | [0.5.2](CHANGELOG.md#052--2026-10-29) | 2026-10-29 | Waves keep running after the island victory; clear popup can no longer be lost |
