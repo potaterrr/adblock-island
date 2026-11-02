@@ -4,25 +4,29 @@ All notable changes to AdBlock Island. The game is a single `index.html`, and th
 
 Format: [Semantic Versioning](https://semver.org/). Dates are YYYY-MM-DD. Every release since the first build is listed below, newest first.
 
-## v0.6.2 — beta (2026-11-02)
+## v0.6.7 — beta (2026-11-02)
 
-Massive changes: added a new **Engineer** class with deployable turrets and an Overclock burst, plus a full achievement pass — seven new medals (Algorithm Unplugged, Shield Wall, Sharpshooter, Speed Reader, Better Together, Big Spender, Spotless), unlock toasts, and a medal gallery in the pause screen. Wave, class, co-op, economy and cleanup milestones now all grant medals. The submission zip was refreshed.
+Massive changes: class identity pass. Every class now has its own silhouette and held gear instead of sharing the Reader's robe, cape and pointed hat — the Engineer gets a hard hat and a swinging wrench, the Medic a cross cap and a syringe staff, the Hacker a hood, visor and handheld terminal, the Streamer headphones, a mic boom and an antenna. The Engineer, Medic, Hacker and Streamer also stopped borrowing the Reader's attack: they now throw their own wrench bolts, syringes, exploit bolts and hype shards, each drawn as a real prop with its own hit behaviour (turret shots fire visible bolts, syringes patch you on impact, exploit bolts pierce and mark, hype shards pierce a crowd). Class cards, in-game sprites and projectiles all read as different kits now. Submission zip refreshed inside the project folder.
 
-## v0.6.3 — beta (2026-11-02)
+## v0.6.6 — beta (2026-11-02)
 
-Massive changes: added four new classes — Engineer (deployable turrets + Overclock), Medic (heals and shields), Hacker (exploits and marks), and Streamer (wide AoE hype beams). Each has unique stats, skills, and achievements. The class picker now shows all seven classes. Submission zip refreshed.
-
-## v0.6.4 — beta (2026-11-02)
-
-Massive changes: added unique class icons (turret, syringe, terminal, broadcast) so each class is visually distinct instead of looking like a reskinned mage. Submission zip refreshed.
+Massive changes combined: achievements + toasts + medal gallery, four new classes (Engineer, Medic, Hacker, Streamer) with unique icons and projectile visuals, class-specific attack effects, PATCH NOTES button, and mobile/web optimization pass. Single-file build, no backend. Submission zip refreshed.
 
 ## v0.6.5 — beta (2026-11-02)
 
 Massive changes: added class-specific projectile visuals and unique attack effects so each class throws distinct projectiles (turret bolts, syringes, exploit bolts, hype beams) instead of identical reskins. Submission zip refreshed.
 
-## v0.6.6 — beta (2026-11-02)
+## v0.6.4 — beta (2026-11-02)
 
-Massive changes combined: achievements + toasts + medal gallery, four new classes (Engineer, Medic, Hacker, Streamer) with unique icons and projectile visuals, class-specific attack effects, PATCH NOTES button, and mobile/web optimization pass. Single-file build, no backend. Submission zip refreshed.
+Massive changes: added unique class icons (turret, syringe, terminal, broadcast) so each class is visually distinct instead of looking like a reskinned mage. Submission zip refreshed.
+
+## v0.6.3 — beta (2026-11-02)
+
+Massive changes: added four new classes — Engineer (deployable turrets + Overclock), Medic (heals and shields), Hacker (exploits and marks), and Streamer (wide AoE hype beams). Each has unique stats, skills, and achievements. The class picker now shows all seven classes. Submission zip refreshed.
+
+## v0.6.2 — beta (2026-11-02)
+
+Massive changes: added a new **Engineer** class with deployable turrets and an Overclock burst, plus a full achievement pass — seven new medals (Algorithm Unplugged, Shield Wall, Sharpshooter, Speed Reader, Better Together, Big Spender, Spotless), unlock toasts, and a medal gallery in the pause screen. Wave, class, co-op, economy and cleanup milestones now all grant medals. The submission zip was refreshed.
 
 ## Still pending
 

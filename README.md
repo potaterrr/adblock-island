@@ -1,6 +1,6 @@
 # AdBlock Island
 
-**v0.6.1 · beta** · [Play it](https://potaterrr.github.io/adblock-island/) · [Patch notes](CHANGELOG.md)
+**v0.6.7 · beta** · [Play it](https://potaterrr.github.io/adblock-island/) · [Patch notes](CHANGELOG.md)
 
 A wholesome micro-MMO in a single HTML file, currently in **beta**. The ads took the beach, the locals kept the kettle on. Pick a class, sweep the static, bonk the ad-monsters, and leave a kind note for whoever washes ashore next.
 
@@ -12,7 +12,7 @@ index.html   ← the entire game (≈370 KB, markup + CSS + renderer + audio + l
 
 ## Status: beta
 
-**v0.6.1 is a beta.** The island is playable end to end — three classes, two companions, the wave ladder, medals, items, the Algorithm, kindness notes and same-keyboard co-op — but it is not a finished MMORPG.
+**v0.6.7 is a beta.** The island is playable end to end — seven classes, two companions, the wave ladder, medals, items, the Algorithm, kindness notes and same-keyboard co-op — but it is not a finished MMORPG.
 
 Versions count from zero while the game is in beta, so every release is `0.x`; the title card's build tag and the top entry of the patch notes always agree.
 
@@ -50,7 +50,7 @@ It is not a sad story. The ocean is still warm, the kettle still works, and the 
 
 ## How to play
 
-**1. Wash ashore.** Pick a class on the title screen — AdBlocker (shield and slam, tough), Fact-Checker (darts and healing), or Reader-Mode (piercing beams, fast and fragile) — type a name, and press **wash ashore**. Your class can be changed later from the pause menu.
+**1. Wash ashore.** Pick a class on the title screen — AdBlocker (shield and slam, tough), Fact-Checker (darts and healing), Reader-Mode (piercing beams, fast and fragile), Engineer (turrets and overclock), Medic (heals and shields), Hacker (exploits and marks), or Streamer (wide hype bursts) — type a name, and press **wash ashore**. Your class can be changed later from the pause menu.
 
 **2. Move and aim.** `WASD` to walk, mouse to aim, `J` or click to attack. On a phone, the left thumb stick moves you and points your aim, and the big **BONK** button attacks. Dashes are `Space` or the dash button. Attacks snap to the ad nearest your aim line, so you never have to pixel-hunt.
 
@@ -161,8 +161,12 @@ The Algorithm still interrupts the schedule when the island is clear enough to w
 | **AdBlocker** | shield & slam | plumed helm, kite shield, arming sword | Wide shield bash; auto-swings the sword at anything within arm's reach; takes 15% less damage. |
 | **Fact-Checker** | heal & mark | hood, magnifier staff, satchel | Citation darts mark ads and heal nearby companions; regenerates 1.6 HP/s. |
 | **Reader-Mode** | ranged beams | wizard hat, floating tome, quill wand | Piercing text beams hit every ad in a row; 8% faster, a little fragile. |
+| **Engineer** | turrets & overclock | hard hat, wrench, tool belt | Throws heavy wrench bolts, drops auto-firing turrets, and overclocks for a burst of speed and damage. |
+| **Medic** | heal & support | cross cap, syringe staff, tabard | Syringe darts patch you on impact, First Aid heals the plaza, and Code Blue adds a shield. Regenerates 2.2 HP/s. |
+| **Hacker** | debuff & exploit | hood, visor, handheld terminal | Exploit bolts pierce and mark ads for extra damage; Lag Switch and Zero-Day hit and mark crowds. |
+| **Streamer** | AoE hype | headset, mic boom, stage vest | Hype shards pierce crowds, Hype Train dashes through a cone, and Raid bursts everything around you. |
 
-Each class has its own power multiplier on every hit: AdBlocker 1.00, Fact-Checker 0.92, Reader-Mode 1.16.
+Each class has its own power multiplier on every hit: AdBlocker 1.00, Fact-Checker 0.92, Reader-Mode 1.16, Engineer 1.05, Medic 0.85, Hacker 0.90, Streamer 1.20.
 
 Gear picks up gold trim from level 3 and a soft glow from level 6. Every hero and local rolls their own skin, hair, and level.
 
@@ -229,6 +233,12 @@ The full history lives in **[CHANGELOG.md](CHANGELOG.md)**, newest first, and th
 
 | Version | Date | Headline |
 | --- | --- | --- |
+| [0.6.7](CHANGELOG.md#067--2026-11-02) | 2026-11-02 | Class identity pass: unique silhouettes, held gear and real projectiles for every class |
+| [0.6.6](CHANGELOG.md#066--2026-11-02) | 2026-11-02 | Achievements + toasts + medal gallery, four new classes, PATCH NOTES button |
+| [0.6.5](CHANGELOG.md#065--2026-11-02) | 2026-11-02 | Class-specific projectile visuals |
+| [0.6.4](CHANGELOG.md#064--2026-11-02) | 2026-11-02 | Unique class icons (turret, syringe, terminal, broadcast) |
+| [0.6.3](CHANGELOG.md#063--2026-11-02) | 2026-11-02 | Four new classes: Engineer, Medic, Hacker, Streamer |
+| [0.6.2](CHANGELOG.md#062--2026-11-02) | 2026-11-02 | Engineer class, seven new medals, unlock toasts, medal gallery |
 | [0.6.1](CHANGELOG.md#061--2026-10-30) | 2026-10-30 | Quieter phone HUD: one top bar, three tool buttons, calmer banners, toasts and pop-ups |
 | [0.6.0](CHANGELOG.md#060--2026-10-30) | 2026-10-30 | Balance pass: two companions replace the locals, harder stage ladder, live class power |
 | [0.5.4](CHANGELOG.md#054--2026-10-29) | 2026-10-29 | Beta launch polish: social card, richer previews, screenshots |
