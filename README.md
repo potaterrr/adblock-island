@@ -1,6 +1,6 @@
 # AdBlock Island
 
-**v0.6.7 · beta** · [Play it](https://potaterrr.github.io/adblock-island/) · [Patch notes](CHANGELOG.md)
+**v0.6.7 · beta** · [Play it](https://potaterrr.github.io/adblock-island/) · [Patch notes](https://potaterrr.github.io/projects/adblock-island/#patch-notes)
 
 A wholesome micro-MMO in a single HTML file, currently in **beta**. The ads took the beach, the locals kept the kettle on. Pick a class, sweep the static, bonk the ad-monsters, and leave a kind note for whoever washes ashore next.
 
@@ -32,7 +32,7 @@ A short version of the [patch notes](CHANGELOG.md):
 
 - **Every class looks and plays differently now.** Engineer, Medic, Hacker and Streamer no longer reuse the Reader's robe, pointed hat or beam attack. Each has its own silhouette, held gear, projectile and hit behaviour.
 - **Bug fixes.** The four new classes had silently fallen through to the Reader's attack and body; class projectiles all rendered as the same recoloured circle; piercing shots could tick the same ad every frame; turrets dealt invisible instant damage; the overclock buff ignored attack speed; the changelog was ordered oldest-first.
-- **Patch notes button.** The title-screen button now opens [CHANGELOG.md](https://github.com/potaterrr/adblock-island/blob/main/CHANGELOG.md) directly instead of the repo home page, and it finally renders as a real button instead of an underlined inline link.
+- **Patch notes button.** The title-screen button now opens the [live patch notes page](https://potaterrr.github.io/projects/adblock-island/#patch-notes) instead of the repo home page, and it finally renders as a real button instead of an underlined inline link.
 - **Release zip.** `adblock-island-beta-v0.6.7.zip` is a self-contained build of this single file plus these docs. It runs from `file://`, from GitHub Pages, or from any static host — no CDN, no backend, no network calls.
 
 ## Download
@@ -244,7 +244,7 @@ On a touch screen the HUD is deliberately thinner than the desktop one: a compac
 
 ## Patch notes
 
-The full history lives in **[CHANGELOG.md](CHANGELOG.md)**, newest first, and the version on the title card always matches its top entry. The two most recent releases are the ones worth reading if you have played before: **0.6.0** is the balance pass — the two heroes whose classes you did not pick became your party, the ladder became a table of fixed crews, and class power finally applies to every hit — and **0.6.1** is the phone HUD diet, which folds the top of the screen into one quiet bar.
+The full history lives in the **[live patch notes](https://potaterrr.github.io/projects/adblock-island/#patch-notes)** (source: [CHANGELOG.md](CHANGELOG.md)), newest first, and the version on the title card always matches its top entry. The two most recent releases are the ones worth reading if you have played before: **0.6.0** is the balance pass — the two heroes whose classes you did not pick became your party, the ladder became a table of fixed crews, and class power finally applies to every hit — and **0.6.1** is the phone HUD diet, which folds the top of the screen into one quiet bar.
 
 | Version | Date | Headline |
 | --- | --- | --- |
