@@ -1319,7 +1319,7 @@ body.scanlines::after{
         <div class="logo-badges">
           <div class="logo-kicker">a wholesome micro-MMO</div>
           <div class="beta-pill" id="betaPill" title="This is a beta build. The patch notes list what is still pending.">
-            <span class="beta-dot"></span>beta · <b id="betaVersion">v0.6.1</b>
+            <span class="beta-dot"></span>beta · <b id="betaVersion">v0.6.2</b>
           </div>
         </div>
         <h1 class="logo">ADBLOCK<br><span>ISLAND</span></h1>
@@ -1329,6 +1329,7 @@ body.scanlines::after{
         <label class="field-label" for="nameInput">your island name</label>
         <input id="nameInput" maxlength="16" placeholder="a friendly nickname" autocomplete="off" spellcheck="false">
         <button class="big-btn" id="startBtn">wash ashore →</button>
+        <a class="big-btn" id="patchNotesBtn" href="https://github.com/potaterrr/adblock-island" target="_blank" rel="noopener">PATCH NOTES →</a>
         <button class="text-btn" id="titleHelpBtn">how to play &amp; controls</button>
         <button class="text-btn" id="coopBtn">play with a friend: off</button>
         <div class="audio-hint">♪ ocean + lo-fi starts when you do</div>
@@ -1475,7 +1476,7 @@ const ICONS = {
 };
 const svg = (name) => ICONS[name] || ICONS.spark;
 
-const VERSION = '0.6.1';
+const VERSION = '0.6.3';
 
 /* ------------------------------- classes -------------------------------- */
 const CLASSES = {
@@ -1511,6 +1512,50 @@ const CLASSES = {
     atk: { name: 'Text Beam', icon: 'beam', cd: 0.42, desc: 'A piercing line of plain text. Hits every ad in a row and cleanses along the beam.' },
     q: { name: 'Readability Dash', icon: 'wind', cd: 8, desc: 'Zip forward, briefly untouchable, stunning ads you pass through and cleaning your trail.' },
     e: { name: 'Plain Text Cannon', icon: 'book', cd: 14, desc: 'A huge line of unstyled text. Massive damage and a long cleansing corridor.' }
+  },
+  engineer: {
+    id: 'engineer', name: 'Engineer', role: 'turrets & overclock', icon: 'gear',
+    color: '#ffd27a', color2: '#f0b04a', dark: '#a06a1a', soft: '#fff0d0',
+    desc: 'Builds things that outlast them. Drops turrets, overclocks the rig, and keeps the plaza tidy.',
+    descShort: 'Builds turrets and overclocks. Crowd control with a wrench.',
+    hp: 120, speed: 205, regen: 0.8, damage: 1.05, passive: 'Places auto-firing turrets and overclocks for burst damage.',
+    bars: { Toughness: 3, Speed: 3, Power: 3, Cleanse: 3 },
+    atk: { name: 'Wrench Swing', icon: 'gear', cd: 0.5, desc: 'A heavy wrench arc. Bonks ads and scrubs a small patch.' },
+    q: { name: 'Deploy Turret', icon: 'gear', cd: 10, desc: 'Drop an auto-firing turret that shoots the nearest ad for 6 seconds.' },
+    e: { name: 'Overclock', icon: 'bolt', cd: 14, desc: 'Boost attack speed and damage for 5 seconds.' }
+  },
+  medic: {
+    id: 'medic', name: 'Medic', role: 'heal & support', icon: 'heart',
+    color: '#ff9ecf', color2: '#f06aa8', dark: '#a03a6a', soft: '#ffe0f0',
+    desc: 'Keeps the island breathing. Heals friends, patches tiles, and turns panic into calm.',
+    descShort: 'Support healer. Patches friends and scrubs tiles.',
+    hp: 105, speed: 210, regen: 2.2, damage: 0.85, passive: 'Regenerates 2.2 HP/s and heals nearby friends a little.',
+    bars: { Toughness: 3, Speed: 3, Power: 2, Cleanse: 4 },
+    atk: { name: 'Syringe Dart', icon: 'heart', cd: 0.48, desc: 'A gentle dart that heals allies on hit and cleanses a small patch.' },
+    q: { name: 'First Aid', icon: 'heart', cd: 9, desc: 'Heal yourself and nearby islanders, cleanse a wide patch.' },
+    e: { name: 'Code Blue', icon: 'heart', cd: 13, desc: 'Big burst heal, shield, and a cleansing ring for the whole plaza.' }
+  },
+  hacker: {
+    id: 'hacker', name: 'Hacker', role: 'debuff & exploit', icon: 'chain',
+    color: '#7cffcb', color2: '#40e0a0', dark: '#1a8a5a', soft: '#d0fff0',
+    desc: 'Finds the exploit in every ad. Slows, marks, and breaks things from the inside.',
+    descShort: 'Debuffer. Slows ads and exploits weaknesses.',
+    hp: 95, speed: 225, regen: 0.6, damage: 0.9, passive: 'Marks ads on hit, making them take extra damage.',
+    bars: { Toughness: 2, Speed: 4, Power: 3, Cleanse: 3 },
+    atk: { name: 'Exploit Dart', icon: 'chain', cd: 0.46, desc: 'A dart that marks ads for extra damage and cleanses its path.' },
+    q: { name: 'Lag Switch', icon: 'chain', cd: 9, desc: 'Slow nearby ads and mark them for bonus damage.' },
+    e: { name: 'Zero-Day', icon: 'bolt', cd: 14, desc: 'AoE burst that damages and marks every ad in range.' }
+  },
+  streamer: {
+    id: 'streamer', name: 'Streamer', role: 'AoE hype', icon: 'spark',
+    color: '#ff7eb3', color2: '#ff4d94', dark: '#a02060', soft: '#ffe0f0',
+    desc: 'Loud, fast, and everywhere at once. Wide cone attacks and burst damage.',
+    descShort: 'AoE hype. Wide cones, big bursts, fragile.',
+    hp: 85, speed: 230, regen: 0.4, damage: 1.2, passive: 'Moves 10% faster and attacks in wide cones.',
+    bars: { Toughness: 1, Speed: 5, Power: 5, Cleanse: 2 },
+    atk: { name: 'Hype Beam', icon: 'beam', cd: 0.4, desc: 'A wide cone of energy that hits every ad in front of you.' },
+    q: { name: 'Hype Train', icon: 'wind', cd: 8, desc: 'Dash forward in a wide cone, damaging and stunning ads.' },
+    e: { name: 'Raid', icon: 'spark', cd: 14, desc: 'Massive AoE burst around you. High damage, high risk.' }
   }
 };
 
@@ -1851,7 +1896,7 @@ const defaultSave = () => ({
 });
 let save = Object.assign(defaultSave(), store.get(SAVE_KEY, {}) || {});
 save.upgrades = save.upgrades || {};
-save.stats = Object.assign({ tiles: 0, kills: 0, notes: 0, bosses: 0, seconds: 0 }, save.stats || {});
+save.stats = Object.assign({ tiles: 0, kills: 0, notes: 0, bosses: 0, seconds: 0, joySpent: 0 }, save.stats || {});
 save.cosmetics = Array.isArray(save.cosmetics) && save.cosmetics.length ? save.cosmetics : ['none'];
 if (!CLASSES[save.cls]) save.cls = 'blocker';
 if (!save.upgrades || typeof save.upgrades !== 'object') save.upgrades = {};
@@ -2119,6 +2164,7 @@ world.cleanse = function (x, y, radius, amount, source = 'player', power = 1) {
           addJoy(joy, false, p.x, p.y);
           gainXp(4);
           save.stats.tiles++;
+          if (world.cleansePercent() >= 0.99) grantAchievement('spotless');
           if (chance(0.35) && world.decor.length < 2600) {
             world.decor.push({ kind: pick(['flower', 'tuft', 'mushroom']), x: p.x + rand(24, -24), y: p.y + rand(24, -24), s: rand(1.2, 0.7), seed: Math.random(), color: Math.random(), fresh: true });
           }
@@ -2156,7 +2202,8 @@ const game = {
   won: false, modalType: null, introShown: false,
   chatCd: 3, ambientChatCd: 12, popupCheck: 0, tutorialT: 0,
   victoryT: 0, deathT: 0, lastFrame: 0, pausedFrame: 0,
-  wave: 0, waveState: 'idle', waveT: 0, waveTotal: 0, coop: false
+  wave: 0, waveState: 'idle', waveT: 0, waveTotal: 0, coop: false,
+  turrets: []
 };
 const cam = { x: SPAWN.x, y: SPAWN.y, zoom: 1, shake: 0, shakeX: 0, shakeY: 0, targetZoom: 1 };
 const input = {
@@ -2309,6 +2356,8 @@ function addJoy(n, instant = true, x = player.x, y = player.y) {
 function spendJoy(n) {
   if (player.joy < n) { audio.sfx('error'); return false; }
   player.joy -= n; save.joy = player.joy;
+  save.stats.joySpent = (save.stats.joySpent || 0) + n;
+  if (save.stats.joySpent >= 500) grantAchievement('big_spender');
   updateJoyUI();
   return true;
 }
@@ -3446,7 +3495,7 @@ function buildPausePanel() {
     </div>
     <div class="section-title">Medals</div>
     <div class="ach-grid">
-      ${WAVE_ACHIEVEMENTS.map((a) => {
+      ${ALL_ACHIEVEMENTS.map((a) => {
         const got = save.achievements.includes(a.id);
         return `<div class="ach-badge ${got ? '' : 'locked'}" title="${esc(a.desc)}">
           ${svg(got ? a.icon : 'star')}
@@ -3705,7 +3754,8 @@ function playerDamage(base) {
   // the class power stat (0.92 checker, 1.0 blocker, 1.16 reader) is part of
   // every hit, so the three kits actually differ in raw output
   const cls = CLASSES[player.cls];
-  return base * (cls ? cls.damage : 1) * stats.damageMult() * (1 + 0.035 * (player.level - 1));
+  const overclock = player.overclockT > 0 ? 1.35 : 1;
+  return base * (cls ? cls.damage : 1) * stats.damageMult() * (1 + 0.035 * (player.level - 1)) * overclock;
 }
 function currentMoveDir() {
   let dx = 0, dy = 0;
@@ -3858,6 +3908,57 @@ function skillOne() {
     audio.sfx('heal');
     updateHpUI();
     toast('Peer reviewed. The vibes are supported by sources.', 'good', '♥');
+  } else if (c === 'engineer') {
+    game.turrets.push({ x: player.x, y: player.y, t: 6, cd: 0, color: c.color });
+    burst(player.x, player.y, [c.color, '#ffffff'], 16, { speed: 90, life: 0.7, size: 3 });
+    floatingText(player.x, player.y - 44, 'TURRET DEPLOYED', c.dark, 12, 1.1);
+    audio.sfx('coin');
+    toast('Turret deployed. Covering fire!', 'good', '⚙');
+  } else if (c === 'medic') {
+    const heal = 30 + player.level * 2;
+    player.hp = Math.min(player.maxHp, player.hp + heal);
+    player.healGlow = 0.9;
+    world.cleanse(player.x, player.y, 190, 0.45, 'player');
+    const near = monstersInCircle(player.x, player.y, 190);
+    near.forEach((m) => { m.marked = Math.max(m.marked, 3); });
+    for (const b of bots) {
+      if (dist(b.x, b.y, player.x, player.y) < 280) {
+        b.hp = Math.min(b.maxHp, b.hp + 22);
+        if (chance(0.5)) floatingText(b.x, b.y - 40, '+care', '#3f9a73', 11, 1);
+      }
+    }
+    ringFx(player.x, player.y, 30, 210, c.color, 0.8, 8);
+    burst(player.x, player.y, [c.color, PAL.pink, '#ffffff'], 22, { speed: 120, life: 1.1, size: 3.2, gravity: -20 });
+    floatingText(player.x, player.y - 44, '+' + Math.round(heal) + ' hp', '#2f9468', 15, 1.1);
+    audio.sfx('heal');
+    updateHpUI();
+    toast('Patched up. Stay crispy.', 'good', '♥');
+  } else if (c === 'hacker') {
+    const near = monstersInCircle(player.x, player.y, 160);
+    near.forEach((m) => {
+      damageMonster(m, playerDamage(12), { player: true, knock: 40 });
+      m.marked = Math.max(m.marked, 4);
+    });
+    world.cleanse(player.x, player.y, 140, 0.35, 'player');
+    ringFx(player.x, player.y, 25, 160, c.color, 0.6, 6);
+    burst(player.x, player.y, [c.color, PAL.mint], 16, { speed: 100, life: 0.7, size: 3 });
+    floatingText(player.x, player.y - 44, 'EXPLOIT', c.dark, 12, 1.1);
+    audio.sfx('mark');
+    toast('Exploit found. They are marked.', 'good', '⚡');
+  } else if (c === 'streamer') {
+    const dir = currentMoveDir();
+    const ang = dir.len > 0.1 ? Math.atan2(dir.y, dir.x) : currentAim();
+    const len = 320, width = 90;
+    const hits = monstersOnLine(player.x, player.y, ang, len, width);
+    hits.forEach((m, i) => damageMonster(m, playerDamage(18 - i * 2), { player: true, knock: 30 }));
+    for (let i = 1; i <= 5; i++) {
+      const t = i / 5;
+      world.cleanse(player.x + Math.cos(ang) * len * t, player.y + Math.sin(ang) * len * t, 50, 0.18, 'player');
+    }
+    beamFx(player.x, player.y, ang, len, width, c.color, 0.45, { kind: 'cone' });
+    burst(player.x + Math.cos(ang) * 80, player.y + Math.sin(ang) * 80, [c.color, '#fff'], 20, { speed: 120, life: 0.6, size: 3, gravity: 0 });
+    floatingText(player.x, player.y - 46, 'HYPE BEAM', c.dark, 13, 1.2);
+    audio.sfx('beam');
   } else {
     const dir = currentMoveDir();
     const ang = dir.len > 0.1 ? Math.atan2(dir.y, dir.x) : currentAim();
@@ -3937,6 +4038,57 @@ function skillTwo() {
     audio.sfx('mark'); audio.sfx('heal');
     updateHpUI();
     buzz(16);
+  } else if (c === 'engineer') {
+    player.overclockT = 5;
+    player.shield = Math.max(player.shield, 18);
+    player.shieldT = Math.max(player.shieldT, 2);
+    ringFx(player.x, player.y, 20, 120, c.color, 0.6, 6);
+    burst(player.x, player.y, [c.color, '#ffffff', PAL.sun], 20, { speed: 120, life: 0.8, size: 3 });
+    floatingText(player.x, player.y - 46, 'OVERCLOCK', c.dark, 13, 1.2);
+    audio.sfx('levelup');
+    toast('Overclocked. Fire faster!', 'good', '⚡');
+  } else if (c === 'medic') {
+    const heal = 40 + player.level * 3;
+    player.hp = Math.min(player.maxHp, player.hp + heal);
+    player.shield = Math.max(player.shield, 30);
+    player.shieldT = Math.max(player.shieldT, 3);
+    world.cleanse(player.x, player.y, 220, 0.6, 'player');
+    const near = monstersInCircle(player.x, player.y, 220);
+    near.forEach((m) => { m.marked = Math.max(m.marked, 4); damageMonster(m, playerDamage(10), { player: true }); });
+    for (const b of bots) {
+      if (dist(b.x, b.y, player.x, player.y) < 300) {
+        b.hp = Math.min(b.maxHp, b.hp + 30);
+      }
+    }
+    ringFx(player.x, player.y, 20, 240, c.color, 0.7, 10);
+    burst(player.x, player.y, [c.color, PAL.pink, '#ffffff'], 28, { speed: 130, life: 1.0, size: 3.5, gravity: -15 });
+    floatingText(player.x, player.y - 48, 'CODE BLUE', c.dark, 14, 1.2);
+    audio.sfx('heal');
+    updateHpUI();
+    toast('Code Blue! Big heal deployed.', 'good', '♥');
+  } else if (c === 'hacker') {
+    const near = monstersInCircle(player.x, player.y, 200);
+    near.forEach((m) => {
+      damageMonster(m, playerDamage(28), { player: true, knock: 60 });
+      m.marked = Math.max(m.marked, 5);
+    });
+    world.cleanse(player.x, player.y, 200, 0.5, 'player');
+    ringFx(player.x, player.y, 20, 220, c.color, 0.7, 8);
+    burst(player.x, player.y, [c.color, PAL.mint], 24, { speed: 140, life: 0.8, size: 3.5 });
+    floatingText(player.x, player.y - 46, 'ZERO-DAY', c.dark, 13, 1.2);
+    audio.sfx('mark');
+    toast('Zero-day deployed. They are marked.', 'good', '⚡');
+  } else if (c === 'streamer') {
+    const near = monstersInCircle(player.x, player.y, 200);
+    near.forEach((m) => {
+      damageMonster(m, playerDamage(22), { player: true, knock: 80 });
+    });
+    world.cleanse(player.x, player.y, 220, 0.55, 'player');
+    ringFx(player.x, player.y, 15, 230, c.color, 0.8, 12);
+    burst(player.x, player.y, [c.color, '#ffffff', PAL.sun], 36, { speed: 180, life: 0.9, size: 4, gravity: -10 });
+    floatingText(player.x, player.y - 48, 'RAID!', c.dark, 15, 1.3);
+    audio.sfx('levelup');
+    toast('Raid incoming!', 'joy', '★');
   } else {
     const dir = currentAim();
     const len = 680, width = 54;
@@ -4306,6 +4458,20 @@ const WAVE_ACHIEVEMENTS = [
   { at: 10, id: 'island_saved', name: 'Island Saved', desc: 'Clear Super Hard. The island is not serving ads anymore.', icon: 'sun' }
 ];
 
+const EXTRA_ACHIEVEMENTS = [
+  { id: 'algorithm_unplugged', name: 'Algorithm Unplugged', desc: 'Defeat the Algorithm boss.', icon: 'bolt' },
+  { id: 'shield_wall', name: 'Shield Wall', desc: 'Reach wave 5 as an AdBlocker.', icon: 'shield' },
+  { id: 'sharpshooter', name: 'Sharpshooter', desc: 'Reach wave 5 as a Fact-Checker.', icon: 'target' },
+  { id: 'speed_reader', name: 'Speed Reader', desc: 'Reach wave 5 as a Reader-Mode.', icon: 'wind' },
+  { id: 'field_medic', name: 'Field Medic', desc: 'Reach wave 5 as a Medic.', icon: 'heart' },
+  { id: 'zero_day', name: 'Zero-Day', desc: 'Reach wave 5 as a Hacker.', icon: 'chain' },
+  { id: 'hype_train', name: 'Hype Train', desc: 'Reach wave 5 as a Streamer.', icon: 'spark' },
+  { id: 'better_together', name: 'Better Together', desc: 'Clear a wave in co-op.', icon: 'heart' },
+  { id: 'big_spender', name: 'Big Spender', desc: 'Spend 500 Joy on upgrades.', icon: 'coin' },
+  { id: 'spotless', name: 'Spotless', desc: 'Clear every tile of static on the island.', icon: 'leaf' }
+];
+const ALL_ACHIEVEMENTS = WAVE_ACHIEVEMENTS.concat(EXTRA_ACHIEVEMENTS);
+
 const WAVE_ITEMS = [
   { id: 'spare_broom', name: 'Spare Broom', icon: 'broom', kind: 'upgrade', upgrade: 'cleanse', desc: 'A second broom, slightly less splintery. +1 Wide Broom.' },
   { id: 'wool_blanket', name: 'Wool Blanket', icon: 'heart', kind: 'upgrade', upgrade: 'vitality', desc: 'Left on the bench for you. +1 Deep Breaths.' },
@@ -4450,11 +4616,20 @@ function applyWaveItem(it) {
   return it;
 }
 
+function grantAchievement(id) {
+  if (save.achievements.includes(id)) return false;
+  const a = ALL_ACHIEVEMENTS.find((x) => x.id === id);
+  if (!a) return false;
+  save.achievements.push(id);
+  audio.sfx('levelup');
+  toast('Achievement unlocked: ' + a.name, 'good', '★');
+  return true;
+}
+
 function grantWaveReward(n) {
   const ach = WAVE_ACHIEVEMENTS.find((a) => a.at === n);
   if (ach && !save.achievements.includes(ach.id)) {
-    save.achievements.push(ach.id);
-    audio.sfx('levelup');
+    grantAchievement(ach.id);
     return { kind: 'achievement', id: ach.id, name: ach.name, desc: ach.desc, icon: ach.icon };
   }
   const pool = WAVE_ITEMS.filter(waveItemAvailable);
@@ -4523,6 +4698,15 @@ function waveCleared(n) {
   save.totalJoy = (save.totalJoy || 0) + bonus;
   gainXp(5 + n * 2);
   save.stats.waves = (save.stats.waves || 0) + 1;
+  if (n >= 5) {
+    if (player.cls === 'blocker') grantAchievement('shield_wall');
+    if (player.cls === 'checker') grantAchievement('sharpshooter');
+    if (player.cls === 'reader') grantAchievement('speed_reader');
+    if (player.cls === 'medic') grantAchievement('field_medic');
+    if (player.cls === 'hacker') grantAchievement('zero_day');
+    if (player.cls === 'streamer') grantAchievement('hype_train');
+  }
+  if (game.coop) grantAchievement('better_together');
   if (n >= 10 && !save.waveCampaignWon) save.waveCampaignWon = true;
 
   const reward = grantWaveReward(n);
@@ -4952,6 +5136,7 @@ function bossDefeated(m) {
   game.boss = null;
   save.bossDefeated = true;
   save.stats.bosses = (save.stats.bosses || 0) + 1;
+  grantAchievement('algorithm_unplugged');
   save.stats.kills = (save.stats.kills || 0) + 1;
   audio.setIntense(false);
   audio.sfx('victory');
@@ -5389,7 +5574,29 @@ function updateAutoSword(dt) {
   player.autoAtkCd = TANK_SWORD_CD * stats.cdMult();
 }
 
+function updateTurrets(dt) {
+  for (const t of game.turrets) {
+    t.t -= dt;
+    t.cd -= dt;
+    if (t.cd <= 0) {
+      let nearest = null, nd = 260;
+      for (const m of monsters) {
+        if (m.dead || m.spawnT > 0) continue;
+        const d = dist(t.x, t.y, m.x, m.y);
+        if (d < nd) { nd = d; nearest = m; }
+      }
+      if (nearest) {
+        damageMonster(nearest, playerDamage(8), { player: true, knock: 10 });
+        burst(t.x, t.y, '#ffd27a', 4, { speed: 60, life: 0.4, size: 2 });
+        t.cd = 0.8;
+      }
+    }
+  }
+  game.turrets = game.turrets.filter((t) => t.t > 0);
+}
+
 function updatePlayer(dt) {
+  if (player.overclockT > 0) { player.overclockT = Math.max(0, player.overclockT - dt); }
   // timers always tick, even while being carried back to the bench
   player.atkCd = Math.max(0, player.atkCd - dt);
   player.skill1Cd = Math.max(0, player.skill1Cd - dt);
@@ -5523,6 +5730,7 @@ function update(dt) {
     updatePlayer(dt);
     updateMonsters(dt);
     updateBots(dt);
+    updateTurrets(dt);
   } else if (game.state === 'dying') {
     updatePlayer(dt);
     updateMonsters(dt);
@@ -8045,6 +8253,26 @@ function drawScene() {
 }
 
 /* --------------------------------- render -------------------------------- */
+function drawTurrets() {
+  for (const t of game.turrets) {
+    const pulse = 0.5 + 0.5 * Math.sin(game.time * 6);
+    ctx.save();
+    ctx.translate(t.x, t.y);
+    ctx.fillStyle = '#a06a1a';
+    ctx.fillRect(-8, -8, 16, 16);
+    ctx.fillStyle = '#ffd27a';
+    ctx.fillRect(-5, -5, 10, 10);
+    ctx.globalAlpha = 0.3 + 0.2 * pulse;
+    ctx.beginPath();
+    ctx.arc(0, 0, 26, 0, Math.PI * 2);
+    ctx.strokeStyle = '#ffd27a';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+    ctx.restore();
+  }
+}
+
 function render() {
   const w = window.innerWidth, h = window.innerHeight;
   const dpr = game.dpr || 1;
@@ -8068,6 +8296,7 @@ function render() {
   drawHazards();
   drawBeams();
   drawProjectiles();
+  drawTurrets();
   drawParticles();
 
   ctx.restore();

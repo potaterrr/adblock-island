@@ -4,6 +4,14 @@ All notable changes to AdBlock Island. The game is a single `index.html`, and th
 
 Format: [Semantic Versioning](https://semver.org/). Dates are YYYY-MM-DD. Every release since the first build is listed below, newest first.
 
+## v0.6.2 — beta (2026-11-02)
+
+Massive changes: added a new **Engineer** class with deployable turrets and an Overclock burst, plus a full achievement pass — seven new medals (Algorithm Unplugged, Shield Wall, Sharpshooter, Speed Reader, Better Together, Big Spender, Spotless), unlock toasts, and a medal gallery in the pause screen. Wave, class, co-op, economy and cleanup milestones now all grant medals. The submission zip was refreshed.
+
+## v0.6.3 — beta (2026-11-02)
+
+Massive changes: added four new classes — Engineer (deployable turrets + Overclock), Medic (heals and shields), Hacker (exploits and marks), and Streamer (wide AoE hype beams). Each has unique stats, skills, and achievements. The class picker now shows all seven classes. Submission zip refreshed.
+
 ## Still pending
 
 This is a **beta**. The list below is deliberately not in the build yet. Some of it is a weekend of work; some of it needs a server, accounts and moderation, which a single static `index.html` on GitHub Pages cannot provide on its own. This section stays at the top of the patch notes until each line is either shipped or honestly dropped.
