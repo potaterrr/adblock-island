@@ -1472,11 +1472,15 @@ const ICONS = {
   bolt: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M13 2L4.5 13.5H11L9.8 22 19 10h-6.4L13 2z"/></svg>',
   wind: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 8h11a3 3 0 10-3-3M3 12h15a3 3 0 11-3 3M3 16h8a2.5 2.5 0 11-2.5 2.5"/></svg>',
   moon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 019.5 4 8.5 8.5 0 1020 14.5z"/></svg>',
-  sun: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9L6.7 6.7M17.3 17.3l1.8 1.8M19.1 4.9l-1.8 1.8M6.7 17.3l-1.8 1.8"/></svg>'
+  sun: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9L6.7 6.7M17.3 17.3l1.8 1.8M19.1 4.9l-1.8 1.8M6.7 17.3l-1.8 1.8"/></svg>',
+  turret: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="10" width="10" height="8" rx="2"/><path d="M12 10V6M9 6h6M12 6l2-2M12 6l-2-2"/><circle cx="12" cy="14" r="2"/></svg>',
+  syringe: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4.5l5 5M16 3l5 5M7 13l4 4M3 21l4-4M9 11l4 4M12 8l4 4"/></svg>',
+  terminal: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 9l3 3-3 3M12 15h5"/></svg>',
+  broadcast: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 18v3M8 21h8M6 13a6 6 0 0112 0M9 13a3 3 0 016 0M12 10v.01"/></svg>'
 };
 const svg = (name) => ICONS[name] || ICONS.spark;
 
-const VERSION = '0.6.3';
+const VERSION = '0.6.4';
 
 /* ------------------------------- classes -------------------------------- */
 const CLASSES = {
@@ -1514,7 +1518,7 @@ const CLASSES = {
     e: { name: 'Plain Text Cannon', icon: 'book', cd: 14, desc: 'A huge line of unstyled text. Massive damage and a long cleansing corridor.' }
   },
   engineer: {
-    id: 'engineer', name: 'Engineer', role: 'turrets & overclock', icon: 'gear',
+    id: 'engineer', name: 'Engineer', role: 'turrets & overclock', icon: 'turret',
     color: '#ffd27a', color2: '#f0b04a', dark: '#a06a1a', soft: '#fff0d0',
     desc: 'Builds things that outlast them. Drops turrets, overclocks the rig, and keeps the plaza tidy.',
     descShort: 'Builds turrets and overclocks. Crowd control with a wrench.',
@@ -1525,7 +1529,7 @@ const CLASSES = {
     e: { name: 'Overclock', icon: 'bolt', cd: 14, desc: 'Boost attack speed and damage for 5 seconds.' }
   },
   medic: {
-    id: 'medic', name: 'Medic', role: 'heal & support', icon: 'heart',
+    id: 'medic', name: 'Medic', role: 'heal & support', icon: 'syringe',
     color: '#ff9ecf', color2: '#f06aa8', dark: '#a03a6a', soft: '#ffe0f0',
     desc: 'Keeps the island breathing. Heals friends, patches tiles, and turns panic into calm.',
     descShort: 'Support healer. Patches friends and scrubs tiles.',
@@ -1536,7 +1540,7 @@ const CLASSES = {
     e: { name: 'Code Blue', icon: 'heart', cd: 13, desc: 'Big burst heal, shield, and a cleansing ring for the whole plaza.' }
   },
   hacker: {
-    id: 'hacker', name: 'Hacker', role: 'debuff & exploit', icon: 'chain',
+    id: 'hacker', name: 'Hacker', role: 'debuff & exploit', icon: 'terminal',
     color: '#7cffcb', color2: '#40e0a0', dark: '#1a8a5a', soft: '#d0fff0',
     desc: 'Finds the exploit in every ad. Slows, marks, and breaks things from the inside.',
     descShort: 'Debuffer. Slows ads and exploits weaknesses.',
@@ -1547,7 +1551,7 @@ const CLASSES = {
     e: { name: 'Zero-Day', icon: 'bolt', cd: 14, desc: 'AoE burst that damages and marks every ad in range.' }
   },
   streamer: {
-    id: 'streamer', name: 'Streamer', role: 'AoE hype', icon: 'spark',
+    id: 'streamer', name: 'Streamer', role: 'AoE hype', icon: 'broadcast',
     color: '#ff7eb3', color2: '#ff4d94', dark: '#a02060', soft: '#ffe0f0',
     desc: 'Loud, fast, and everywhere at once. Wide cone attacks and burst damage.',
     descShort: 'AoE hype. Wide cones, big bursts, fragile.',

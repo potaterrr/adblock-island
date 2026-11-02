@@ -12,6 +12,10 @@ Massive changes: added a new **Engineer** class with deployable turrets and an O
 
 Massive changes: added four new classes — Engineer (deployable turrets + Overclock), Medic (heals and shields), Hacker (exploits and marks), and Streamer (wide AoE hype beams). Each has unique stats, skills, and achievements. The class picker now shows all seven classes. Submission zip refreshed.
 
+## v0.6.4 — beta (2026-11-02)
+
+Massive changes: added unique class icons (turret, syringe, terminal, broadcast) so each class is visually distinct instead of looking like a reskinned mage. Submission zip refreshed.
+
 ## Still pending
 
 This is a **beta**. The list below is deliberately not in the build yet. Some of it is a weekend of work; some of it needs a server, accounts and moderation, which a single static `index.html` on GitHub Pages cannot provide on its own. This section stays at the top of the patch notes until each line is either shipped or honestly dropped.
