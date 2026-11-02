@@ -16,6 +16,10 @@ Massive changes: added four new classes — Engineer (deployable turrets + Overc
 
 Massive changes: added unique class icons (turret, syringe, terminal, broadcast) so each class is visually distinct instead of looking like a reskinned mage. Submission zip refreshed.
 
+## v0.6.5 — beta (2026-11-02)
+
+Massive changes: added class-specific projectile visuals and unique attack effects so each class throws distinct projectiles (turret bolts, syringes, exploit bolts, hype beams) instead of identical reskins. Submission zip refreshed.
+
 ## Still pending
 
 This is a **beta**. The list below is deliberately not in the build yet. Some of it is a weekend of work; some of it needs a server, accounts and moderation, which a single static `index.html` on GitHub Pages cannot provide on its own. This section stays at the top of the patch notes until each line is either shipped or honestly dropped.
