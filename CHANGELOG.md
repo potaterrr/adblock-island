@@ -17,6 +17,7 @@ Massive changes: class identity pass. Every class now has its own silhouette and
 - **Turrets dealt invisible damage.** Turret fire was instant with no travel or miss chance. Turrets now launch visible bolts.
 - **The overclock buff only boosted damage.** It now also shortens attack cooldown by 40%, as the description promised.
 - **Patch notes were listed oldest-first** under a heading that says newest-first. The list is now genuinely newest-first.
+- **The PATCH NOTES button rendered as a raw link.** It was an `<a>` wearing the `.big-btn` class, so it stayed inline: default link colour and underline, and no full-width hit area. It now renders exactly like *wash ashore*.
 
 ### Distribution
 

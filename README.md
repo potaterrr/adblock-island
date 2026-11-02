@@ -32,7 +32,7 @@ A short version of the [patch notes](CHANGELOG.md):
 
 - **Every class looks and plays differently now.** Engineer, Medic, Hacker and Streamer no longer reuse the Reader's robe, pointed hat or beam attack. Each has its own silhouette, held gear, projectile and hit behaviour.
 - **Bug fixes.** The four new classes had silently fallen through to the Reader's attack and body; class projectiles all rendered as the same recoloured circle; piercing shots could tick the same ad every frame; turrets dealt invisible instant damage; the overclock buff ignored attack speed; the changelog was ordered oldest-first.
-- **Patch notes button.** The title-screen button now opens [CHANGELOG.md](https://github.com/potaterrr/adblock-island/blob/main/CHANGELOG.md) directly instead of the repo home page.
+- **Patch notes button.** The title-screen button now opens [CHANGELOG.md](https://github.com/potaterrr/adblock-island/blob/main/CHANGELOG.md) directly instead of the repo home page, and it finally renders as a real button instead of an underlined inline link.
 - **Release zip.** `adblock-island-beta-v0.6.7.zip` is a self-contained build of this single file plus these docs. It runs from `file://`, from GitHub Pages, or from any static host — no CDN, no backend, no network calls.
 
 ## Download
