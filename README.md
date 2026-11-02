@@ -7,7 +7,7 @@ A wholesome micro-MMO in a single HTML file, currently in **beta**. The ads took
 Everything is self-contained: no build step, no CDN, no images, no fonts, no backend, no accounts, no trackers. The island is drawn with the Canvas 2D API, and the ocean, lo-fi chords, and sound effects are synthesized with the Web Audio API.
 
 ```
-index.html   ← the entire game (≈370 KB, markup + CSS + renderer + audio + logic)
+index.html   ← the entire game (≈405 KB, markup + CSS + renderer + audio + logic)
 ```
 
 ## Status: beta
@@ -20,11 +20,26 @@ Storage keys: `adblock-island.save.v0`, `adblock-island.notes.v0` and `adblock-i
 
 Still pending, in short:
 
-- **Achievements.** Six wave medals exist. A medal gallery, unlock toasts, medals for the boss/stats/classes/co-op, and account-wide persistence do not.
+- **Achievements.** Medals now cover waves, each class, co-op, the Algorithm boss, spending and cleanup, with a gallery and unlock toasts in the pause screen. Dated unlock history and account-wide persistence are still to come.
 - **Cool items.** Waves give seven small items that are mostly free upgrade ranks. A real inventory, cosmetic drops with an equip screen, rarity tiers and usable items are still to come.
 - **MMORPG essentials.** Online multiplayer and rooms, accounts and cross-device saves, moderated chat, parties and guilds, quests and raids, trading, anti-cheat and live ops. These need a backend; a static `index.html` on GitHub Pages cannot provide them.
 
 The full, honest list lives in **[Still pending](CHANGELOG.md#still-pending)** at the top of the patch notes.
+
+## What's new in v0.6.7
+
+A short version of the [patch notes](CHANGELOG.md):
+
+- **Every class looks and plays differently now.** Engineer, Medic, Hacker and Streamer no longer reuse the Reader's robe, pointed hat or beam attack. Each has its own silhouette, held gear, projectile and hit behaviour.
+- **Bug fixes.** The four new classes had silently fallen through to the Reader's attack and body; class projectiles all rendered as the same recoloured circle; piercing shots could tick the same ad every frame; turrets dealt invisible instant damage; the overclock buff ignored attack speed; the changelog was ordered oldest-first.
+- **Patch notes button.** The title-screen button now opens [CHANGELOG.md](https://github.com/potaterrr/adblock-island/blob/main/CHANGELOG.md) directly instead of the repo home page.
+- **Release zip.** `adblock-island-beta-v0.6.7.zip` is a self-contained build of this single file plus these docs. It runs from `file://`, from GitHub Pages, or from any static host — no CDN, no backend, no network calls.
+
+## Download
+
+`adblock-island-beta-v0.6.7.zip` sits at the repo root and is rebuilt from `index.html`, `README.md` and `CHANGELOG.md`. Unzip it, open `index.html`, and it plays — online or offline. It is intentionally not committed to git.
+
+One honest caveat: **co-op is local, not networked.** "Play with a friend" puts player two on the same keyboard (arrow keys) on the same screen. A single static HTML file cannot do online matchmaking, peer-to-peer play or accounts on its own, so the zip is a complete single-player/co-op game, not an online multiplayer client.
 
 ## Screenshots
 

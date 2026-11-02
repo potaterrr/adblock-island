@@ -6,7 +6,24 @@ Format: [Semantic Versioning](https://semver.org/). Dates are YYYY-MM-DD. Every 
 
 ## v0.6.7 — beta (2026-11-02)
 
-Massive changes: class identity pass. Every class now has its own silhouette and held gear instead of sharing the Reader's robe, cape and pointed hat — the Engineer gets a hard hat and a swinging wrench, the Medic a cross cap and a syringe staff, the Hacker a hood, visor and handheld terminal, the Streamer headphones, a mic boom and an antenna. The Engineer, Medic, Hacker and Streamer also stopped borrowing the Reader's attack: they now throw their own wrench bolts, syringes, exploit bolts and hype shards, each drawn as a real prop with its own hit behaviour (turret shots fire visible bolts, syringes patch you on impact, exploit bolts pierce and mark, hype shards pierce a crowd). Class cards, in-game sprites and projectiles all read as different kits now. Submission zip refreshed inside the project folder.
+Massive changes: class identity pass. Every class now has its own silhouette and held gear instead of sharing the Reader's robe, cape and pointed hat — the Engineer gets a hard hat and a swinging wrench, the Medic a cross cap and a syringe staff, the Hacker a hood, visor and handheld terminal, the Streamer headphones, a mic boom and an antenna. The Engineer, Medic, Hacker and Streamer also stopped borrowing the Reader's attack: they now throw their own wrench bolts, syringes, exploit bolts and hype shards, each drawn as a real prop with its own hit behaviour (turret shots fire visible bolts, syringes patch you on impact, exploit bolts pierce and mark, hype shards pierce a crowd). Class cards, in-game sprites and projectiles all read as different kits now.
+
+### Bug fixes
+
+- **New classes borrowed the Reader's attack.** `doAttack()` had no branches for Engineer, Medic, Hacker or Streamer, so all four fell through to the Reader's piercing beam. Each one now has its own projectile, hit behaviour and sound.
+- **New classes borrowed the Reader's body.** `drawHeroBody()` only special-cased AdBlocker and Fact-Checker; everything else was drawn with the Reader's cape, robe and pointed hat. The four new kits now have their own silhouettes and headgear.
+- **Projectiles all looked the same.** `drawProjectiles()` only knew three shapes, so every class shot rendered as the same recoloured circle. Wrench bolts, syringes, exploit glyphs and hype shards now have real art.
+- **Piercing shots hit the same ad every frame.** A single shard could tick against one target repeatedly and delete a boss in a fraction of a second. Projectiles now track what they have already hit.
+- **Turrets dealt invisible damage.** Turret fire was instant with no travel or miss chance. Turrets now launch visible bolts.
+- **The overclock buff only boosted damage.** It now also shortens attack cooldown by 40%, as the description promised.
+- **Patch notes were listed oldest-first** under a heading that says newest-first. The list is now genuinely newest-first.
+
+### Distribution
+
+- The release zip (`adblock-island-beta-v0.6.7.zip`) is a **self-contained static build**: one `index.html` with all CSS, JavaScript, canvas art, audio and save data inline. No CDN, no fonts, no `fetch`, no WebSockets, no backend.
+- It runs from `file://`, from GitHub Pages, or from any static host you upload it to. Drop the `index.html` on a host and it plays.
+- **Co-op is local, not networked.** "Play with a friend" puts player two on the same keyboard (arrow keys) on the same screen. There is no online matchmaking, no peer-to-peer and no server — a single static HTML file cannot provide those on its own. The zip is fully playable online as a single-player/co-op game; it is not an online multiplayer client.
+- The submission zip lives at the repo root as `adblock-island-beta-v0.6.7.zip` and is intentionally **not committed** to git; it is rebuilt from `index.html`, `README.md` and `CHANGELOG.md`.
 
 ## v0.6.6 — beta (2026-11-02)
 
