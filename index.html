@@ -3793,6 +3793,13 @@ function doAttack() {
   player.atkDir = assistAim(currentAim(), reach, cone);
   player.facing = player.atkDir;
   player.moving = true;
+  // class-flavoured projectile so every kit reads as its own
+  spawnProjectile({
+    x: player.x + Math.cos(player.atkDir) * 20, y: player.y + Math.sin(player.atkDir) * 20,
+    vx: Math.cos(player.atkDir) * 520, vy: Math.sin(player.atkDir) * 520,
+    r: 6, life: 0.9, dmg: 0, kind: 'cosmetic', friendly: true,
+    color: (CLASSES[cls] || CLASSES.blocker).color2, angle: player.atkDir, pierce: 1
+  });
   if (cls === 'blocker') {
     const hits = monstersInArc(player.x, player.y, player.atkDir, 84, 1.02);
     for (const m of hits) damageMonster(m, playerDamage(21), { player: true, knock: 115 });
