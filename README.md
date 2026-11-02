@@ -37,7 +37,7 @@ A short version of the [patch notes](CHANGELOG.md):
 
 ## Download
 
-`adblock-island-beta-v0.6.7.zip` sits at the repo root and is rebuilt from `index.html`, `README.md` and `CHANGELOG.md`. Unzip it, open `index.html`, and it plays — online or offline. It is intentionally not committed to git.
+**[Download v0.6.7 beta](https://github.com/potaterrr/adblock-island/releases/tag/v0.6.7)** (`adblock-island-beta-v0.6.7.zip`, also at the repo root). It is rebuilt from `index.html`, `README.md` and `CHANGELOG.md`. Unzip it, open `index.html`, and it plays — online or offline.
 
 One honest caveat: **co-op is local, not networked.** "Play with a friend" puts player two on the same keyboard (arrow keys) on the same screen. A single static HTML file cannot do online matchmaking, peer-to-peer play or accounts on its own, so the zip is a complete single-player/co-op game, not an online multiplayer client.
 
