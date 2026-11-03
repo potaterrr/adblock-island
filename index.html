@@ -1918,7 +1918,32 @@ save.achievements = Array.isArray(save.achievements) ? save.achievements.filter(
 save.items = Array.isArray(save.items) ? save.items.filter((x) => typeof x === 'string').slice(-40) : [];
 save.waveCampaignWon = !!save.waveCampaignWon;
 for (const u of UPGRADES) save.upgrades[u.id] = clamp(Number(save.upgrades[u.id]) || 0, 0, u.max);
-const persistSave = () => { try { store.set(SAVE_KEY, save); } catch (e) {} };
+/* Run progress is deliberately ephemeral. Joy, upgrades, level, XP, boss
+   state and the corruption map reset every visit; only meta (name, class,
+   medals, items, cosmetics, lifetime stats and bests) is persisted. */
+const RUN_SAVE_KEYS = ['level', 'xp', 'joy', 'upgrades', 'corruption', 'bossSpawned', 'bossDefeated', 'won', 'wave', 'waveCampaignWon'];
+function resetRunProgress() {
+  save.level = 1;
+  save.xp = 0;
+  save.joy = 0;
+  save.upgrades = {};
+  for (const u of UPGRADES) save.upgrades[u.id] = 0;
+  save.corruption = null;
+  save.bossSpawned = false;
+  save.bossDefeated = false;
+  save.won = false;
+  save.wave = 1;
+  save.waveCampaignWon = false;
+}
+const persistSave = () => {
+  try {
+    const meta = { ...save };
+    for (const key of RUN_SAVE_KEYS) delete meta[key];
+    store.set(SAVE_KEY, meta);
+  } catch (e) {}
+};
+resetRunProgress();
+persistSave();
 
 function upgradeCost(u) {
   const rank = save.upgrades[u.id] || 0;
@@ -2100,25 +2125,18 @@ function generateWorld() {
       if (hash2(c * 13, r * 17) > 0.86) world.corrupt[i] = Math.max(world.corrupt[i], 0.12 + hash2(c, r) * 0.22);
     }
   }
-  // load saved corruption if it matches this island
-  if (Array.isArray(save.corruption) && save.corruption.length === COLS * ROWS) {
-    for (let i = 0; i < save.corruption.length; i++) {
-      const v = Number(save.corruption[i]);
-      if (Number.isFinite(v)) world.corrupt[i] = clamp(v / 100, 0, 1);
-    }
-  } else {
-    // normalise to a welcoming-but-overrun starting clarity
-    let sum = 0;
-    for (let i = 0; i < world.corrupt.length; i++) if (world.type[i] !== T_WATER) sum += world.corrupt[i];
-    const targetSum = world.landCount * 0.48;
-    let scale = sum > 0 ? targetSum / sum : 1;
-    scale = clamp(scale, 0.35, 2.2);
-    for (let i = 0; i < world.corrupt.length; i++) {
-      if (world.type[i] === T_WATER) world.corrupt[i] = 0;
-      else {
-        world.corrupt[i] = Math.min(1, world.corrupt[i] * scale);
-        if (world.corrupt[i] < 0.045) world.corrupt[i] = 0;
-      }
+  // every visit starts with a welcoming-but-overrun island; run progress is
+  // intentionally not restored from localStorage.
+  let sum = 0;
+  for (let i = 0; i < world.corrupt.length; i++) if (world.type[i] !== T_WATER) sum += world.corrupt[i];
+  const targetSum = world.landCount * 0.48;
+  let scale = sum > 0 ? targetSum / sum : 1;
+  scale = clamp(scale, 0.35, 2.2);
+  for (let i = 0; i < world.corrupt.length; i++) {
+    if (world.type[i] === T_WATER) world.corrupt[i] = 0;
+    else {
+      world.corrupt[i] = Math.min(1, world.corrupt[i] * scale);
+      if (world.corrupt[i] < 0.045) world.corrupt[i] = 0;
     }
   }
   world.clarityDirty = true;
@@ -2387,15 +2405,8 @@ function spendJoy(n) {
 function saveGame() {
   save.name = player.name;
   save.cls = player.cls;
-  save.level = player.level;
-  save.xp = player.xp;
-  save.joy = player.joy;
   save.equipped = player.cosmetic;
   save.stats = save.stats || { tiles: 0, kills: 0, notes: 0, bosses: 0, seconds: 0 };
-  save.bossSpawned = game.bossSpawned;
-  save.bossDefeated = game.bossDefeated;
-  save.won = game.won;
-  world.saveCorruption();
   persistSave();
 }
 
@@ -3130,7 +3141,7 @@ function seedChat() {
 
 /* ------------------------------- panels --------------------------------- */
 const PANEL_META = {
-  upgrades: { title: 'A slightly better broom', sub: 'Spend Joy on small, permanent improvements. The island rewards patience.', icon: 'spark' },
+  upgrades: { title: 'A slightly better broom', sub: 'Spend Joy on small improvements for this run. The island rewards patience.', icon: 'spark' },
   kindness: { title: 'The kindness wall', sub: 'A bench, a wall, and a quiet promise: no ads, no rush, no bad faith.', icon: 'note' },
   help: { title: 'How to help', sub: 'Everything is optional except being kind to yourself.', icon: 'help' },
   settings: { title: 'Cozy settings', sub: 'Sound, motion, and a fresh start if you need one.', icon: 'gear' },
@@ -3291,7 +3302,6 @@ function buyUpgrade(id) {
   }
   if (id === 'speed') player.speed = CLASSES[player.cls].speed * stats.speedMult();
   save.level = player.level;
-  persistSave();
   audio.sfx('levelup');
   toast(`${u.name} ${rank + 1}/${u.max} unlocked. Cozy and effective.`, 'good', '✿');
   buildUpgradesPanel();
@@ -3438,7 +3448,7 @@ function buildHelpPanel() {
       </div>
       <div class="help-block">
         <h4>Waves</h4>
-        <p>Every run starts at <b>Super Easy</b>. Clear the crew and the island asks for one small upgrade before the next wave: the shop is safe, and buying there never starts the wave early. Each clear hands you a medal or a free item and a chapter of the island's log. Clear <b>Super Hard</b> and <b>Endless mode</b> begins — every third wave is a checkpoint that pauses the island, pays you Joy, and waits while you upgrade. Enemy damage climbs with depth, so a hero who never buys <b>Deep Breaths</b> will not last. The Algorithm still interrupts when the island is clear enough to wake it.</p>
+        <p>Every run starts at <b>Super Easy</b>. Clear the crew and choose <b>Upgrade</b> or <b>Next wave</b>; the next wave is always available, and the shop never starts it early. Each clear hands you a medal or a free item and a chapter of the island's log. Clear <b>Super Hard</b> and <b>Endless mode</b> begins — every third wave is a checkpoint that pauses the island, pays you Joy, and offers an optional upgrade. Continue is always available. Enemy damage climbs with depth, so a hero who never buys <b>Deep Breaths</b> will not last. The Algorithm still interrupts when the island is clear enough to wake it.</p>
       </div>
       <div class="help-block">
         <h4>Play with a friend</h4>
@@ -3599,16 +3609,13 @@ function buildWavePanel() {
   const medals = WAVE_ACHIEVEMENTS.filter((a) => save.achievements.includes(a.id)).length;
   const bonus = 10 + n * 4;
 
-  const gate = (game.waveUpgradesBought || 0) === 0 && canAffordAnyUpgrade();
   ui.modalTitle.textContent = 'Wave ' + n + ' cleared';
-  ui.modalSub.textContent = gate
-    ? 'One small upgrade before the next wave. The island waits for you.'
-    : 'Upgrading never starts the next wave. The island waits for you.';
+  ui.modalSub.textContent = 'Upgrading never starts the next wave. The island waits for you.';
 
   const winBlock = n === 10 ? `
     <div class="wave-win">
       <h3>You saved this island from serving ads.</h3>
-      <p>Super Hard is cleared. The kettle is on, the plaza is quiet, and the locals will be telling this one for years. Stay for the sunset, or step through the last door — <b>Endless mode</b> begins at wave 11. Every third wave pauses at a checkpoint, pays you Joy, and asks for one small upgrade before the next climb.</p>
+      <p>Super Hard is cleared. The kettle is on, the plaza is quiet, and the locals will be telling this one for years. Stay for the sunset, or step through the last door — <b>Endless mode</b> begins at wave 11. Every third wave pauses at a checkpoint, pays you Joy, and offers an optional upgrade before the next climb.</p>
     </div>` : '';
 
   const rewardBlock = reward ? `
@@ -3642,8 +3649,7 @@ function buildWavePanel() {
       <span class="wn-count">${next.count} ads · wave ${n + 1}</span>
       <span class="wn-crew">${crewSummary(next.crew)}${n + 1 >= ENDLESS_START ? ' · enemy damage ×' + damagePressure(n + 1).toFixed(1) : ''}</span>
     </div>
-    <div class="wave-keys">${gate ? '<kbd>U</kbd> upgrade to unlock the next wave' : `<kbd>Enter</kbd> ${n === 10 ? 'enter endless' : 'next wave'} <span>·</span> <kbd>U</kbd> upgrade`}</div>
-    ${gate ? '<p style="margin:10px 0 0;font-size:11px;color:var(--ink-faint);line-height:1.6">Buy at least one small upgrade to unlock the next wave. Free items and cleansing do not open this gate — it is here to make sure you spend Joy before the ads get serious.</p>' : ''}
+    <div class="wave-keys"><kbd>Enter</kbd> ${n === 10 ? 'enter endless' : 'next wave'} <span>·</span> <kbd>U</kbd> upgrade</div>
     <div class="kind-row" style="margin-top:12px">
       <span class="chip on">✿ ${Math.floor(player.joy)} Joy to spend</span>
       <span class="chip">Level ${player.level}</span>
@@ -3651,10 +3657,7 @@ function buildWavePanel() {
     </div>
   `;
 
-  panelFoot(gate ? [
-    { label: 'Upgrade first', action: 'upgrades', kind: 'primary', title: 'Press U' },
-    { label: 'Not yet', action: 'close' }
-  ] : [
+  panelFoot([
     { label: 'Upgrade', action: 'upgrades', title: 'Press U' },
     { label: 'Not yet', action: 'close' },
     { label: n === 10 ? 'Enter Endless · 10s' : 'Next wave · 10s', action: 'nextwave', kind: 'primary', title: 'Press Enter' }
@@ -3665,7 +3668,6 @@ function buildWavePanel() {
 function buildCheckpointPanel() {
   const n = game.wave || 1;
   const next = wavePlan(n + 1);
-  const gate = (game.checkpointUpgradesBought || 0) === 0 && canAffordAnyUpgrade();
   const joy = game.checkpointJoy || 0;
   const spent = game.checkpointUpgradesBought || 0;
   const reward = game.waveReward;
@@ -3674,7 +3676,7 @@ function buildCheckpointPanel() {
   ui.modalBody.innerHTML = `
     <div class="wave-win">
       <h3>Checkpoint ${game.checkpointIndex || 1} · wave ${n} cleared.</h3>
-      <p>The ads have stopped for a moment. The island put <b>+${joy} Joy</b> in your hands, and this checkpoint waits until you have spent at least one upgrade.</p>
+      <p>The ads have stopped for a moment. The island put <b>+${joy} Joy</b> in your hands. Spend it on an upgrade, or continue straight into the next wave.</p>
     </div>
     ${reward ? `<div class="wave-reward">
       <span class="wr-ico">${svg(reward.icon)}</span>
@@ -3697,11 +3699,11 @@ function buildCheckpointPanel() {
       <span class="wn-count">${next.count} ads · wave ${n + 1}</span>
       <span class="wn-crew">${crewSummary(next.crew)} · enemy damage ×${damagePressure(n + 1).toFixed(1)}</span>
     </div>
-    <p style="margin:12px 0 0;font-size:11px;color:var(--ink-faint);line-height:1.6">${gate ? 'Buy at least one small upgrade to unlock the next wave. Upgrades are permanent and never start the wave early.' : 'Every upgrade is maxed, or nothing is affordable. The island lets you continue.'}</p>
+    <p style="margin:12px 0 0;font-size:11px;color:var(--ink-faint);line-height:1.6">Upgrades are optional. Continue is always available, whether you spend Joy or not.</p>
   `;
   panelFoot([
-    { label: 'Upgrade', action: 'upgrades', kind: 'primary', title: 'Press U' },
-    { label: gate ? 'Upgrade to continue' : 'Continue · next wave', action: 'continueendless', kind: gate ? '' : 'primary', disabled: gate, title: gate ? 'Buy one upgrade first' : 'Press Enter' },
+    { label: 'Upgrade', action: 'upgrades', title: 'Press U' },
+    { label: 'Continue · next wave', action: 'continueendless', kind: 'primary', title: 'Press Enter' },
     { label: 'Step away', action: 'closecheckpoint' }
   ]);
 }
@@ -3735,15 +3737,16 @@ function startGame() {
   if (!save.cosmetics.includes('none')) save.cosmetics.push('none');
   if (!save.cosmetics.includes(save.equipped || 'none')) save.equipped = 'none';
   player.name = save.name;
+  resetRunProgress();
   resetPlayer();
   generateWorld();
   makeCompanions();
   game.state = 'playing';
   game.bossSpawned = false;
-  game.bossDefeated = !!save.bossDefeated;
-  game.won = !!save.won;
+  game.bossDefeated = false;
+  game.won = false;
   // waves: every run starts at Super Easy, then climbs only when you say so.
-  // Medals, items and upgrades carry over between visits.
+  // Medals, items and lifetime bests carry over; run progress does not.
   monsters.length = 0;
   game.boss = null;
   game.waveStory = null;
@@ -3757,9 +3760,6 @@ function startGame() {
   game.checkpointUpgradesBought = 0;
   game.waveUpgradesBought = 0;
   game.waveRestartPending = false;
-  if (save.bossSpawned && !save.bossDefeated) {
-    spawnBoss(true);
-  }
   startWave(1, { silent: false });
   game.coop = !!coopEnabled;
   if (game.coop) spawnPartner();
@@ -3782,16 +3782,12 @@ function startGame() {
   audio.sfx('start');
   cam.x = player.x; cam.y = player.y - 100;
   saveGame();
-  const returning = !!(save.corruption && save.level > 1);
   setTimeout(() => {
     if (game.state !== 'playing') return;
-    toast(returning ? 'Welcome back ashore. The island kept your spot.' : 'You washed ashore. The ads did not expect you.', 'good', '✦');
-    chatAdd('', returning ? 'The locals wave as you return. The kettle is on.' : 'You arrive on the south beach. Somewhere, a pop-up opens by itself.', 'system');
+    toast('You washed ashore. The ads did not expect you.', 'good', '✦');
+    chatAdd('', 'You arrive on the south beach. Somewhere, a pop-up opens by itself.', 'system');
     seedChat();
   }, 700);
-  if (game.bossSpawned) {
-    setTimeout(() => toast('The Algorithm is still here. The locals saved you a spot.', 'warn', '!'), 2200);
-  }
   ui.onlineCount.textContent = String(bots.length + 1);
 }
 
@@ -4800,7 +4796,6 @@ function grantUpgradeRank(id) {
     player.hp = Math.min(player.maxHp, player.hp + 15);
   }
   if (id === 'speed') player.speed = CLASSES[player.cls].speed * stats.speedMult();
-  persistSave();
   updateHUD(true);
   return true;
 }
@@ -4837,6 +4832,7 @@ function grantAchievement(id) {
   const a = ALL_ACHIEVEMENTS.find((x) => x.id === id);
   if (!a) return false;
   save.achievements.push(id);
+  persistSave();
   audio.sfx('levelup');
   toast('Achievement unlocked: ' + a.name, 'good', '★');
   return true;
@@ -5017,11 +5013,6 @@ function waveCleared(n) {
 function startWaveCountdown() {
   if (game.waveState !== 'cleared') return;
   if (game.checkpointPending) { openPanel('checkpoint'); return; }
-  if ((game.waveUpgradesBought || 0) === 0 && canAffordAnyUpgrade()) {
-    toast('Spend a little Joy on an upgrade before the next wave.', 'warn', '✿');
-    openPanel('upgrades');
-    return;
-  }
   game.waveState = 'countdown';
   game.waveT = 10;
   game.wavePanelPending = false;
@@ -5050,11 +5041,6 @@ function closeCheckpoint() {
 }
 function continueEndless() {
   if (!game.checkpointPending) return;
-  if ((game.checkpointUpgradesBought || 0) === 0 && canAffordAnyUpgrade()) {
-    toast('Buy at least one small upgrade before the next wave.', 'warn', '✿');
-    openPanel('upgrades');
-    return;
-  }
   const next = game.wave + 1;
   game.checkpointPending = false;
   game.checkpointAway = false;
@@ -5070,8 +5056,8 @@ function updateWaves(dt) {
   if (game.state !== 'playing') return;
   if (!game.wave) { startWave(1); return; }
   if (game.waveState === 'cleared') {
-    // Endless checkpoints get the first say: they pause the island and wait
-    // for one upgrade before the next wave.
+    // Endless checkpoints get the first say: they pause the island and offer
+    // an optional upgrade before the next wave.
     if (game.checkpointPending) {
       if (!game.checkpointAway) {
         game.checkpointOpenT = (game.checkpointOpenT || 0) + dt;
