@@ -1490,6 +1490,8 @@ const ENDLESS_CHECKPOINT_EVERY = 3;
 const CHECKPOINT_JOY_BASE = 60;
 const CHECKPOINT_JOY_STEP = 20;
 const DAMAGE_PRESSURE_CAP = 2.6;
+/* AI companions are support, not damage. Their hits are 10% of the hero's. */
+const NPC_DAMAGE_SHARE = 0.10;
 
 /* ------------------------------- classes -------------------------------- */
 const CLASSES = {
@@ -3862,6 +3864,12 @@ function playerDamage(base) {
   const overclock = player.overclockT > 0 ? 1.35 : 1;
   return base * (cls ? cls.damage : 1) * stats.damageMult() * (1 + 0.035 * (player.level - 1)) * overclock;
 }
+/* Companions mirror the hero's current damage at 10%, but never inherit the
+   Engineer's overclock window. They are here to chip in, not carry a wave. */
+function companionDamage(base = 17) {
+  const cls = CLASSES[player.cls];
+  return base * (cls ? cls.damage : 1) * stats.damageMult() * (1 + 0.035 * (player.level - 1)) * NPC_DAMAGE_SHARE;
+}
 function currentMoveDir() {
   let dx = 0, dy = 0;
   if (input.keys.left) dx -= 1;
@@ -5682,14 +5690,14 @@ function updateBots(dt) {
             b.atkAnim = 0.2;
             b.facing = angleTo(b.x, b.y, m.x, m.y);
             if (b.cls === 'blocker') {
-              damageMonster(m, rand(9, 5) * (1 + player.level * 0.04), { player: false });
+              damageMonster(m, companionDamage(21), { player: false });
               beamFx(b.x, b.y, b.facing, Math.min(d + 20, 100), 10, CLASSES.blocker.color, 0.14);
             } else if (b.cls === 'checker') {
-              damageMonster(m, rand(7, 4) * (1 + player.level * 0.04), { player: false });
+              damageMonster(m, companionDamage(17), { player: false });
               m.marked = Math.max(m.marked, 1.6);
               beamFx(b.x, b.y, b.facing, d, 5, CLASSES.checker.color, 0.2, { kind: 'chain' });
             } else {
-              damageMonster(m, rand(8, 4) * (1 + player.level * 0.04), { player: false });
+              damageMonster(m, companionDamage(17), { player: false });
               beamFx(b.x, b.y, b.facing, d, 7, CLASSES.reader.color, 0.16);
             }
             if (chance(0.2)) audio.sfx('beam');
