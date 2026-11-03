@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
 <meta name="theme-color" content="#bde8f2">
-<meta name="description" content="AdBlock Island — a wholesome micro-MMO in beta (v0.9.5). Nine classes, a south-shore dock, and a Halloween theme. Clear the static and leave a kind note on the beach.">
+<meta name="description" content="AdBlock Island — a wholesome micro-MMO in beta (v0.9.6). Nine classes, a south-shore dock, and a Halloween theme. Clear the static and leave a kind note on the beach.">
 <meta name="author" content="potaterrr">
 <meta name="application-name" content="AdBlock Island">
 <meta name="apple-mobile-web-app-title" content="AdBlock Island">
@@ -1431,7 +1431,7 @@ body.halloween .note-card .note-pin{background:#fffaf0}
         <div class="logo-badges">
           <div class="logo-kicker">a wholesome micro-MMO</div>
           <div class="beta-pill" id="betaPill" title="This is a beta build. The patch notes list what is still pending.">
-            <span class="beta-dot"></span>beta · <b id="betaVersion">v0.9.5</b>
+            <span class="beta-dot"></span>beta · <b id="betaVersion">v0.9.6</b>
           </div>
           <div class="mania-pill" title="Mania rules: death resets the run to wave 1, and bosses bring friends.">MANIA</div>
           <div class="halloween-pill" id="halloweenPill" title="Halloween theme is on. Toggle it in Settings.">HALLOWEEN</div>
@@ -1598,7 +1598,7 @@ const ICONS = {
 };
 const svg = (name) => ICONS[name] || ICONS.spark;
 
-const VERSION = '0.9.5';
+const VERSION = '0.9.6';
 
 /* Endless mode tuning. Named on purpose: after a playtest, change these
    numbers instead of hunting through the wave and damage code. */
@@ -2140,10 +2140,11 @@ const DOCK = { x: 1725, y: 2005, radius: 175 };
 const SHOPKEEPER = { x: 1468, y: 1968, radius: 135, name: 'Mira' };
 const BOSS_CLARITY = 0.64;
 const WIN_CLARITY = 0.70;
-/* Mania: the Algorithm can arrive as a pair. At 75% HP a boss splits once;
+/* Mania: one boss can wake per run, with a 50% roll each wave after clarity.
+   At 75% HP a boss splits once;
    its children can split again, so one boss can become two and then four.
    Split children are smaller, and each live boss speeds up the whole fight. */
-const BOSS_TWIN_CHANCE = 0.50;
+const BOSS_SPAWN_CHANCE = 0.50;
 const BOSS_TWIN_CAP = 4;
 const BOSS_SPLIT_FRAC = 0.75;
 function bossCanSplit(m) {
@@ -2402,7 +2403,7 @@ world.saveCorruption = function () {
 const game = {
   state: 'title', // title | playing | paused | modal | dying | victory
   time: 0, worldTime: 0, dt: 0, elapsed: 0, realElapsed: 0,
-  lastSave: 0, boss: null, bossSpawned: false, bossDefeated: false,
+  lastSave: 0, boss: null, bossSpawned: false, bossDefeated: false, bossRollWave: 0,
   won: false, modalType: null, introShown: false,
   chatCd: 3, ambientChatCd: 12, popupCheck: 0, tutorialT: 0,
   victoryT: 0, deathT: 0, lastFrame: 0, pausedFrame: 0,
@@ -3632,7 +3633,7 @@ function buildHelpPanel() {
       </div>
       <div class="help-block">
         <h4>Mania rules</h4>
-        <p>Death is a reset: the run returns to <b>wave 1</b>, and Joy, upgrades, level and island progress start over. The Algorithm has a <b>50%</b> chance to arrive as a pair. At <b>75%</b> health a boss splits once, and its children can split again: one boss becomes two, then four. Split bosses are smaller. Two live bosses move and attack <b>25% faster</b>; three or four move and attack <b>50% faster</b>. Beams and summons are randomised. Turn <b>Four-boss Mania</b> off in Settings to stop children from splitting. Downing one boss pays partial Joy and XP; only the last one ends the fight.</p>
+        <p>Death is a reset: the run returns to <b>wave 1</b>, and Joy, upgrades, level and island progress start over. There is <b>one boss per run</b>: once the island is <b>64%</b> clear, each wave has a <b>50%</b> chance to wake the Algorithm. At <b>75%</b> health a boss splits once, and its children can split again: one boss becomes two, then four. Split bosses are smaller. Two live bosses move and attack <b>25% faster</b>; three or four move and attack <b>50% faster</b>. Beams and summons are randomised. Turn <b>Four-boss Mania</b> off in Settings to stop children from splitting. Downing one boss pays partial Joy and XP; only the last one ends the fight.</p>
       </div>
       <div class="help-block">
         <h4>Play with a friend</h4>
@@ -3674,7 +3675,7 @@ function buildSettingsPanel() {
     ${toggle('names', 'Floating names', 'show who is nearby')}
     ${toggle('scanlines', 'Soft CRT scanlines', 'retro-ish, very subtle')}
     ${toggle('halloween', 'Halloween theme', 'warm dusk, pumpkins and a few bats')}
-    ${toggle('quadBoss', 'Four-boss Mania', 'children can split again at 75% HP, up to four live')}
+    ${toggle('quadBoss', 'Four-boss Mania', 'one boss splits into two, then four, at 75% HP')}
     ${toggle('reduceMotion', 'Reduce motion', 'calmer animations and camera')}
     ${toggle('haptics', 'Tiny vibrations', 'on supported phones')}
     <div class="section-title">Island admin</div>
@@ -3951,6 +3952,7 @@ function startGame() {
   game.state = 'playing';
   game.bossSpawned = false;
   game.bossDefeated = false;
+  game.bossRollWave = 0;
   game.won = false;
   // waves: every run starts at Super Easy, then climbs only when you say so.
   // Medals, items and lifetime bests carry over; run progress does not.
@@ -4724,6 +4726,7 @@ function restartManiaRun() {
   game.bossSplitLocked = false;
   game.bossSpawned = false;
   game.bossDefeated = false;
+  game.bossRollWave = 0;
   game.won = false;
   game.pendingVictory = false;
   game.endless = false;
@@ -5717,17 +5720,15 @@ function spawnBoss(silent = false) {
   save.bossSpawned = true;
   const first = createBoss(PLAZA.x, PLAZA.y - 20);
   game.boss = first;
-  const pair = chance(BOSS_TWIN_CHANCE);
-  if (pair) createBoss(PLAZA.x + 150, PLAZA.y + 55);
   refreshBossRef();
   if (!silent) {
-    toast(pair ? 'TWO ALGORITHMS have entered the plaza. Mania.' : 'THE ALGORITHM has entered the plaza. It brought banners.', 'warn', '!');
-    chatAdd('', pair ? 'Two feeds wake at once. The kettle rattles.' : 'The sky flickers. The locals gather around you.', 'system');
+    toast('THE ALGORITHM has entered the plaza. It brought banners.', 'warn', '!');
+    chatAdd('', 'The sky flickers. The locals gather around you.', 'system');
     audio.sfx('boss');
     audio.setIntense(true);
-    screenShake(pair ? 20 : 14, 0.9);
+    screenShake(14, 0.9);
     botsNearbyChat('boss');
-    burst(first.x, first.y, [PAL.corruptHot, PAL.lav, '#fff'], pair ? 24 : 32, { speed: 220, life: 1.6, size: 5 });
+    burst(first.x, first.y, [PAL.corruptHot, PAL.lav, '#fff'], 30, { speed: 220, life: 1.6, size: 5 });
     ringFx(first.x, first.y, 30, 260, PAL.corruptHot, 1.2, 10);
     world.cleanse(first.x, first.y, 190, 0.35, 'player');
   }
@@ -5923,7 +5924,13 @@ function winGame() {
 function checkProgress() {
   if (game.state !== 'playing') return;
   if (game.bossDefeated && !game.won && world.cleansePercent() >= WIN_CLARITY) winGame();
-  else if (!game.bossSpawned && !game.bossDefeated && world.cleansePercent() >= BOSS_CLARITY) spawnBoss();
+  else if (!game.bossSpawned && !game.bossDefeated && world.cleansePercent() >= BOSS_CLARITY && game.bossRollWave !== game.wave) {
+    // One boss per run, but each wave after the clarity milestone gets a 50%
+    // roll. A failed roll tries again when the next wave starts.
+    game.bossRollWave = game.wave;
+    if (chance(BOSS_SPAWN_CHANCE)) spawnBoss();
+    else chatAdd('', 'The Algorithm skipped this wave. The plaza stays quiet.', 'system');
+  }
   else if (game.pendingVictory && !game.won && world.cleansePercent() >= WIN_CLARITY) winGame();
 }
 
