@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
 <meta name="theme-color" content="#bde8f2">
-<meta name="description" content="AdBlock Island — a wholesome micro-MMO in beta (v0.9.7). Nine classes, a south-shore dock, and a Halloween theme. Clear the static and leave a kind note on the beach.">
+<meta name="description" content="AdBlock Island — a wholesome micro-MMO in beta (v0.9.8). Nine classes, a south-shore dock, and a Halloween theme. Clear the static and leave a kind note on the beach.">
 <meta name="author" content="potaterrr">
 <meta name="application-name" content="AdBlock Island">
 <meta name="apple-mobile-web-app-title" content="AdBlock Island">
@@ -1435,7 +1435,7 @@ body.halloween .note-card .note-pin{background:#fffaf0}
         <div class="logo-badges">
           <div class="logo-kicker">a wholesome micro-MMO</div>
           <div class="beta-pill" id="betaPill" title="This is a beta build. The patch notes list what is still pending.">
-            <span class="beta-dot"></span>beta · <b id="betaVersion">v0.9.7</b>
+            <span class="beta-dot"></span>beta · <b id="betaVersion">v0.9.8</b>
           </div>
           <div class="mania-pill" title="Mania rules: death resets the run to wave 1, and bosses bring friends.">MANIA</div>
           <div class="halloween-pill" id="halloweenPill" title="Halloween theme is on. Toggle it in Settings.">HALLOWEEN</div>
@@ -1450,6 +1450,7 @@ body.halloween .note-card .note-pin{background:#fffaf0}
         <button class="big-btn" id="startBtn">wash ashore →</button>
         <a class="big-btn" id="patchNotesBtn" href="https://potaterrr.github.io/projects/adblock-island/#patch-notes" target="_blank" rel="noopener">PATCH NOTES →</a>
         <button class="text-btn" id="titleHelpBtn">how to play &amp; controls</button>
+        <button class="text-btn" id="titleFullscreenBtn">fullscreen</button>
         <button class="text-btn" id="coopBtn">play with a friend: off</button>
         <div class="audio-hint">♪ ocean + lo-fi starts when you do</div>
       </div>
@@ -1602,7 +1603,7 @@ const ICONS = {
 };
 const svg = (name) => ICONS[name] || ICONS.spark;
 
-const VERSION = '0.9.7';
+const VERSION = '0.9.8';
 
 /* Endless mode tuning. Named on purpose: after a playtest, change these
    numbers instead of hunting through the wave and damage code. */
@@ -2737,6 +2738,7 @@ function initUI() {
   ui.classCards = $('#classCards');
   ui.nameInput = $('#nameInput');
   ui.startBtn = $('#startBtn');
+  ui.titleFullscreenBtn = $('#titleFullscreenBtn');
   ui.touchUI = $('#touchUI');
   ui.touchActions = $('#touchActions');
   ui.touchInteract = $('#touchInteract');
@@ -2806,6 +2808,7 @@ function bindUI() {
   $('#startBtn').addEventListener('click', startGame);
   ui.nameInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') startGame(); });
   $('#titleHelpBtn').addEventListener('click', () => openPanel('help'));
+  if (ui.titleFullscreenBtn) ui.titleFullscreenBtn.addEventListener('click', toggleFullscreen);
   $('#coopBtn').addEventListener('click', () => {
     coopEnabled = !coopEnabled;
     save.coop = coopEnabled;
@@ -3715,10 +3718,8 @@ function buildSettingsPanel() {
     saveSettings();
     audio.sfx('ui');
   }));
-  $('#fullscreenBtn', ui.modalBody).addEventListener('click', () => {
-    if (!document.fullscreenElement) document.documentElement.requestFullscreen?.().catch(() => {});
-    else document.exitFullscreen?.().catch(() => {});
-  });
+  $('#fullscreenBtn', ui.modalBody).addEventListener('click', toggleFullscreen);
+  syncFullscreenUI();
   $('#saveNowBtn', ui.modalBody).addEventListener('click', () => { saveGame(); toast('Saved. The island remembers.', 'good', '✿'); });
   $('#resetBtn', ui.modalBody).addEventListener('click', (e) => {
     if (!resetArmed) {
@@ -6578,6 +6579,38 @@ function resizeCanvas() {
   }
   game.dpr = dpr;
 }
+function fullscreenActive() {
+  return !!(document.fullscreenElement || document.webkitFullscreenElement);
+}
+function toggleFullscreen() {
+  const root = document.documentElement;
+  const request = root.requestFullscreen || root.webkitRequestFullscreen;
+  if (fullscreenActive()) {
+    try {
+      const p = (document.exitFullscreen || document.webkitExitFullscreen)?.call(document);
+      if (p && p.catch) p.catch(() => {});
+    } catch (e) {}
+    return;
+  }
+  if (!request) {
+    toast('Fullscreen is not available in this browser.', 'warn', '!');
+    return;
+  }
+  try {
+    const p = request.call(root, { navigationUI: 'hide' });
+    if (p && p.catch) p.catch(() => toast('Fullscreen was blocked by the browser.', 'warn', '!'));
+  } catch (e) {
+    toast('Fullscreen was blocked by the browser.', 'warn', '!');
+  }
+}
+function syncFullscreenUI() {
+  const on = fullscreenActive();
+  if (ui.titleFullscreenBtn) ui.titleFullscreenBtn.textContent = on ? 'exit fullscreen' : 'fullscreen';
+  const btn = $('#fullscreenBtn', ui.modalBody);
+  if (btn) btn.textContent = on ? 'Exit fullscreen' : 'Fullscreen';
+}
+document.addEventListener('fullscreenchange', syncFullscreenUI);
+document.addEventListener('webkitfullscreenchange', syncFullscreenUI);
 function applySettingsVisuals() {
   document.body.classList.toggle('scanlines', settings.scanlines);
   document.body.classList.toggle('reduce-motion', settings.reduceMotion);
