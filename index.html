@@ -4,15 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
 <meta name="theme-color" content="#bde8f2">
-<meta name="description" content="AdBlock Island: Mania — a wholesome micro-MMO in beta (v0.8.0). Two bosses, splitting Algorithms, and death that resets the run to wave 1. Clear the static and leave a kind note on the beach.">
+<meta name="description" content="AdBlock Island — a wholesome micro-MMO in beta (v0.9.0). Nine classes, a south-shore dock, and a Halloween theme. Clear the static and leave a kind note on the beach.">
 <meta name="author" content="potaterrr">
 <meta name="application-name" content="AdBlock Island">
 <meta name="apple-mobile-web-app-title" content="AdBlock Island">
 <meta name="color-scheme" content="light">
 <link rel="canonical" href="https://potaterrr.github.io/adblock-island/">
 <meta property="og:site_name" content="AdBlock Island">
-<meta property="og:title" content="AdBlock Island: Mania · a wholesome micro-MMO (beta)">
-<meta property="og:description" content="The ads took the beach. Mania took the schedule. Two bosses, splitting Algorithms, and death that resets the run to wave 1. A single-file micro-MMO, in beta.">
+<meta property="og:title" content="AdBlock Island · a wholesome micro-MMO (beta)">
+<meta property="og:description" content="The ads took the beach. Pick one of nine classes, meet two companions, and clear the static. A single-file micro-MMO, in beta.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://potaterrr.github.io/adblock-island/">
 <meta property="og:locale" content="en_GB">
@@ -22,11 +22,11 @@
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="The AdBlock Island title screen: a pastel drawing of the island, the game logo, a beta badge, and a wash ashore button.">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="AdBlock Island: Mania · a wholesome micro-MMO (beta)">
-<meta name="twitter:description" content="The ads took the beach. Mania took the schedule. Two bosses, splitting Algorithms, and death that resets the run to wave 1.">
+<meta name="twitter:title" content="AdBlock Island · a wholesome micro-MMO (beta)">
+<meta name="twitter:description" content="The ads took the beach. Pick one of nine classes, meet two companions, and clear the static.">
 <meta name="twitter:image" content="https://potaterrr.github.io/adblock-island/social-card.jpg">
 <meta name="twitter:image:alt" content="The AdBlock Island title screen with the beta badge and wash ashore button.">
-<title>AdBlock Island: Mania · a wholesome micro-MMO (beta)</title>
+<title>AdBlock Island · a wholesome micro-MMO (beta)</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23fff8ec'/%3E%3Cpath d='M8 40c8-6 16 6 24 0s16 6 24 0v16H8z' fill='%238ad7e8'/%3E%3Ccircle cx='32' cy='28' r='12' fill='%23ffd98a'/%3E%3Cpath d='M32 18l7 5-2 9h-10l-2-9z' fill='%23ff9eb5'/%3E%3C/svg%3E">
 <style>
 /* ============================================================
@@ -1212,6 +1212,98 @@ body.scanlines::after{
   background:repeating-linear-gradient(180deg,rgba(60,52,83,.18) 0 1px,transparent 1px 3px);
   mix-blend-mode:multiply;
 }
+/* Halloween theme: a purple sea, pumpkin light and a darker paper stock.
+   The canvas gets an extra fog/vignette overlay from render(). */
+.halloween-pill{
+  display:none;align-items:center;
+  font-family:var(--ui);font-size:10px;font-weight:900;letter-spacing:.16em;
+  text-transform:uppercase;color:#2b1b39;
+  background:var(--sun);border:2px solid var(--line);border-radius:99px;
+  padding:4px 11px;transform:rotate(1deg);
+  box-shadow:2px 2px 0 rgba(60,52,83,.28);
+}
+body.halloween .halloween-pill{display:inline-flex}
+body.halloween{
+  --paper:#2b1b39;
+  --paper-2:#382246;
+  --paper-3:#462d55;
+  --ink:#fff1dc;
+  --ink-soft:#e3c9ee;
+  --ink-faint:#bda2cc;
+  --pink:#ffa6c1;
+  --rose:#ff6b8b;
+  --mint:#8fe3c2;
+  --sea:#6a4a8a;
+  --sea-deep:#4b2f66;
+  --sky:#2b1b3f;
+  --lav:#c9a6ff;
+  --sun:#ffb24a;
+  --coral:#ff8a5c;
+  --leaf:#9bd18e;
+  --line:#160d20;
+  --shadow:4px 4px 0 rgba(0,0,0,.32);
+  --shadow-sm:2px 2px 0 rgba(0,0,0,.28);
+}
+body.halloween #titleScreen{
+  background:
+    radial-gradient(1100px 560px at 78% -8%, rgba(255,178,74,.24) 0%, rgba(255,178,74,0) 55%),
+    linear-gradient(180deg,#1d1029 0%,#2b1b39 38%,#3a2148 62%,#241330 100%);
+}
+body.halloween #titleScreen::before{
+  opacity:.4;background-image:radial-gradient(rgba(255,178,74,.2) 1px,transparent 1px);
+}
+body.halloween .title-sun{
+  background:radial-gradient(circle at 38% 34%,#ffe0ac,#ffb24a 55%,#ff8a3c 100%);
+  box-shadow:0 0 0 18px rgba(255,178,74,.18),0 0 80px rgba(255,138,60,.7);
+}
+body.halloween .cloud{background:#5a3a72;opacity:.55}
+body.halloween .title-sea{
+  background:
+    repeating-linear-gradient(180deg,rgba(255,255,255,.16) 0 2px,transparent 2px 16px),
+    linear-gradient(180deg,#3b2452,#2a173c 55%,#1b0f27);
+  border-top-color:rgba(255,178,74,.24);
+}
+body.halloween .title-sea::after{
+  background-image:radial-gradient(rgba(255,178,74,.45) 1.5px,transparent 1.5px);opacity:.3;
+}
+body.halloween .title-card{
+  background:linear-gradient(180deg,rgba(56,34,70,.97),rgba(43,27,57,.98));
+}
+body.halloween .title-card::before{border-color:rgba(255,178,74,.16)}
+body.halloween .wave-card{background:rgba(43,27,57,.92)}
+body.halloween .chat-panel{background:rgba(43,27,57,.95)}
+body.halloween #chatInput{background:#241531;color:var(--ink)}
+body.halloween #chatInput:focus{background:#382246}
+body.halloween .chat-line.note{color:#ffd08a}
+body.halloween #modalLayer .panel{
+  background:linear-gradient(180deg,rgba(56,34,70,.99),rgba(43,27,57,.99));
+}
+body.halloween .panel-foot{background:rgba(0,0,0,.16)}
+body.halloween .help-block,
+body.halloween .stat-box,
+body.halloween .setting-row,
+body.halloween .note-prompt{background:rgba(0,0,0,.18);color:var(--ink)}
+body.halloween .note-prompt:hover,
+body.halloween .panel-close:hover{background:rgba(255,178,74,.22)}
+body.halloween .title-card,
+body.halloween #modalLayer .panel,
+body.halloween .card{
+  box-shadow:4px 5px 0 rgba(0,0,0,.35), 0 0 0 2px rgba(255,178,74,.18);
+}
+body.halloween .beta-pill{background:#a02060}
+body.halloween .logo-kicker{background:var(--sun);color:#2b1b39}
+body.halloween .class-card{background:rgba(43,27,57,.84)}
+body.halloween .class-card.selected{
+  background:linear-gradient(180deg,#4a2f5c,#3a2148);
+  box-shadow:4px 4px 0 var(--line),0 0 0 4px var(--sun);
+}
+body.halloween .small-btn,
+body.halloween .btn{color:var(--ink)}
+body.halloween .bar,
+body.halloween .bar.xp{background:#241531}
+body.halloween .quest-card #questList li .qmark,
+body.halloween .note-card,
+body.halloween .note-card .note-pin{background:#241531}
 </style>
 </head>
 <body>
@@ -1335,9 +1427,10 @@ body.scanlines::after{
         <div class="logo-badges">
           <div class="logo-kicker">a wholesome micro-MMO</div>
           <div class="beta-pill" id="betaPill" title="This is a beta build. The patch notes list what is still pending.">
-            <span class="beta-dot"></span>beta · <b id="betaVersion">v0.8.0</b>
+            <span class="beta-dot"></span>beta · <b id="betaVersion">v0.9.0</b>
           </div>
           <div class="mania-pill" title="Mania rules: death resets the run to wave 1, and bosses bring friends.">MANIA</div>
+          <div class="halloween-pill" id="halloweenPill" title="Halloween theme is on. Toggle it in Settings.">HALLOWEEN</div>
         </div>
         <h1 class="logo">ADBLOCK<br><span>ISLAND</span></h1>
         <p class="tagline">The ads took the beach. Mania took the schedule. Grab a broom, bonk some <b>sponsored content</b>, and leave a kind note for whoever washes ashore next.</p>
@@ -1494,11 +1587,14 @@ const ICONS = {
   turret: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="10" width="10" height="8" rx="2"/><path d="M12 10V6M9 6h6M12 6l2-2M12 6l-2-2"/><circle cx="12" cy="14" r="2"/></svg>',
   syringe: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4.5l5 5M16 3l5 5M7 13l4 4M3 21l4-4M9 11l4 4M12 8l4 4"/></svg>',
   terminal: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 9l3 3-3 3M12 15h5"/></svg>',
-  broadcast: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 18v3M8 21h8M6 13a6 6 0 0112 0M9 13a3 3 0 016 0M12 10v.01"/></svg>'
+  broadcast: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 18v3M8 21h8M6 13a6 6 0 0112 0M9 13a3 3 0 016 0M12 10v.01"/></svg>',
+  ledger: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h10a4 4 0 014 4v13H8a3 3 0 00-3 3z"/><path d="M5 4v16M9 8h6M9 12h6M9 16h4"/></svg>',
+  gavel: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3l7 7-3 3-7-7zM11 9l4 4-8 8-4-4zM3 21h9"/></svg>',
+  lock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 018 0v3M12 14v3"/></svg>'
 };
 const svg = (name) => ICONS[name] || ICONS.spark;
 
-const VERSION = '0.8.0';
+const VERSION = '0.9.0';
 
 /* Endless mode tuning. Named on purpose: after a playtest, change these
    numbers instead of hunting through the wave and damage code. */
@@ -1588,6 +1684,28 @@ const CLASSES = {
     atk: { name: 'Hype Beam', icon: 'beam', cd: 0.4, desc: 'A wide cone of energy that hits every ad in front of you.' },
     q: { name: 'Hype Train', icon: 'wind', cd: 8, desc: 'Dash forward in a wide cone, damaging and stunning ads.' },
     e: { name: 'Raid', icon: 'spark', cd: 14, desc: 'Massive AoE burst around you. High damage, high risk.' }
+  },
+  archivist: {
+    id: 'archivist', name: 'Archivist', role: 'support & mark', icon: 'ledger',
+    color: '#e8c98a', color2: '#d4a955', dark: '#7a5a2e', soft: '#fbf1d8',
+    desc: 'Keeps the record of every ad and every kindness. Stamps ads, marks them for the party, and keeps the paperwork moving.',
+    descShort: 'Support archivist. Marks ads and patches the party.',
+    hp: 100, speed: 214, regen: 1.1, damage: 0.9, passive: 'Marked ads take extra damage; every third hit cleanses a little wider.',
+    bars: { Toughness: 3, Speed: 3, Power: 3, Cleanse: 5 },
+    atk: { name: 'Index Dart', icon: 'ledger', cd: 0.46, desc: 'A paper dart that pierces one ad, marks it, and cleanses its path.' },
+    q: { name: 'Cross-Reference', icon: 'target', cd: 9, desc: 'Mark every ad in a cone, slow them for a moment, and clean the floor.' },
+    e: { name: 'Public Record', icon: 'book', cd: 14, desc: 'Stamp a wide ring: heal and shield nearby friends, mark every ad, cleanse a large patch.' }
+  },
+  moderator: {
+    id: 'moderator', name: 'Moderator', role: 'crowd control', icon: 'gavel',
+    color: '#9aa8ff', color2: '#6d7fe8', dark: '#3b4f9e', soft: '#e4e8ff',
+    desc: 'Keeps the plaza orderly. A gavel, a lock, and a very short fuse for anything that talks back.',
+    descShort: 'Crowd control. Stuns and knocks ads around.',
+    hp: 135, speed: 196, regen: 0.4, damage: 0.95, passive: 'Takes 10% less damage and knocks ads back with every gavel hit.',
+    bars: { Toughness: 5, Speed: 2, Power: 4, Cleanse: 3 },
+    atk: { name: 'Ban Hammer', icon: 'gavel', cd: 0.62, desc: 'A heavy gavel bolt that knocks an ad back and stuns it briefly.' },
+    q: { name: 'Lock Thread', icon: 'lock', cd: 10, desc: 'Root nearby ads in place, mark them, and clean a small ring.' },
+    e: { name: 'Mass Ban', icon: 'gavel', cd: 15, desc: 'A wide shockwave: heavy knockback, stun and damage around you.' }
   }
 };
 
@@ -1640,8 +1758,8 @@ const COSMETICS = [
 /* ------------------------------ companions --------------------------------
    The two heroes who picked the classes you did not are already on the island
    when you wash ashore, and they are the only allies in the fight. */
-const COMPANION_NAMES = { blocker: 'Tidal', checker: 'Moss', reader: 'Juniper' };
-const COMPANION_LOOKS = { blocker: 'leaf', checker: 'scarf', reader: 'cat' };
+const COMPANION_NAMES = { blocker: 'Tidal', checker: 'Moss', reader: 'Juniper', archivist: 'Quill', moderator: 'Vale' };
+const COMPANION_LOOKS = { blocker: 'leaf', checker: 'scarf', reader: 'cat', archivist: 'scarf', moderator: 'crown' };
 
 /* ------------------------------ chat content ----------------------------- */
 const CHAT = {
@@ -1715,7 +1833,8 @@ const store = {
 const settings = Object.assign({
   music: 0.5, sfx: 0.7, muted: false,
   shake: true, scanlines: true, particles: true,
-  numbers: true, names: true, reduceMotion: false, haptics: true
+  numbers: true, names: true, reduceMotion: false, haptics: true,
+  halloween: true
 }, store.get(SETTINGS_KEY, {}) || {});
 const saveSettings = () => store.set(SETTINGS_KEY, settings);
 
@@ -2012,6 +2131,9 @@ const T_WATER = 0, T_SAND = 1, T_GRASS = 2, T_MEADOW = 3, T_PATH = 4, T_PLAZA = 
 const SPAWN = { x: 1600, y: 1915 };
 const BENCH = { x: 1600, y: 792, radius: 155 };
 const PLAZA = { x: 1600, y: 900, radius: 250 };
+/* Future-expansion landmarks: the south-shore dock and its shopkeeper. */
+const DOCK = { x: 1725, y: 2005, radius: 175 };
+const SHOPKEEPER = { x: 1468, y: 1968, radius: 135, name: 'Mira' };
 const BOSS_CLARITY = 0.64;
 const WIN_CLARITY = 0.70;
 /* Mania: the Algorithm can arrive as a pair, and any boss can split once. */
@@ -2106,6 +2228,10 @@ function generateWorld() {
   for (let i = 0; i < 7; i++) {
     const a = (i / 7) * TAU + 0.3;
     world.decor.push({ kind: 'lantern', x: PLAZA.x + Math.cos(a) * (PLAZA.radius - 18), y: PLAZA.y + Math.sin(a) * (PLAZA.radius - 18), s: 1, tall: true, seed: i });
+  }
+  // a few Halloween pumpkins around the beach and plaza
+  for (const [px, py, i] of [[1490, 1878, 0], [1718, 1876, 1], [1480, 1035, 2], [1730, 1032, 3], [1600, 2010, 4]]) {
+    if (world.isLand(px, py)) world.decor.push({ kind: 'pumpkin', x: px, y: py, s: 1, seed: i });
   }
   // ---- ad clusters ----
   const tries = 220;
@@ -2303,13 +2429,16 @@ const popups = [];       // clickable [X] overlays
 const adQueue = [];
 let pendingTimeouts = [];
 
-/* The island is you plus the two heroes who picked the other classes. They
-   cleanse, chip ads, patch you up and get knocked out — they never carry a
-   wave on their own, which is the whole point of the ladder. */
+/* The island is you plus exactly two non-healer companions. The Fact-Checker
+   and Medic kits are player-only: an AI healer should never patch the real
+   player for you. These two chip in, cleanse and get knocked out; they are
+   support, not a second player. */
+const COMPANION_POOL = ['blocker', 'reader', 'archivist', 'moderator'];
 function makeCompanions() {
   bots.length = 0;
-  for (const cls of ['blocker', 'checker', 'reader']) {
+  for (const cls of COMPANION_POOL) {
     if (cls === player.cls) continue;
+    if (bots.length >= 2) break;
     const level = Math.max(1, player.level);
     const maxHp = Math.round(92 + level * 13);
     let x = PLAZA.x + rand(190, -190), y = PLAZA.y + rand(180, -180);
@@ -2318,7 +2447,7 @@ function makeCompanions() {
       id: 'ally-' + cls, name: COMPANION_NAMES[cls],
       cls, x, y, homeX: x, homeY: y, r: 14,
       hp: maxHp, maxHp, level, facing: rand(TAU), vx: 0, vy: 0,
-      speed: cls === 'reader' ? 166 : cls === 'blocker' ? 150 : 158,
+      speed: Math.round((CLASSES[cls] ? CLASSES[cls].speed : 200) * 0.78),
       state: 'wander', stateT: rand(5, 1), target: null, targetX: x, targetY: y,
       chatCd: rand(14, 4), bubble: '', bubbleT: 0, bob: rand(TAU),
       cosmetic: COMPANION_LOOKS[cls], sit: false, down: false, downT: 0,
@@ -3049,10 +3178,19 @@ function updateHUD(force = false) {
   const chipHtml = chips.map((c) => `<span class="status-chip ${c.cls}">${esc(c.t)}</span>`).join('');
   if (ui.statusChips.innerHTML !== chipHtml) ui.statusChips.innerHTML = chipHtml;
 
+  const dockHere = nearDock();
   const nearBench = dist(player.x, player.y, BENCH.x, BENCH.y) < BENCH.radius;
-  ui.interactPrompt.classList.toggle('hidden', !nearBench || game.state !== 'playing');
-  ui.touchInteract.classList.toggle('show', nearBench && game.state === 'playing');
+  const canInteract = dockHere || nearBench;
+  ui.interactPrompt.classList.toggle('hidden', !canInteract || game.state !== 'playing');
+  ui.touchInteract.classList.toggle('show', canInteract && game.state === 'playing');
   if (ui.touchInteract) ui.touchInteract.style.display = '';
+  if (dockHere) {
+    if (ui.interactPrompt.innerHTML.indexOf('dock shop') < 0) ui.interactPrompt.innerHTML = '<kbd>F</kbd> visit the dock shop';
+    if (ui.touchInteract.innerHTML.indexOf('dock') < 0) ui.touchInteract.innerHTML = 'dock<br>shop';
+  } else if (nearBench) {
+    if (ui.interactPrompt.innerHTML.indexOf('kindness bench') < 0) ui.interactPrompt.innerHTML = '<kbd>F</kbd> sit at the kindness bench';
+    if (ui.touchInteract.innerHTML.indexOf('sit') < 0) ui.touchInteract.innerHTML = 'sit<br>here';
+  }
   updateActionCooldowns(force);
   updateWaveChip();
   updateHpUI();
@@ -3170,6 +3308,7 @@ const PANEL_META = {
   pause: { title: 'Taking a breath', sub: 'The ads can wait. They are very good at waiting.', icon: 'pause' },
   wave: { title: 'Wave cleared', sub: 'The island takes a breath. You decide what comes next.', icon: 'sun' },
   checkpoint: { title: 'Endless checkpoint', sub: 'The island pauses. Spend a little Joy, then climb again.', icon: 'spark' },
+  dock: { title: 'Mira’s dock shop', sub: 'A quiet counter at the end of the pier. Stock is still arriving.', icon: 'coin' },
   victory: { title: 'Island restored', sub: 'You did a good thing. Look at all this green.', icon: 'sun' }
 };
 
@@ -3257,6 +3396,7 @@ function buildPanel(type) {
   else if (type === 'pause') buildPausePanel();
   else if (type === 'wave') buildWavePanel();
   else if (type === 'checkpoint') buildCheckpointPanel();
+  else if (type === 'dock') buildDockPanel();
   else if (type === 'victory') buildVictoryPanel();
 }
 
@@ -3515,6 +3655,7 @@ function buildSettingsPanel() {
     ${toggle('numbers', 'Damage numbers', 'numbers are satisfying')}
     ${toggle('names', 'Floating names', 'show who is nearby')}
     ${toggle('scanlines', 'Soft CRT scanlines', 'retro-ish, very subtle')}
+    ${toggle('halloween', 'Halloween theme', 'pumpkins, purple sea and a few bats')}
     ${toggle('reduceMotion', 'Reduce motion', 'calmer animations and camera')}
     ${toggle('haptics', 'Tiny vibrations', 'on supported phones')}
     <div class="section-title">Island admin</div>
@@ -3542,6 +3683,7 @@ function buildSettingsPanel() {
     btn.setAttribute('aria-pressed', String(settings[key]));
     if (key === 'muted') { audio.setMuted(settings.muted); ui.muteBtn.innerHTML = svg(settings.muted ? 'mute' : 'sound'); }
     if (key === 'reduceMotion') document.body.classList.toggle('reduce-motion', settings.reduceMotion);
+    if (key === 'halloween') document.body.classList.toggle('halloween', settings.halloween);
     saveSettings();
     audio.sfx('ui');
   }));
@@ -3734,6 +3876,26 @@ function buildCheckpointPanel() {
   ]);
 }
 
+/* ------------------------------- dock ----------------------------------- */
+function buildDockPanel() {
+  ui.modalBody.innerHTML = `
+    <div class="wave-win">
+      <h3>Mira is still unpacking.</h3>
+      <p>The dock is built, the kettle is on, and the shopkeeper has opinions about inventory. There is no shop counter yet — this is the place and the character, ready for the next expansion.</p>
+    </div>
+    <div class="kind-row">
+      <span class="chip on">⚓ south shore</span>
+      <span class="chip">shop · travel · quests</span>
+      <span class="chip">coming later</span>
+    </div>
+    <div class="help-block">
+      <h4>What lives here next</h4>
+      <p>A real shop, boat travel, dock quests and a reason to keep the pier lit. For now Mira waves, the boat bobs, and the dock is a nice place to stand.</p>
+    </div>
+  `;
+  panelFoot([{ label: 'Back to the beach', action: 'close', kind: 'primary' }]);
+}
+
 /* ------------------------------- victory -------------------------------- */
 function launchConfetti() {
   if (settings.reduceMotion) return;
@@ -3818,8 +3980,12 @@ function startGame() {
 }
 
 /* ------------------------------ bench ----------------------------------- */
+function nearDock() {
+  return dist(player.x, player.y, SHOPKEEPER.x, SHOPKEEPER.y) < SHOPKEEPER.radius;
+}
 function interactBench() {
   if (game.state !== 'playing') return;
+  if (nearDock()) { openPanel('dock'); return; }
   if (dist(player.x, player.y, BENCH.x, BENCH.y) > BENCH.radius + 30) {
     toast('The cozy bench is up at the plaza — follow the path north.', '', '✦');
     return;
@@ -3990,6 +4156,26 @@ function doAttack() {
       ['#ff7eb3', '#ffffff'], 8, { speed: 95, life: 0.35, size: 2.6, gravity: 0 });
     audio.sfx('beam');
     buzz(8);
+  } else if (cls === 'archivist') {
+    // index dart: pierces one ad, marks it, and leaves a paper trail
+    spawnProjectile({
+      x: player.x + Math.cos(player.atkDir) * 20, y: player.y + Math.sin(player.atkDir) * 20,
+      vx: Math.cos(player.atkDir) * 520, vy: Math.sin(player.atkDir) * 520,
+      r: 7, life: 1.05, dmg: playerDamage(15), kind: 'index', friendly: true,
+      color: CLASSES.archivist.color2, angle: player.atkDir, pierce: 1, markOnHit: 4
+    });
+    audio.sfx('beam');
+    buzz(5);
+  } else if (cls === 'moderator') {
+    // ban hammer: heavy, short-range, knocks and stuns
+    spawnProjectile({
+      x: player.x + Math.cos(player.atkDir) * 22, y: player.y + Math.sin(player.atkDir) * 22,
+      vx: Math.cos(player.atkDir) * 500, vy: Math.sin(player.atkDir) * 500,
+      r: 9, life: 0.85, dmg: playerDamage(20), kind: 'gavel', friendly: true,
+      color: CLASSES.moderator.color2, angle: player.atkDir, pierce: 0, stunOnHit: 0.9, knock: 110
+    });
+    audio.sfx('bash');
+    buzz(8);
   } else {
     const len = 500, width = 26;
     const hits = monstersOnLine(player.x, player.y, player.atkDir, len, width);
@@ -4140,6 +4326,34 @@ function skillOne() {
     burst(player.x + Math.cos(ang) * 80, player.y + Math.sin(ang) * 80, [c.color, '#fff'], 20, { speed: 120, life: 0.6, size: 3, gravity: 0 });
     floatingText(player.x, player.y - 46, 'HYPE BEAM', c.dark, 13, 1.2);
     audio.sfx('beam');
+  } else if (c === 'archivist') {
+    const ang = currentAim();
+    const hits = monstersInArc(player.x, player.y, ang, 280, 0.9);
+    hits.forEach((m) => {
+      m.marked = Math.max(m.marked, 5);
+      m.stun = Math.max(m.stun, 0.8);
+      damageMonster(m, playerDamage(7), { player: true });
+    });
+    world.cleanse(player.x, player.y, 230, 0.4, 'player');
+    beamFx(player.x, player.y, ang, 280, 70, c.color, 0.4, { kind: 'cone' });
+    ringFx(player.x, player.y, 20, 210, c.color, 0.6, 7);
+    burst(player.x, player.y, [c.color, PAL.sun, '#fff'], 18, { speed: 100, life: 0.7, size: 3 });
+    floatingText(player.x, player.y - 46, 'CROSS-REFERENCE', c.dark, 13, 1.2);
+    audio.sfx('mark');
+    toast('Cross-referenced. Everything in the cone is marked.', 'good', '✎');
+  } else if (c === 'moderator') {
+    const near = monstersInCircle(player.x, player.y, 180);
+    near.forEach((m) => {
+      m.stun = Math.max(m.stun, 2.2);
+      m.marked = Math.max(m.marked, 3);
+      damageMonster(m, playerDamage(8), { player: true });
+    });
+    world.cleanse(player.x, player.y, 190, 0.32, 'player');
+    ringFx(player.x, player.y, 25, 200, c.color, 0.65, 9);
+    burst(player.x, player.y, [c.color, '#ffffff'], 22, { speed: 120, life: 0.8, size: 3.5 });
+    floatingText(player.x, player.y - 46, 'THREAD LOCKED', c.dark, 13, 1.2);
+    audio.sfx('mark');
+    toast('Thread locked. Nobody moves for a second.', 'good', '▣');
   } else {
     const dir = currentMoveDir();
     const ang = dir.len > 0.1 ? Math.atan2(dir.y, dir.x) : currentAim();
@@ -4270,6 +4484,41 @@ function skillTwo() {
     floatingText(player.x, player.y - 48, 'RAID!', c.dark, 15, 1.3);
     audio.sfx('levelup');
     toast('Raid incoming!', 'joy', '★');
+  } else if (c === 'archivist') {
+    const heal = 26 + player.level * 2;
+    player.hp = Math.min(player.maxHp, player.hp + heal);
+    player.healGlow = 0.9;
+    player.shield = Math.max(player.shield, 24);
+    player.shieldT = Math.max(player.shieldT, 3);
+    world.cleanse(player.x, player.y, 230, 0.55, 'player');
+    const near = monstersInCircle(player.x, player.y, 230);
+    near.forEach((m) => { m.marked = Math.max(m.marked, 5); damageMonster(m, playerDamage(7), { player: true }); });
+    for (const b of bots) {
+      if (dist(b.x, b.y, player.x, player.y) < 300) b.hp = Math.min(b.maxHp, b.hp + 20);
+    }
+    ringFx(player.x, player.y, 20, 260, c.color, 0.8, 10);
+    burst(player.x, player.y, [c.color, PAL.sun, '#fff'], 26, { speed: 140, life: 0.9, size: 3.6, gravity: -15 });
+    floatingText(player.x, player.y - 50, 'PUBLIC RECORD', c.dark, 13, 1.2);
+    audio.sfx('levelup'); audio.sfx('heal');
+    updateHpUI();
+    toast('Public record stamped. The party is patched and the ads are marked.', 'good', '✎');
+  } else if (c === 'moderator') {
+    const near = monstersInCircle(player.x, player.y, 240);
+    near.forEach((m) => {
+      const a = angleTo(player.x, player.y, m.x, m.y);
+      damageMonster(m, playerDamage(26), { player: true, knock: 300 });
+      m.knockX = (m.knockX || 0) + Math.cos(a) * 340;
+      m.knockY = (m.knockY || 0) + Math.sin(a) * 340;
+      m.stun = Math.max(m.stun, 1.6);
+    });
+    world.cleanse(player.x, player.y, 240, 0.5, 'player');
+    ringFx(player.x, player.y, 25, 260, c.color, 0.8, 12);
+    burst(player.x, player.y, [c.color, '#ffffff', PAL.sun], 32, { speed: 180, life: 0.9, size: 4 });
+    floatingText(player.x, player.y - 50, 'MASS BAN', c.dark, 15, 1.3);
+    screenShake(8, 0.35);
+    audio.sfx('slam');
+    buzz(24);
+    toast('Mass ban. The plaza gets quiet for a second.', 'good', '▣');
   } else {
     const dir = currentAim();
     const len = 680, width = 54;
@@ -4327,8 +4576,10 @@ function updateProjectiles(dt) {
         if (m.dead || m.spawnT > 0 || p.hit.has(m)) continue;
         if (dist(p.x, p.y, m.x, m.y) < p.r + m.r) {
           p.hit.add(m);
-          damageMonster(m, p.dmg, { player: true, knock: p.kind === 'wrench' ? 55 : p.kind === 'hype' ? 30 : 16 });
+          const hitKnock = p.knock != null ? p.knock : (p.kind === 'wrench' ? 55 : p.kind === 'hype' ? 30 : 16);
+          damageMonster(m, p.dmg, { player: true, knock: hitKnock });
           if (p.markOnHit) m.marked = Math.max(m.marked, p.markOnHit);
+          if (p.stunOnHit) m.stun = Math.max(m.stun, p.stunOnHit);
           if (p.healOnHit && !player.dead) {
             player.hp = Math.min(player.maxHp, player.hp + p.healOnHit);
             player.healGlow = Math.max(player.healGlow || 0, 0.35);
@@ -4383,6 +4634,7 @@ function damagePlayer(amount, sourceX, sourceY, opts = {}) {
   if (player.invuln > 0) return;
   let dmg = amount * damagePressure(game.wave);
   if (player.cls === 'blocker') dmg *= 0.85;
+  if (player.cls === 'moderator') dmg *= 0.90;
   if (player.marked > 0) dmg *= 1.2;
   if (player.shield > 0) {
     const absorbed = Math.min(player.shield, dmg);
@@ -4707,6 +4959,8 @@ const EXTRA_ACHIEVEMENTS = [
   { id: 'field_medic', name: 'Field Medic', desc: 'Reach wave 5 as a Medic.', icon: 'heart' },
   { id: 'zero_day', name: 'Zero-Day', desc: 'Reach wave 5 as a Hacker.', icon: 'chain' },
   { id: 'hype_train', name: 'Hype Train', desc: 'Reach wave 5 as a Streamer.', icon: 'spark' },
+  { id: 'due_diligence', name: 'Due Diligence', desc: 'Reach wave 5 as an Archivist.', icon: 'ledger' },
+  { id: 'thread_locked', name: 'Thread Locked', desc: 'Reach wave 5 as a Moderator.', icon: 'gavel' },
   { id: 'beyond_ladder', name: 'Beyond the Ladder', desc: 'Enter Endless mode after clearing Super Hard.', icon: 'bolt' },
   { id: 'deep_static', name: 'Deep Static', desc: 'Reach wave 20 in Endless mode.', icon: 'star' },
   { id: 'ad_infinitum', name: 'Ad Infinitum', desc: 'Reach wave 30 in Endless mode.', icon: 'spark' },
@@ -4987,6 +5241,8 @@ function waveCleared(n) {
     if (player.cls === 'medic') grantAchievement('field_medic');
     if (player.cls === 'hacker') grantAchievement('zero_day');
     if (player.cls === 'streamer') grantAchievement('hype_train');
+    if (player.cls === 'archivist') grantAchievement('due_diligence');
+    if (player.cls === 'moderator') grantAchievement('thread_locked');
   }
   if (game.coop) grantAchievement('better_together');
   if (n >= 10 && !save.waveCampaignWon) save.waveCampaignWon = true;
@@ -5774,24 +6030,19 @@ function updateBots(dt) {
             if (b.cls === 'blocker') {
               damageMonster(m, companionDamage(21), { player: false });
               beamFx(b.x, b.y, b.facing, Math.min(d + 20, 100), 10, CLASSES.blocker.color, 0.14);
-            } else if (b.cls === 'checker') {
+            } else if (b.cls === 'archivist') {
               damageMonster(m, companionDamage(17), { player: false });
-              m.marked = Math.max(m.marked, 1.6);
-              beamFx(b.x, b.y, b.facing, d, 5, CLASSES.checker.color, 0.2, { kind: 'chain' });
+              m.marked = Math.max(m.marked, 2.2);
+              beamFx(b.x, b.y, b.facing, d, 6, CLASSES.archivist.color, 0.2, { kind: 'chain' });
+            } else if (b.cls === 'moderator') {
+              damageMonster(m, companionDamage(21), { player: false });
+              m.stun = Math.max(m.stun, 0.8);
+              beamFx(b.x, b.y, b.facing, d, 8, CLASSES.moderator.color, 0.18);
             } else {
               damageMonster(m, companionDamage(17), { player: false });
               beamFx(b.x, b.y, b.facing, d, 7, CLASSES.reader.color, 0.16);
             }
             if (chance(0.2)) audio.sfx('beam');
-          }
-          // heal player if checker
-          if (b.cls === 'checker' && b.helpCd <= 0 && !player.dead && player.hp < player.maxHp * 0.7 && dist(b.x, b.y, player.x, player.y) < 300) {
-            b.helpCd = rand(20, 13);
-            player.hp = Math.min(player.maxHp, player.hp + 8);
-            floatingText(player.x, player.y - 42, '+8 from ' + b.name, '#68d6a6', 11, 1.2);
-            beamFx(b.x, b.y, angleTo(b.x, b.y, player.x, player.y), dist(b.x, b.y, player.x, player.y), 6, PAL.mint, 0.35, { kind: 'heal' });
-            updateHpUI(); audio.sfx('heal');
-            if (chance(0.4)) b.bubble = pick(CHAT.heal);
           }
         }
       } else { b.state = 'wander'; b.stateT = rand(5, 2); chooseBotTarget(b); }
@@ -6203,6 +6454,7 @@ function resizeCanvas() {
 function applySettingsVisuals() {
   document.body.classList.toggle('scanlines', settings.scanlines);
   document.body.classList.toggle('reduce-motion', settings.reduceMotion);
+  document.body.classList.toggle('halloween', settings.halloween);
   ui.muteBtn.innerHTML = svg(settings.muted ? 'mute' : 'sound');
 }
 
@@ -6518,6 +6770,22 @@ function drawGroundDecor() {
       g.fillStyle = '#fff3df'; g.fillRect(-1.5, -4, 3, 5);
       g.fillStyle = '#ff9eb5'; g.beginPath(); g.ellipse(0, -5, 5, 3, 0, Math.PI, 0); g.fill();
       g.fillStyle = 'rgba(255,255,255,0.8)'; g.beginPath(); g.arc(-1.5, -5.5, 1, 0, TAU); g.fill();
+    } else if (d.kind === 'pumpkin') {
+      g.fillStyle = 'rgba(40,20,30,0.2)';
+      g.beginPath(); g.ellipse(0, 2, 9, 3, 0, 0, TAU); g.fill();
+      g.fillStyle = settings.halloween ? '#ff9a3c' : '#e8a04a';
+      g.strokeStyle = '#7a3a1e'; g.lineWidth = 1.2;
+      g.beginPath(); g.ellipse(0, -3, 8, 6, 0, 0, TAU); g.fill(); g.stroke();
+      g.strokeStyle = 'rgba(122,58,30,0.55)'; g.lineWidth = 0.8;
+      for (let i = -1; i <= 1; i++) { g.beginPath(); g.moveTo(i * 3, -8); g.quadraticCurveTo(i * 4, -3, i * 3, 2); g.stroke(); }
+      g.strokeStyle = '#5a6b3a'; g.lineWidth = 1.5;
+      g.beginPath(); g.moveTo(0, -8); g.lineTo(1.5, -12); g.stroke();
+      if (settings.halloween) {
+        g.fillStyle = '#3a1b22';
+        g.beginPath(); g.moveTo(-4, -4); g.lineTo(-2.5, -1.5); g.lineTo(-5.5, -1.5); g.closePath(); g.fill();
+        g.beginPath(); g.moveTo(4, -4); g.lineTo(5.5, -1.5); g.lineTo(2.5, -1.5); g.closePath(); g.fill();
+        g.beginPath(); g.moveTo(-5, 0); g.lineTo(-3, 2.5); g.lineTo(-1, 0); g.lineTo(1, 2.5); g.lineTo(3, 0); g.lineTo(5, 2.5); g.lineTo(5, 1); g.lineTo(-5, 1); g.closePath(); g.fill();
+      }
     }
     g.restore();
   }
@@ -6852,6 +7120,100 @@ function drawBench() {
   g.restore();
 }
 
+/* ------------------------------- dock ----------------------------------- */
+function drawDock() {
+  if (!inView(DOCK.x, DOCK.y, 300)) return;
+  const g = ctx;
+  const t = game.worldTime;
+  g.save();
+  g.translate(DOCK.x, DOCK.y);
+  g.fillStyle = 'rgba(32,74,92,0.22)';
+  g.beginPath(); g.ellipse(0, 66, 150, 44, 0, 0, TAU); g.fill();
+  // planks
+  for (let i = 0; i < 7; i++) {
+    g.fillStyle = i % 2 ? '#b98d58' : '#c99a65';
+    g.strokeStyle = '#6b4a2c'; g.lineWidth = 2;
+    rr(g, -92, -34 + i * 22, 184, 20, 3); g.fill(); g.stroke();
+    g.strokeStyle = 'rgba(92,60,34,0.32)'; g.lineWidth = 1;
+    g.beginPath(); g.moveTo(-88, -24 + i * 22); g.lineTo(88, -24 + i * 22); g.stroke();
+  }
+  // posts
+  for (const px of [-84, 84]) {
+    for (const py of [-18, 88]) {
+      g.fillStyle = '#8f6a45'; g.strokeStyle = '#5a3a1e'; g.lineWidth = 2;
+      rr(g, px - 5, py - 18, 10, 42, 3); g.fill(); g.stroke();
+    }
+  }
+  // crates
+  g.fillStyle = '#c79a61'; g.strokeStyle = '#6b4a2c'; g.lineWidth = 2;
+  rr(g, -62, -26, 22, 20, 3); g.fill(); g.stroke();
+  rr(g, -38, -22, 16, 16, 3); g.fill(); g.stroke();
+  // lantern
+  g.strokeStyle = '#5a3a1e'; g.lineWidth = 2;
+  g.beginPath(); g.moveTo(72, -24); g.lineTo(72, -46); g.stroke();
+  g.fillStyle = '#ffe39a'; g.strokeStyle = '#6b4a2c'; g.lineWidth = 1.5;
+  rr(g, 65, -46, 14, 16, 3); g.fill(); g.stroke();
+  // sign
+  g.fillStyle = '#fff8e8'; g.strokeStyle = '#6b4a2c'; g.lineWidth = 2;
+  rr(g, -38, 104, 76, 22, 4); g.fill(); g.stroke();
+  g.fillStyle = '#7a5a2e'; g.font = 'bold 10px ui-monospace, monospace'; g.textAlign = 'center';
+  g.fillText('DOCK', 0, 119);
+  // little boat
+  g.save();
+  g.translate(118, 62 + Math.sin(t * 1.4) * 2);
+  g.fillStyle = '#8a6a3c'; g.strokeStyle = '#5a3a1e'; g.lineWidth = 2;
+  g.beginPath();
+  g.moveTo(-34, 0); g.quadraticCurveTo(0, 20, 34, 0); g.lineTo(26, 12); g.quadraticCurveTo(0, 26, -26, 12); g.closePath();
+  g.fill(); g.stroke();
+  g.strokeStyle = '#6b4a2c'; g.lineWidth = 3;
+  g.beginPath(); g.moveTo(0, 2); g.lineTo(0, -34); g.stroke();
+  g.fillStyle = '#fff8e8'; g.strokeStyle = '#6b4a2c'; g.lineWidth = 1.5;
+  g.beginPath(); g.moveTo(2, -32); g.lineTo(26, -12); g.lineTo(2, -12); g.closePath(); g.fill(); g.stroke();
+  g.restore();
+  g.restore();
+}
+function drawShopStall() {
+  if (!inView(SHOPKEEPER.x, SHOPKEEPER.y, 220)) return;
+  const g = ctx;
+  g.save();
+  g.translate(SHOPKEEPER.x, SHOPKEEPER.y + 8);
+  // counter
+  g.fillStyle = '#c99a65'; g.strokeStyle = '#6b4a2c'; g.lineWidth = 2.5;
+  rr(g, -58, 2, 116, 34, 5); g.fill(); g.stroke();
+  g.fillStyle = '#b58a5e'; rr(g, -58, 8, 116, 7, 2); g.fill();
+  // jars and a tea tin
+  for (let i = 0; i < 3; i++) {
+    g.fillStyle = ['#ffd6e2', '#d6f8ea', '#ffe39a'][i];
+    g.strokeStyle = '#6b4a2c'; g.lineWidth = 1.2;
+    rr(g, -42 + i * 22, -10, 12, 14, 3); g.fill(); g.stroke();
+  }
+  // awning
+  for (let i = 0; i < 6; i++) {
+    g.fillStyle = i % 2 ? '#fff8e8' : '#ff8fa3';
+    g.beginPath();
+    g.moveTo(-64 + i * 22, -76);
+    g.lineTo(-64 + (i + 1) * 22, -76);
+    g.lineTo(-56 + (i + 1) * 22, -48);
+    g.lineTo(-56 + i * 22, -48);
+    g.closePath(); g.fill();
+  }
+  g.strokeStyle = '#6b4a2c'; g.lineWidth = 2;
+  g.beginPath(); g.moveTo(-66, -76); g.lineTo(66, -76); g.stroke();
+  g.beginPath(); g.moveTo(-66, -48); g.lineTo(66, -48); g.stroke();
+  // sign
+  g.fillStyle = '#fff8e8'; g.strokeStyle = '#6b4a2c'; g.lineWidth = 2;
+  rr(g, -34, -112, 68, 20, 4); g.fill(); g.stroke();
+  g.fillStyle = '#7a5a2e'; g.font = 'bold 9px ui-monospace, monospace'; g.textAlign = 'center';
+  g.fillText("MIRA'S", 0, -98);
+  g.restore();
+}
+function drawShopkeeper() {
+  if (!inView(SHOPKEEPER.x, SHOPKEEPER.y, 90)) return;
+  drawHeroBody(ctx, SHOPKEEPER.x, SHOPKEEPER.y, 16, 'checker', {
+    cosmetic: 'scarf', level: 1, facing: Math.PI / 2, bob: Math.sin(game.time * 2) * 1.2
+  });
+}
+
 /* ------------------------------ characters ------------------------------- */
 function drawCosmetic(g, r, cosmetic, cls) {
   if (!cosmetic || cosmetic === 'none') return;
@@ -7129,6 +7491,24 @@ function drawHeroBody(g, x, y, r, clsId, opts = {}) {
     drawStar(g, 0, r * 0.04, 5, r * 0.1, r * 0.045); g.fill();
     g.strokeStyle = '#ff4d94'; g.lineWidth = Math.max(1.4, r * 0.045);
     g.beginPath(); g.moveTo(-r * 0.16, -r * 0.16); g.quadraticCurveTo(-r * 0.24, r * 0.14, -r * 0.12, r * 0.3); g.stroke();
+  } else if (clsId === 'archivist') {
+    // ink-stained apron, shirt and a stamp badge
+    g.fillStyle = '#fff8e8'; g.strokeStyle = ink; g.lineWidth = line * 0.7;
+    rr(g, -r * 0.2, -r * 0.18, r * 0.4, r * 0.44, r * 0.05); g.fill(); g.stroke();
+    g.fillStyle = cls.color2;
+    rr(g, -r * 0.16, r * 0.02, r * 0.32, r * 0.24, r * 0.03); g.fill();
+    g.fillStyle = '#7a5a2e';
+    g.beginPath(); g.arc(0, r * 0.07, r * 0.055, 0, TAU); g.fill();
+    g.strokeStyle = '#8a6a3c'; g.lineWidth = r * 0.07;
+    g.beginPath(); g.moveTo(-r * 0.28, -r * 0.14); g.lineTo(r * 0.22, r * 0.24); g.stroke();
+  } else if (clsId === 'moderator') {
+    // dark vest, red armband and a little gavel badge
+    g.fillStyle = '#2f2b3f'; g.strokeStyle = ink; g.lineWidth = line * 0.7;
+    rr(g, -r * 0.22, -r * 0.18, r * 0.44, r * 0.42, r * 0.06); g.fill(); g.stroke();
+    g.fillStyle = '#ff6b8b';
+    rr(g, -r * 0.34, -r * 0.02, r * 0.1, r * 0.2, r * 0.03); g.fill(); g.stroke();
+    g.fillStyle = '#ffe39a';
+    drawStar(g, 0, r * 0.04, 4, r * 0.08, r * 0.03); g.fill();
   }
 
   // cloak clasp
@@ -7415,6 +7795,50 @@ function drawHeroBody(g, x, y, r, clsId, opts = {}) {
     g.restore();
   }
 
+  // archivist: a long stamp staff
+  if (clsId === 'archivist') {
+    g.save();
+    g.translate(r * 0.52, r * 0.3);
+    if (swing > 0.04) {
+      g.strokeStyle = 'rgba(232,201,138,' + (swing * 0.45).toFixed(3) + ')';
+      g.lineWidth = r * 0.1;
+      g.beginPath(); g.arc(0, 0, r * 0.78, -Math.PI / 2, -0.15); g.stroke();
+    }
+    g.rotate(0.3 + swing * 0.85);
+    g.lineCap = 'round';
+    g.strokeStyle = ink; g.lineWidth = r * 0.09 + line;
+    g.beginPath(); g.moveTo(0, r * 0.36); g.lineTo(0, -r * 0.42); g.stroke();
+    g.strokeStyle = '#8a6a3c'; g.lineWidth = r * 0.09;
+    g.beginPath(); g.moveTo(0, r * 0.36); g.lineTo(0, -r * 0.42); g.stroke();
+    g.fillStyle = cls.color2; g.strokeStyle = ink; g.lineWidth = line * 0.7;
+    rr(g, -r * 0.2, -r * 0.66, r * 0.4, r * 0.24, r * 0.04); g.fill(); g.stroke();
+    g.fillStyle = '#7a5a2e';
+    g.beginPath(); g.arc(0, -r * 0.54, r * 0.055, 0, TAU); g.fill();
+    g.restore();
+  }
+
+  // moderator: a heavy gavel
+  if (clsId === 'moderator') {
+    g.save();
+    g.translate(r * 0.52, r * 0.3);
+    if (swing > 0.04) {
+      g.strokeStyle = 'rgba(154,168,255,' + (swing * 0.45).toFixed(3) + ')';
+      g.lineWidth = r * 0.12;
+      g.beginPath(); g.arc(0, 0, r * 0.82, -Math.PI / 2, -0.15); g.stroke();
+    }
+    g.rotate(0.3 + swing * 0.9);
+    g.lineCap = 'round';
+    g.strokeStyle = ink; g.lineWidth = r * 0.1 + line;
+    g.beginPath(); g.moveTo(0, r * 0.38); g.lineTo(0, -r * 0.18); g.stroke();
+    g.strokeStyle = '#8a6a3c'; g.lineWidth = r * 0.1;
+    g.beginPath(); g.moveTo(0, r * 0.38); g.lineTo(0, -r * 0.18); g.stroke();
+    g.fillStyle = cls.color; g.strokeStyle = ink; g.lineWidth = line * 0.8;
+    rr(g, -r * 0.28, -r * 0.4, r * 0.56, r * 0.24, r * 0.05); g.fill(); g.stroke();
+    g.fillStyle = '#ffe39a';
+    g.beginPath(); g.arc(0, -r * 0.28, r * 0.045, 0, TAU); g.fill();
+    g.restore();
+  }
+
   /* ---- head ------------------------------------------------------------- */
   g.fillStyle = hair;
   g.beginPath(); g.ellipse(0, hy - r * 0.02, hrx * 1.05, hry * 1.06, 0, 0, TAU); g.fill();
@@ -7598,6 +8022,32 @@ function drawHeroBody(g, x, y, r, clsId, opts = {}) {
       g.beginPath(); g.moveTo(-hrx * 0.78, hy - r * 0.34); g.lineTo(-hrx * 0.96, hy - r * 1.12); g.stroke();
       g.fillStyle = '#ffe39a'; g.strokeStyle = ink; g.lineWidth = line * 0.5;
       g.beginPath(); g.arc(-hrx * 0.96, hy - r * 1.14, r * 0.075, 0, TAU); g.fill(); g.stroke();
+    } else if (clsId === 'archivist') {
+      // flat cap, round spectacles and a quill behind the ear
+      g.fillStyle = cls.color2; g.strokeStyle = ink; g.lineWidth = line;
+      g.beginPath(); g.ellipse(0, hy - r * 0.38, hrx * 1.06, hry * 0.7, 0, Math.PI, TAU); g.closePath(); g.fill(); g.stroke();
+      g.fillStyle = cls.color;
+      rr(g, -hrx * 1.38, hy - r * 0.44, hrx * 2.2, r * 0.14, r * 0.06); g.fill(); g.stroke();
+      g.strokeStyle = 'rgba(60,52,83,0.8)'; g.lineWidth = Math.max(1, r * 0.045);
+      g.beginPath(); g.arc(-eyeDX + lookX, eyeY, r * 0.135, 0, TAU); g.stroke();
+      g.beginPath(); g.arc(eyeDX + lookX, eyeY, r * 0.135, 0, TAU); g.stroke();
+      g.beginPath(); g.moveTo(-eyeDX + lookX + r * 0.135, eyeY); g.lineTo(eyeDX + lookX - r * 0.135, eyeY); g.stroke();
+      g.strokeStyle = '#7a5a2e'; g.lineWidth = Math.max(1, r * 0.04); g.lineCap = 'round';
+      g.beginPath(); g.moveTo(-hrx * 0.7, hy - r * 0.42); g.lineTo(-hrx * 1.12, hy - r * 1.02); g.stroke();
+      g.fillStyle = '#fff8e8'; g.strokeStyle = ink; g.lineWidth = line * 0.5;
+      g.beginPath(); g.ellipse(-hrx * 1.12, hy - r * 1.02, r * 0.08, r * 0.15, -0.4, 0, TAU); g.fill(); g.stroke();
+    } else if (clsId === 'moderator') {
+      // visor band, headset and a warning-red mic
+      g.strokeStyle = '#3b4f9e'; g.lineWidth = r * 0.11; g.lineCap = 'round';
+      g.beginPath(); g.ellipse(0, hy, hrx * 1.12, hry * 1.08, 0, Math.PI * 1.03, Math.PI * 1.97); g.stroke();
+      g.fillStyle = cls.color; g.strokeStyle = ink; g.lineWidth = line * 0.8;
+      rr(g, -hrx * 0.95, eyeY - r * 0.16, hrx * 1.9, r * 0.3, r * 0.08); g.fill(); g.stroke();
+      g.fillStyle = '#ffe39a';
+      g.beginPath(); g.arc(hrx * 0.62, eyeY - r * 0.01, r * 0.04, 0, TAU); g.fill();
+      g.strokeStyle = '#3c3453'; g.lineWidth = Math.max(1.2, r * 0.045);
+      g.beginPath(); g.moveTo(hrx * 1.02, hy + r * 0.1); g.quadraticCurveTo(hrx * 0.9, hy + r * 0.42, hrx * 0.36, hy + r * 0.38); g.stroke();
+      g.fillStyle = '#ff6b8b';
+      g.beginPath(); g.arc(hrx * 0.32, hy + r * 0.38, r * 0.06, 0, TAU); g.fill();
     }
   }
 
@@ -8210,6 +8660,26 @@ function drawProjectiles() {
       g.closePath(); g.fill(); g.stroke();
       g.fillStyle = '#ffffff';
       g.beginPath(); g.arc(-1, 0, 2, 0, TAU); g.fill();
+    } else if (p.kind === 'index') {
+      g.rotate(p.angle + 0.1);
+      g.fillStyle = 'rgba(232,201,138,0.28)';
+      g.beginPath(); g.arc(0, 0, p.r + 6, 0, TAU); g.fill();
+      g.fillStyle = '#fff8e8'; g.strokeStyle = '#7a5a2e'; g.lineWidth = 1.4;
+      rr(g, -9, -6, 18, 12, 2); g.fill(); g.stroke();
+      g.strokeStyle = 'rgba(122,90,46,0.55)'; g.lineWidth = 1;
+      for (let i = 0; i < 3; i++) { g.beginPath(); g.moveTo(-6, -3 + i * 3); g.lineTo(6, -3 + i * 3); g.stroke(); }
+      g.fillStyle = '#d4a955';
+      g.beginPath(); g.arc(0, 6, 3, 0, TAU); g.fill();
+    } else if (p.kind === 'gavel') {
+      g.rotate(p.angle);
+      g.fillStyle = 'rgba(154,168,255,0.28)';
+      g.beginPath(); g.arc(0, 0, p.r + 6, 0, TAU); g.fill();
+      g.strokeStyle = '#3b4f9e'; g.lineWidth = 2.4; g.lineCap = 'round';
+      g.beginPath(); g.moveTo(-8, 7); g.lineTo(2, -2); g.stroke();
+      g.fillStyle = '#9aa8ff'; g.strokeStyle = '#3b4f9e'; g.lineWidth = 1.5;
+      rr(g, -2, -11, 12, 9, 2); g.fill(); g.stroke();
+      g.fillStyle = '#ffe39a';
+      g.beginPath(); g.arc(4, -6.5, 2, 0, TAU); g.fill();
     } else {
       g.fillStyle = p.color; g.beginPath(); g.arc(0, 0, p.r, 0, TAU); g.fill();
     }
@@ -8531,6 +9001,24 @@ function drawNameplates() {
     }
     g.restore();
   }
+
+  // the dock shopkeeper gets one quiet name too
+  const sd = dist(player.x, player.y, SHOPKEEPER.x, SHOPKEEPER.y);
+  if (sd < 460 && inView(SHOPKEEPER.x, SHOPKEEPER.y, 40)) {
+    const s = worldToScreen(SHOPKEEPER.x, SHOPKEEPER.y - 38);
+    g.save();
+    g.globalAlpha = clamp((460 - sd) / 120, 0, 1) * 0.95;
+    g.font = 'bold 8px ui-monospace, monospace';
+    g.textAlign = 'center';
+    const label = SHOPKEEPER.name + ' · dock shop';
+    const tw = g.measureText(label).width + 12;
+    const x = clamp(s.x, tw / 2 + 4, vw - tw / 2 - 4);
+    g.fillStyle = 'rgba(60,52,83,0.55)';
+    rr(g, x - tw / 2, s.y - 12, tw, 14, 5); g.fill();
+    g.fillStyle = '#fff8ec';
+    g.fillText(label, x, s.y - 2);
+    g.restore();
+  }
 }
 
 function wrapBubbleLines(g, text, maxW) {
@@ -8849,6 +9337,12 @@ function drawMinimap(force = false) {
   g.bezierCurveTo(bx + 3.6, by - 5.2, bx + 5, by - 1.4, bx, by + 3.4);
   g.fill(); g.stroke();
 
+  // dock marker
+  const dkx = DOCK.x * sx, dky = DOCK.y * sy;
+  g.fillStyle = '#b98d58'; g.strokeStyle = '#6b4a2c'; g.lineWidth = 1;
+  g.fillRect(dkx - 4, dky - 2, 8, 5); g.strokeRect(dkx - 4, dky - 2, 8, 5);
+  g.beginPath(); g.moveTo(dkx, dky + 3); g.lineTo(dkx, dky + 9); g.stroke();
+
   // player arrow
   const px = player.x * sx, py = player.y * sy;
   g.save();
@@ -8877,6 +9371,11 @@ function drawScene() {
   if (inView(BENCH.x, BENCH.y, 360)) {
     list.push({ y: BENCH.y - 34, draw: drawKindnessWall });
     list.push({ y: BENCH.y + 24, draw: drawBench });
+  }
+  if (inView(DOCK.x, DOCK.y, 320)) list.push({ y: DOCK.y, draw: drawDock });
+  if (inView(SHOPKEEPER.x, SHOPKEEPER.y, 240)) {
+    list.push({ y: SHOPKEEPER.y - 10, draw: drawShopStall });
+    list.push({ y: SHOPKEEPER.y, draw: drawShopkeeper });
   }
   for (const b of bots) {
     if (!inView(b.x, b.y, 60)) continue;
@@ -8912,6 +9411,58 @@ function drawTurrets() {
   }
 }
 
+function drawBat(g, x, y, s, t) {
+  g.save();
+  g.translate(x, y);
+  const flap = Math.sin(t * 8 + x * 0.03) * 0.5;
+  g.fillStyle = 'rgba(35,18,46,0.72)';
+  g.beginPath();
+  g.moveTo(0, 0);
+  g.quadraticCurveTo(-s * 0.7, -s * (0.5 + flap), -s * 1.8, -s * 0.15);
+  g.quadraticCurveTo(-s * 0.9, s * 0.1, 0, s * 0.18);
+  g.quadraticCurveTo(s * 0.9, s * 0.1, s * 1.8, -s * 0.15);
+  g.quadraticCurveTo(s * 0.7, -s * (0.5 + flap), 0, 0);
+  g.fill();
+  g.restore();
+}
+function drawHalloweenOverlay(w, h) {
+  const g = ctx;
+  const t = game.worldTime;
+  g.save();
+  g.fillStyle = 'rgba(48,20,68,0.15)';
+  g.fillRect(0, 0, w, h);
+  const vg = g.createRadialGradient(w * 0.5, h * 0.45, Math.min(w, h) * 0.18, w * 0.5, h * 0.45, Math.max(w, h) * 0.78);
+  vg.addColorStop(0, 'rgba(0,0,0,0)');
+  vg.addColorStop(1, 'rgba(18,6,26,0.5)');
+  g.fillStyle = vg;
+  g.fillRect(0, 0, w, h);
+  // pumpkin moon
+  const mx = w * 0.70, my = h * 0.12, mr = Math.min(w, h) * 0.07;
+  const glow = g.createRadialGradient(mx, my, mr * 0.5, mx, my, mr * 3);
+  glow.addColorStop(0, 'rgba(255,178,74,0.24)');
+  glow.addColorStop(1, 'rgba(255,178,74,0)');
+  g.fillStyle = glow;
+  g.beginPath(); g.arc(mx, my, mr * 3, 0, TAU); g.fill();
+  g.fillStyle = '#ffd08a';
+  g.beginPath(); g.arc(mx, my, mr, 0, TAU); g.fill();
+  g.fillStyle = 'rgba(255,255,255,0.35)';
+  g.beginPath(); g.arc(mx - mr * 0.28, my - mr * 0.28, mr * 0.24, 0, TAU); g.fill();
+  // low fog bands
+  for (let i = 0; i < 4; i++) {
+    const fy = h * (0.42 + i * 0.11) + Math.sin(t * 0.18 + i) * 14;
+    g.fillStyle = 'rgba(190,155,215,' + (0.035 + i * 0.012) + ')';
+    g.beginPath();
+    g.ellipse(w * (0.18 + i * 0.23), fy, w * 0.5, 30 + i * 8, 0, 0, TAU);
+    g.fill();
+  }
+  // a handful of bats crossing the screen
+  for (let i = 0; i < 7; i++) {
+    const bx = ((i * 197 + t * (18 + i * 3)) % (w + 120)) - 60;
+    const by = h * (0.08 + hash2(i, 7) * 0.28) + Math.sin(t * 1.4 + i * 2) * 12;
+    drawBat(g, bx, by, 4 + hash2(i, 3) * 4, t);
+  }
+  g.restore();
+}
 function render() {
   const w = window.innerWidth, h = window.innerHeight;
   const dpr = game.dpr || 1;
@@ -8940,6 +9491,7 @@ function render() {
 
   ctx.restore();
 
+  if (settings.halloween) drawHalloweenOverlay(w, h);
   drawScreenFX(w, h);
   drawAimReticle();
   drawFloaters();
