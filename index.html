@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
 <meta name="theme-color" content="#bde8f2">
-<meta name="description" content="AdBlock Island — a wholesome micro-MMO in beta (v0.9.0). Nine classes, a south-shore dock, and a Halloween theme. Clear the static and leave a kind note on the beach.">
+<meta name="description" content="AdBlock Island — a wholesome micro-MMO in beta (v0.9.1). Nine classes, a south-shore dock, and a Halloween theme. Clear the static and leave a kind note on the beach.">
 <meta name="author" content="potaterrr">
 <meta name="application-name" content="AdBlock Island">
 <meta name="apple-mobile-web-app-title" content="AdBlock Island">
@@ -1212,98 +1212,102 @@ body.scanlines::after{
   background:repeating-linear-gradient(180deg,rgba(60,52,83,.18) 0 1px,transparent 1px 3px);
   mix-blend-mode:multiply;
 }
-/* Halloween theme: a purple sea, pumpkin light and a darker paper stock.
-   The canvas gets an extra fog/vignette overlay from render(). */
+/* Halloween theme: an autumn dusk. Warm parchment surfaces keep the ink
+   readable, while the title sky, moon, fog and bats carry the season. */
 .halloween-pill{
   display:none;align-items:center;
   font-family:var(--ui);font-size:10px;font-weight:900;letter-spacing:.16em;
-  text-transform:uppercase;color:#2b1b39;
+  text-transform:uppercase;color:#3a2233;
   background:var(--sun);border:2px solid var(--line);border-radius:99px;
   padding:4px 11px;transform:rotate(1deg);
-  box-shadow:2px 2px 0 rgba(60,52,83,.28);
+  box-shadow:2px 2px 0 rgba(58,34,51,.24);
 }
 body.halloween .halloween-pill{display:inline-flex}
 body.halloween{
-  --paper:#2b1b39;
-  --paper-2:#382246;
-  --paper-3:#462d55;
-  --ink:#fff1dc;
-  --ink-soft:#e3c9ee;
-  --ink-faint:#bda2cc;
-  --pink:#ffa6c1;
-  --rose:#ff6b8b;
-  --mint:#8fe3c2;
-  --sea:#6a4a8a;
-  --sea-deep:#4b2f66;
-  --sky:#2b1b3f;
-  --lav:#c9a6ff;
-  --sun:#ffb24a;
+  --paper:#fff6e8;
+  --paper-2:#ffedd6;
+  --paper-3:#ffe0bf;
+  --ink:#3a2233;
+  --ink-soft:#5a3a4e;
+  --ink-faint:#7d5d6f;
+  --pink:#ffc4ad;
+  --rose:#e85d75;
+  --mint:#b9e2c6;
+  --sea:#8fd0d8;
+  --sea-deep:#5fb0c4;
+  --sky:#ffe1c2;
+  --lav:#cbb6f0;
+  --sun:#ffb347;
   --coral:#ff8a5c;
-  --leaf:#9bd18e;
-  --line:#160d20;
-  --shadow:4px 4px 0 rgba(0,0,0,.32);
-  --shadow-sm:2px 2px 0 rgba(0,0,0,.28);
+  --leaf:#a4d48f;
+  --line:#3a2233;
+  --shadow:4px 4px 0 rgba(58,34,51,.18);
+  --shadow-sm:2px 2px 0 rgba(58,34,51,.16);
 }
 body.halloween #titleScreen{
   background:
-    radial-gradient(1100px 560px at 78% -8%, rgba(255,178,74,.24) 0%, rgba(255,178,74,0) 55%),
-    linear-gradient(180deg,#1d1029 0%,#2b1b39 38%,#3a2148 62%,#241330 100%);
+    radial-gradient(1100px 560px at 80% -10%, #ffe0a8 0%, rgba(255,224,168,0) 58%),
+    linear-gradient(180deg,#8fb6d8 0%,#b8a8dd 32%,#f4c6a4 64%,#ffb98a 100%);
 }
 body.halloween #titleScreen::before{
-  opacity:.4;background-image:radial-gradient(rgba(255,178,74,.2) 1px,transparent 1px);
+  opacity:.4;background-image:radial-gradient(rgba(58,34,51,.13) 1px,transparent 1px);
 }
 body.halloween .title-sun{
-  background:radial-gradient(circle at 38% 34%,#ffe0ac,#ffb24a 55%,#ff8a3c 100%);
-  box-shadow:0 0 0 18px rgba(255,178,74,.18),0 0 80px rgba(255,138,60,.7);
+  background:radial-gradient(circle at 38% 34%,#fff2c4,#ffc45a 55%,#ff9a3c 100%);
+  box-shadow:0 0 0 18px rgba(255,180,71,.22),0 0 80px rgba(255,154,60,.45);
 }
-body.halloween .cloud{background:#5a3a72;opacity:.55}
+body.halloween .cloud{background:#fff6e8;opacity:.75}
 body.halloween .title-sea{
   background:
-    repeating-linear-gradient(180deg,rgba(255,255,255,.16) 0 2px,transparent 2px 16px),
-    linear-gradient(180deg,#3b2452,#2a173c 55%,#1b0f27);
-  border-top-color:rgba(255,178,74,.24);
+    repeating-linear-gradient(180deg,rgba(255,255,255,.25) 0 2px,transparent 2px 16px),
+    linear-gradient(180deg,#a9c9d4,#8fb8c9 55%,#6fa6b8);
+  border-top-color:rgba(58,34,51,.16);
 }
 body.halloween .title-sea::after{
-  background-image:radial-gradient(rgba(255,178,74,.45) 1.5px,transparent 1.5px);opacity:.3;
+  background-image:radial-gradient(rgba(255,255,255,.55) 1.5px,transparent 1.5px);opacity:.45;
 }
 body.halloween .title-card{
-  background:linear-gradient(180deg,rgba(56,34,70,.97),rgba(43,27,57,.98));
+  background:linear-gradient(180deg,rgba(255,249,238,.97),rgba(255,235,210,.98));
+  box-shadow:8px 8px 0 rgba(58,34,51,.18),0 0 0 4px rgba(255,179,71,.25),0 26px 70px rgba(58,34,51,.18);
 }
-body.halloween .title-card::before{border-color:rgba(255,178,74,.16)}
-body.halloween .wave-card{background:rgba(43,27,57,.92)}
-body.halloween .chat-panel{background:rgba(43,27,57,.95)}
-body.halloween #chatInput{background:#241531;color:var(--ink)}
-body.halloween #chatInput:focus{background:#382246}
-body.halloween .chat-line.note{color:#ffd08a}
-body.halloween #modalLayer .panel{
-  background:linear-gradient(180deg,rgba(56,34,70,.99),rgba(43,27,57,.99));
+body.halloween .title-card::before{border-color:rgba(58,34,51,.12)}
+body.halloween .wave-card{background:rgba(255,246,232,.94)}
+/* wave changes are the one moment the whole screen reads a single card, so
+   the banner keeps a solid paper backing and hard dark text in this theme */
+body.halloween .wave-banner{
+  background:rgba(255,250,240,.98);
+  box-shadow:0 8px 0 rgba(58,34,51,.14),0 22px 44px rgba(58,34,51,.18);
 }
-body.halloween .panel-foot{background:rgba(0,0,0,.16)}
+body.halloween .wave-banner .wb-label{color:#2f1a2a}
+body.halloween .wave-banner .wb-kicker{color:#5a3a4e}
+body.halloween .wave-banner .wb-note{color:#4f3044}
+body.halloween .wave-banner .wb-count{background:rgba(58,34,51,.09);color:#3a2233}
+body.halloween .wave-banner.cleared .wb-label{color:#1f6b50}
+body.halloween .wave-banner.warn .wb-label{color:#b3264a}
+body.halloween .wave-card .wv-label{color:#2f1a2a}
+body.halloween .wave-card .wv-left,
+body.halloween .wave-card .wv-types{color:#5a3a4e}
+body.halloween .chat-panel{background:rgba(255,246,232,.95)}
+body.halloween .chat-line.note{color:#8a5a18}
+body.halloween .panel-foot{background:rgba(255,179,71,.12)}
 body.halloween .help-block,
 body.halloween .stat-box,
 body.halloween .setting-row,
-body.halloween .note-prompt{background:rgba(0,0,0,.18);color:var(--ink)}
+body.halloween .note-prompt{background:rgba(255,179,71,.13);color:var(--ink)}
 body.halloween .note-prompt:hover,
-body.halloween .panel-close:hover{background:rgba(255,178,74,.22)}
-body.halloween .title-card,
-body.halloween #modalLayer .panel,
-body.halloween .card{
-  box-shadow:4px 5px 0 rgba(0,0,0,.35), 0 0 0 2px rgba(255,178,74,.18);
-}
-body.halloween .beta-pill{background:#a02060}
-body.halloween .logo-kicker{background:var(--sun);color:#2b1b39}
-body.halloween .class-card{background:rgba(43,27,57,.84)}
+body.halloween .panel-close:hover{background:rgba(255,179,71,.25)}
+body.halloween .beta-pill{background:#5a2b4a}
+body.halloween .logo-kicker{background:var(--sun);color:#3a2233}
+body.halloween .class-card{background:#fff6e8}
 body.halloween .class-card.selected{
-  background:linear-gradient(180deg,#4a2f5c,#3a2148);
+  background:linear-gradient(180deg,#fffdf7,#ffe7c2);
   box-shadow:4px 4px 0 var(--line),0 0 0 4px var(--sun);
 }
-body.halloween .small-btn,
-body.halloween .btn{color:var(--ink)}
 body.halloween .bar,
-body.halloween .bar.xp{background:#241531}
+body.halloween .bar.xp{background:#f0dcc2}
 body.halloween .quest-card #questList li .qmark,
 body.halloween .note-card,
-body.halloween .note-card .note-pin{background:#241531}
+body.halloween .note-card .note-pin{background:#fffaf0}
 </style>
 </head>
 <body>
@@ -1427,7 +1431,7 @@ body.halloween .note-card .note-pin{background:#241531}
         <div class="logo-badges">
           <div class="logo-kicker">a wholesome micro-MMO</div>
           <div class="beta-pill" id="betaPill" title="This is a beta build. The patch notes list what is still pending.">
-            <span class="beta-dot"></span>beta · <b id="betaVersion">v0.9.0</b>
+            <span class="beta-dot"></span>beta · <b id="betaVersion">v0.9.1</b>
           </div>
           <div class="mania-pill" title="Mania rules: death resets the run to wave 1, and bosses bring friends.">MANIA</div>
           <div class="halloween-pill" id="halloweenPill" title="Halloween theme is on. Toggle it in Settings.">HALLOWEEN</div>
@@ -1594,7 +1598,7 @@ const ICONS = {
 };
 const svg = (name) => ICONS[name] || ICONS.spark;
 
-const VERSION = '0.9.0';
+const VERSION = '0.9.1';
 
 /* Endless mode tuning. Named on purpose: after a playtest, change these
    numbers instead of hunting through the wave and damage code. */
@@ -3655,7 +3659,7 @@ function buildSettingsPanel() {
     ${toggle('numbers', 'Damage numbers', 'numbers are satisfying')}
     ${toggle('names', 'Floating names', 'show who is nearby')}
     ${toggle('scanlines', 'Soft CRT scanlines', 'retro-ish, very subtle')}
-    ${toggle('halloween', 'Halloween theme', 'pumpkins, purple sea and a few bats')}
+    ${toggle('halloween', 'Halloween theme', 'warm dusk, pumpkins and a few bats')}
     ${toggle('reduceMotion', 'Reduce motion', 'calmer animations and camera')}
     ${toggle('haptics', 'Tiny vibrations', 'on supported phones')}
     <div class="section-title">Island admin</div>
@@ -9429,11 +9433,12 @@ function drawHalloweenOverlay(w, h) {
   const g = ctx;
   const t = game.worldTime;
   g.save();
-  g.fillStyle = 'rgba(48,20,68,0.15)';
+  g.fillStyle = 'rgba(255,170,90,0.04)';
   g.fillRect(0, 0, w, h);
-  const vg = g.createRadialGradient(w * 0.5, h * 0.45, Math.min(w, h) * 0.18, w * 0.5, h * 0.45, Math.max(w, h) * 0.78);
+  const vg = g.createRadialGradient(w * 0.5, h * 0.45, Math.min(w, h) * 0.2, w * 0.5, h * 0.45, Math.max(w, h) * 0.8);
   vg.addColorStop(0, 'rgba(0,0,0,0)');
-  vg.addColorStop(1, 'rgba(18,6,26,0.5)');
+  vg.addColorStop(0.72, 'rgba(90,40,80,0.06)');
+  vg.addColorStop(1, 'rgba(58,34,51,0.2)');
   g.fillStyle = vg;
   g.fillRect(0, 0, w, h);
   // pumpkin moon
@@ -9450,7 +9455,7 @@ function drawHalloweenOverlay(w, h) {
   // low fog bands
   for (let i = 0; i < 4; i++) {
     const fy = h * (0.42 + i * 0.11) + Math.sin(t * 0.18 + i) * 14;
-    g.fillStyle = 'rgba(190,155,215,' + (0.035 + i * 0.012) + ')';
+    g.fillStyle = 'rgba(255,235,215,' + (0.04 + i * 0.012) + ')';
     g.beginPath();
     g.ellipse(w * (0.18 + i * 0.23), fy, w * 0.5, 30 + i * 8, 0, 0, TAU);
     g.fill();

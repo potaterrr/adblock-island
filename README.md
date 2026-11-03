@@ -1,6 +1,6 @@
 # AdBlock Island
 
-**v0.9.0 · Archivist, Moderator & the dock** · [Play it](https://potaterrr.github.io/adblock-island/) · [Patch notes](https://potaterrr.github.io/projects/adblock-island/#patch-notes)
+**v0.9.1 · Halloween readability** · [Play it](https://potaterrr.github.io/adblock-island/) · [Patch notes](https://potaterrr.github.io/projects/adblock-island/#patch-notes)
 
 A wholesome micro-MMO in a single HTML file, currently in **beta**. The ads took the beach, the locals kept the kettle on. Pick a class, sweep the static, bonk the ad-monsters, and leave a kind note for whoever washes ashore next.
 
@@ -12,7 +12,7 @@ index.html   ← the entire game (≈420 KB, markup + CSS + renderer + audio + l
 
 ## Status: beta
 
-**v0.9.0 is a beta.** The island is playable end to end — nine classes, two companions, the wave ladder, Endless mode with checkpoints, medals, items, the Algorithm, the south-shore dock, a Halloween theme, kindness notes and same-keyboard co-op — but it is not a finished MMORPG. Mania rules are live: death resets the run, and the Algorithm is no longer guaranteed to arrive alone.
+**v0.9.1 is a beta.** The island is playable end to end — nine classes, two companions, the wave ladder, Endless mode with checkpoints, medals, items, the Algorithm, the south-shore dock, a Halloween theme, kindness notes and same-keyboard co-op — but it is not a finished MMORPG. Mania rules are live: death resets the run, and the Algorithm is no longer guaranteed to arrive alone.
 
 Versions count from zero while the game is in beta, so every release is `0.x`; the title card's build tag and the top entry of the patch notes always agree.
 
@@ -26,20 +26,21 @@ Still pending, in short:
 
 The full, honest list lives in **[Still pending](CHANGELOG.md#still-pending)** at the top of the patch notes.
 
-## What's new in v0.9.0 — Archivist, Moderator & the dock
+## What's new in v0.9.1 — Halloween readability
 
 A short version of the [patch notes](CHANGELOG.md):
 
+- **Readable Halloween theme.** Warm parchment surfaces, dark ink, pumpkin-orange accents and a violet-to-peach title sky. Wave banners now use solid paper backing with high-contrast labels, kickers and notes.
 - **Two new classes.** **Archivist / support** marks ads and patches the party; **Moderator / crowd control** stuns, knocks back and shuts down crowds. Both have procedural Canvas portraits, distinct silhouettes, their own gear, projectiles, hit effects, HUD icons, class cards and wave-5 medals.
 - **The dock is real.** The south shore has a pier, crates, a lantern, a bobbing boat and **Mira** the shopkeeper with her stall and an `F` prompt. The panel is honest: shop, travel and dock quests are the next expansion.
-- **Halloween theme.** Default-on, with a Settings toggle: dark-purple paper, a pumpkin moon, fog, bats, jack-o'-lanterns, a purple sea and a **HALLOWEEN** badge on the title screen.
+- **Halloween theme.** Default-on, with a Settings toggle: warm autumn dusk, a pumpkin moon, fog, bats, jack-o'-lanterns and a **HALLOWEEN** badge on the title screen. All text stays dark-on-parchment for readability.
 - **Companions, no healer.** The two companions are drawn from AdBlocker, Reader-Mode, Archivist and Moderator, and an AI companion never heals the real player. Fact-Checker and Medic are player-only.
 - **Mania still applies.** Death resets the run, the boss can arrive as a pair, and bosses split below 50% health.
-- **Release zip.** `adblock-island-beta-v0.9.0.zip` is a self-contained build of this single file plus these docs. It runs from `file://`, from GitHub Pages, or from any static host — no CDN, no backend, no network calls.
+- **Release zip.** `adblock-island-beta-v0.9.1.zip` is a self-contained build of this single file plus these docs. It runs from `file://`, from GitHub Pages, or from any static host — no CDN, no backend, no network calls.
 
 ## Download
 
-**[Download v0.9.0](https://github.com/potaterrr/adblock-island/releases/tag/v0.9.0)** (`adblock-island-beta-v0.9.0.zip`, also at the repo root). It is rebuilt from `index.html`, `README.md` and `CHANGELOG.md`. Unzip it, open `index.html`, and it plays — online or offline.
+**[Download v0.9.1](https://github.com/potaterrr/adblock-island/releases/tag/v0.9.1)** (`adblock-island-beta-v0.9.1.zip`, also at the repo root). It is rebuilt from `index.html`, `README.md` and `CHANGELOG.md`. Unzip it, open `index.html`, and it plays — online or offline.
 
 One honest caveat: **co-op is local, not networked.** "Play with a friend" puts player two on the same keyboard (arrow keys) on the same screen. A single static HTML file cannot do online matchmaking, peer-to-peer play or accounts on its own, so the zip is a complete single-player/co-op game, not an online multiplayer client. The next planned step is **4-player room-code online co-op** — Vercel static hosting plus a tiny signaling API and host-authoritative WebRTC — and the patch notes keep that roadmap honest.
 
@@ -220,7 +221,7 @@ They can be knocked out. A downed companion sits out 14 seconds and walks back f
 - **Same-keyboard co-op:** a second hero on the arrow keys, sharing one screen and one wave.
 - **A party of three:** two companions fight beside you, cleanse, mark or stun, chat, and can be knocked out and revive at the bench. They never heal you.
 - **The dock:** a south-shore pier, a bobbing boat and Mira's stall, with an `F` prompt and a minimap marker.
-- **Halloween theme:** default-on dark-purple palette, pumpkin moon, fog, bats, jack-o'-lanterns and a title-screen badge, toggleable in Settings.
+- **Halloween theme:** default-on autumn-dusk palette with readable parchment surfaces, pumpkin moon, fog, bats, jack-o'-lanterns and a title-screen badge, toggleable in Settings.
 - **The kindness wall:** sit at the cozy bench and pin a note for the next person. Notes are saved locally and read by the locals.
 - **Procedural sound:** generated ocean noise, a slow lo-fi chord progression, UI sounds, combat hits, cleansing sparkles, and a boss track that shifts when the fight starts.
 - **Retro-pastel UI:** responsive HUD, minimap, floating damage numbers, speech bubbles, screen shake, particles, scanlines (toggleable), and a reduced-motion option.
@@ -256,7 +257,7 @@ adblock-island/
 ├── index.html                      # the whole game: markup, styles, canvas renderer, audio, logic
 ├── CHANGELOG.md                    # version history and patch notes
 ├── README.md
-├── adblock-island-beta-v0.9.0.zip  # self-contained release build
+├── adblock-island-beta-v0.9.1.zip  # self-contained release build
 └── .nojekyll                       # keep GitHub Pages from running Jekyll
 ```
 
@@ -268,10 +269,11 @@ On a touch screen the HUD is deliberately thinner than the desktop one: a compac
 
 ## Patch notes
 
-The full history lives in the **[live patch notes](https://potaterrr.github.io/projects/adblock-island/#patch-notes)** (source: [CHANGELOG.md](CHANGELOG.md)), newest first, and the version on the title card always matches its top entry. **0.9.0** adds the Archivist and Moderator classes, the south-shore dock and the Halloween theme. **0.8.0 Mania** is the hard-mode release: death resets the run, the boss can arrive as a pair, and bosses split below 50% health. **0.7.0** is the Endless mode patch: checkpoints, optional upgrades, the damage curve and five new endless medals. If you have played before, **0.6.0** is the balance pass — the two heroes whose classes you did not pick became your party, the ladder became a table of fixed crews, and class power finally applies to every hit — and **0.6.1** is the phone HUD diet, which folds the top of the screen into one quiet bar.
+The full history lives in the **[live patch notes](https://potaterrr.github.io/projects/adblock-island/#patch-notes)** (source: [CHANGELOG.md](CHANGELOG.md)), newest first, and the version on the title card always matches its top entry. **0.9.1** is a readability pass on the Halloween theme, with high-contrast wave banners. **0.9.0** adds the Archivist and Moderator classes, the south-shore dock and the Halloween theme. **0.8.0 Mania** is the hard-mode release: death resets the run, the boss can arrive as a pair, and bosses split below 50% health. **0.7.0** is the Endless mode patch: checkpoints, optional upgrades, the damage curve and five new endless medals. If you have played before, **0.6.0** is the balance pass — the two heroes whose classes you did not pick became your party, the ladder became a table of fixed crews, and class power finally applies to every hit — and **0.6.1** is the phone HUD diet, which folds the top of the screen into one quiet bar.
 
 | Version | Date | Headline |
 | --- | --- | --- |
+| [0.9.1](CHANGELOG.md#091--halloween-readability-2026-11-04) | 2026-11-04 | Readable autumn-dusk Halloween palette, high-contrast wave banners |
 | [0.9.0](CHANGELOG.md#090--archivist-moderator--the-dock-2026-11-04) | 2026-11-04 | Archivist and Moderator classes, the south-shore dock, Halloween theme, no AI healer |
 | [0.8.0](CHANGELOG.md#080--mania-2026-11-04) | 2026-11-04 | Mania: death resets the run, 40% double bosses, splitting bosses |
 | [0.7.0](CHANGELOG.md#070--2026-11-04) | 2026-11-04 | Endless mode, checkpoints, optional upgrades, run-only progression and a damage curve that punishes no-upgrade runs |
