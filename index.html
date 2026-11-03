@@ -4,15 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
 <meta name="theme-color" content="#bde8f2">
-<meta name="description" content="AdBlock Island — a wholesome micro-MMO, currently in beta (v0.7.0). Clear the static, bonk the ad-monsters, clear Endless mode, and leave a kind note on the beach.">
+<meta name="description" content="AdBlock Island: Mania — a wholesome micro-MMO in beta (v0.8.0). Two bosses, splitting Algorithms, and death that resets the run to wave 1. Clear the static and leave a kind note on the beach.">
 <meta name="author" content="potaterrr">
 <meta name="application-name" content="AdBlock Island">
 <meta name="apple-mobile-web-app-title" content="AdBlock Island">
 <meta name="color-scheme" content="light">
 <link rel="canonical" href="https://potaterrr.github.io/adblock-island/">
 <meta property="og:site_name" content="AdBlock Island">
-<meta property="og:title" content="AdBlock Island · a wholesome micro-MMO (beta)">
-<meta property="og:description" content="The ads took the beach. The locals kept the kettle on. Pick a class, bonk the ad-monsters, and leave a kind note for whoever washes ashore next. A single-file micro-MMO, in beta.">
+<meta property="og:title" content="AdBlock Island: Mania · a wholesome micro-MMO (beta)">
+<meta property="og:description" content="The ads took the beach. Mania took the schedule. Two bosses, splitting Algorithms, and death that resets the run to wave 1. A single-file micro-MMO, in beta.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://potaterrr.github.io/adblock-island/">
 <meta property="og:locale" content="en_GB">
@@ -22,11 +22,11 @@
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="The AdBlock Island title screen: a pastel drawing of the island, the game logo, a beta badge, and a wash ashore button.">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="AdBlock Island · a wholesome micro-MMO (beta)">
-<meta name="twitter:description" content="The ads took the beach. The locals kept the kettle on. Pick a class, bonk the ad-monsters, and leave a kind note for whoever washes ashore next.">
+<meta name="twitter:title" content="AdBlock Island: Mania · a wholesome micro-MMO (beta)">
+<meta name="twitter:description" content="The ads took the beach. Mania took the schedule. Two bosses, splitting Algorithms, and death that resets the run to wave 1.">
 <meta name="twitter:image" content="https://potaterrr.github.io/adblock-island/social-card.jpg">
 <meta name="twitter:image:alt" content="The AdBlock Island title screen with the beta badge and wash ashore button.">
-<title>AdBlock Island · a wholesome micro-MMO (beta)</title>
+<title>AdBlock Island: Mania · a wholesome micro-MMO (beta)</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23fff8ec'/%3E%3Cpath d='M8 40c8-6 16 6 24 0s16 6 24 0v16H8z' fill='%238ad7e8'/%3E%3Ccircle cx='32' cy='28' r='12' fill='%23ffd98a'/%3E%3Cpath d='M32 18l7 5-2 9h-10l-2-9z' fill='%23ff9eb5'/%3E%3C/svg%3E">
 <style>
 /* ============================================================
@@ -227,6 +227,21 @@ button{cursor:pointer;border:0;background:none}
   background:var(--sun);box-shadow:0 0 0 2px rgba(255,255,255,.35);
 }
 .beta-pill b{font-weight:900;color:var(--sun);text-transform:none;letter-spacing:.06em}
+/* Mania is the loud one: black label, hot edge, and a warning note. */
+.mania-pill{
+  display:inline-flex;align-items:center;gap:6px;
+  font-family:var(--ui);font-size:10px;font-weight:900;letter-spacing:.18em;
+  text-transform:uppercase;color:#fff2f6;
+  background:#3a2030;border:2px solid var(--line);border-radius:99px;
+  padding:4px 11px;transform:rotate(-1deg);
+  box-shadow:2px 2px 0 rgba(60,52,83,.28), inset 0 0 0 1px rgba(255,92,138,.35);
+}
+.mania-note{
+  display:inline-block;margin-top:10px;padding:5px 9px;
+  border:2px dashed rgba(194,55,95,.55);border-radius:8px;
+  background:rgba(255,227,234,.55);color:#8a2440;
+  font-family:var(--ui);font-size:9px;letter-spacing:.06em;line-height:1.5;
+}
 @keyframes betaPop{0%,100%{transform:rotate(1.5deg) scale(1)}50%{transform:rotate(1.5deg) scale(1.04)}}
 h1.logo{
   margin:0;font-family:var(--ui);font-weight:900;line-height:.92;
@@ -1320,11 +1335,13 @@ body.scanlines::after{
         <div class="logo-badges">
           <div class="logo-kicker">a wholesome micro-MMO</div>
           <div class="beta-pill" id="betaPill" title="This is a beta build. The patch notes list what is still pending.">
-            <span class="beta-dot"></span>beta · <b id="betaVersion">v0.7.0</b>
+            <span class="beta-dot"></span>beta · <b id="betaVersion">v0.8.0</b>
           </div>
+          <div class="mania-pill" title="Mania rules: death resets the run to wave 1, and bosses bring friends.">MANIA</div>
         </div>
         <h1 class="logo">ADBLOCK<br><span>ISLAND</span></h1>
-        <p class="tagline">The ads took the beach. The locals kept the kettle on. Grab a broom, bonk some <b>sponsored content</b>, and leave a kind note for whoever washes ashore next.</p>
+        <p class="tagline">The ads took the beach. Mania took the schedule. Grab a broom, bonk some <b>sponsored content</b>, and leave a kind note for whoever washes ashore next.</p>
+        <div class="mania-note">MANIA MODE · death resets the run to wave 1 · two bosses can spawn · bosses split at 50%</div>
       </div>
       <div class="title-side">
         <label class="field-label" for="nameInput">your island name</label>
@@ -1481,7 +1498,7 @@ const ICONS = {
 };
 const svg = (name) => ICONS[name] || ICONS.spark;
 
-const VERSION = '0.7.0';
+const VERSION = '0.8.0';
 
 /* Endless mode tuning. Named on purpose: after a playtest, change these
    numbers instead of hunting through the wave and damage code. */
@@ -1997,6 +2014,9 @@ const BENCH = { x: 1600, y: 792, radius: 155 };
 const PLAZA = { x: 1600, y: 900, radius: 250 };
 const BOSS_CLARITY = 0.64;
 const WIN_CLARITY = 0.70;
+/* Mania: the Algorithm can arrive as a pair, and any boss can split once. */
+const BOSS_TWIN_CHANCE = 0.40;
+const BOSS_TWIN_CAP = 4;
 const PATH_POINTS = [
   [1600, 1960], [1660, 1860], [1610, 1740], [1480, 1630], [1520, 1500],
   [1600, 1390], [1560, 1260], [1600, 1140], [1570, 1010], [1600, 900]
@@ -3453,6 +3473,10 @@ function buildHelpPanel() {
         <p>Every run starts at <b>Super Easy</b>. Clear the crew and choose <b>Upgrade</b> or <b>Next wave</b>; the next wave is always available, and the shop never starts it early. Each clear hands you a medal or a free item and a chapter of the island's log. Clear <b>Super Hard</b> and <b>Endless mode</b> begins — every third wave is a checkpoint that pauses the island, pays you Joy, and offers an optional upgrade. Continue is always available. Enemy damage climbs with depth, so a hero who never buys <b>Deep Breaths</b> will not last. The Algorithm still interrupts when the island is clear enough to wake it.</p>
       </div>
       <div class="help-block">
+        <h4>Mania rules</h4>
+        <p>Death is a reset: the run returns to <b>wave 1</b>, and Joy, upgrades, level and island progress start over. The Algorithm has a <b>40%</b> chance to arrive as a pair, and any boss below <b>50%</b> health can split into another boss (up to four live at once). Downing one boss pays partial Joy and XP; only the last one ends the fight.</p>
+      </div>
+      <div class="help-block">
         <h4>Play with a friend</h4>
         <p>Turn on <b>play with a friend</b> on the title screen for same-keyboard co-op. You keep <kbd>WASD</kbd>, <kbd>J</kbd>, <kbd>Q</kbd>, <kbd>E</kbd>; your friend moves with the <kbd>arrow keys</kbd> and auto-swings at whatever they face. The camera holds you both, so stay within a screen of each other.</p>
       </div>
@@ -4392,12 +4416,8 @@ function knockOut() {
   audio.setIntense(false);
   screenShake(10, 0.5);
   burst(player.x, player.y, [PAL.pink, PAL.lav, '#fff'], 28, { speed: 130, life: 1.4, size: 4, gravity: -20 });
-  game.waveRestartPending = !!(game.endless && game.waveState === 'fight' && !(game.boss && !game.boss.dead));
-  if (game.waveRestartPending) {
-    toast('The feed pushed you back. Wave ' + game.wave + ' restarts — your Joy and upgrades are safe.', 'warn', '♥');
-  } else {
-    toast('The island caught you. Take a breath — you will be back at the bench.', 'warn', '♥');
-  }
+  game.waveRestartPending = false;
+  toast('Mania reset. The run goes back to wave 1 — Joy, upgrades and the island start over.', 'warn', '!');
   if (!statUp('vitality') && game.wave >= 7) {
     const tm = setTimeout(() => {
       if (game.state === 'title') return;
@@ -4406,37 +4426,56 @@ function knockOut() {
     pendingTimeouts.push(tm);
   }
 }
-function respawnPlayer() {
-  const restartWave = game.waveRestartPending;
-  game.waveRestartPending = false;
+function restartManiaRun() {
   player.dead = false;
-  player.hp = player.maxHp;
-  player.x = BENCH.x - 40; player.y = BENCH.y + 70;
-  player.invuln = 3;
   player.deadT = 0;
-  player.marked = 0; player.shield = 0; player.shieldT = 0;
   game.state = 'playing';
+  game.waveRestartPending = false;
+  resetRunProgress();
+  resetPlayer();
+  generateWorld();
+  makeCompanions();
+  if (game.coop) spawnPartner();
+  monsters.length = 0;
+  projectiles.length = 0;
+  pickups.length = 0;
+  hazards.length = 0;
+  particles.length = 0;
+  floaters.length = 0;
+  rings.length = 0;
+  beams.length = 0;
+  clearPopups(true);
+  game.boss = null;
+  game.bossSpawned = false;
+  game.bossDefeated = false;
+  game.won = false;
+  game.pendingVictory = false;
+  game.endless = false;
+  game.checkpointPending = false;
+  game.checkpointAway = false;
+  game.checkpointIndex = 0;
+  game.checkpointJoy = 0;
+  game.checkpointOpenT = 0;
+  game.checkpointUpgradesBought = 0;
+  game.waveUpgradesBought = 0;
+  game.waveStory = null;
+  game.waveReward = null;
   game.lastSave = game.realElapsed;
-  burst(player.x, player.y, [PAL.mint, '#fff'], 22, { speed: 100, life: 1, size: 3.5, gravity: -10 });
-  audio.sfx('heal');
-  updateHpUI();
-  if (restartWave) {
-    for (let i = monsters.length - 1; i >= 0; i--) {
-      const m = monsters[i];
-      if (!m.isBoss && m.wave === game.wave) monsters.splice(i, 1);
-    }
-    toast('Back on your feet. Wave ' + game.wave + ' restarts — the checkpoint kept your Joy and upgrades.', 'good', '♥');
-    startWave(game.wave, { silent: false });
-    return;
-  }
-  toast('Back on your feet. Your Joy is safe. The bench saved your seat.', 'good', '♥');
-  if (game.waveState === 'cleared') {
-    game.wavePanelPending = true;
-    game.wavePanelT = 0.9;
-    setTimeout(openWavePanel, 900);
-  }
-  const bot = pick(bots);
-  if (bot) { botSay(bot, pick(CHAT.heal)); }
+  input.keys = Object.create(null);
+  input.attackHeld = false;
+  input.p2.up = input.p2.down = input.p2.left = input.p2.right = false;
+  player.invuln = 2.5;
+  startWave(1, { silent: false });
+  cam.x = player.x; cam.y = player.y - 100;
+  updatePlayerCard();
+  updateHUD(true);
+  audio.setIntense(false);
+  audio.sfx('start');
+  toast('MANIA RESET · back to wave 1. Nothing carries.', 'warn', '!');
+  saveGame();
+}
+function respawnPlayer() {
+  restartManiaRun();
 }
 function killMonster(m) {
   if (m.dead) return;
@@ -4463,7 +4502,6 @@ function killMonster(m) {
   } else {
     bossDefeated(m);
   }
-  if (game.boss === m) game.boss = null;
 }
 
 /* -------------------------------- popups --------------------------------- */
@@ -4886,7 +4924,7 @@ function startWave(n, opts = {}) {
     if (n === 20) grantAchievement('deep_static');
     if (n === 30) grantAchievement('ad_infinitum');
   }
-  if (game.boss && !game.boss.dead) {
+  if (activeBosses().length) {
     // the boss interrupted the schedule: hold this wave until it is dealt with
     game.waveState = 'held';
     updateWaveChip();
@@ -5082,7 +5120,7 @@ function updateWaves(dt) {
     }
     return;
   }
-  if (game.boss && !game.boss.dead) return; // boss fight overrides the schedule
+  if (activeBosses().length) return; // boss fight overrides the schedule
   if (game.waveState === 'held') { startWave(game.wave); return; }
   if (game.waveState === 'countdown') {
     game.waveT -= dt;
@@ -5137,7 +5175,7 @@ function updateWaveChip() {
     ui.waveChipLeft.textContent = game.checkpointAway ? 'checkpoint · tap to return' : 'checkpoint · upgrade to continue';
   } else if (state === 'cleared') {
     ui.waveChipLeft.textContent = 'cleared · tap to choose';
-  } else if (game.boss && !game.boss.dead) {
+  } else if (activeBosses().length) {
     ui.waveChipLeft.textContent = state === 'countdown' ? 'next wave paused — boss' : 'paused — boss on the island';
   } else if (state === 'countdown') {
     ui.waveChipLeft.textContent = 'next wave in ' + Math.max(1, Math.ceil(game.waveT)) + 's';
@@ -5323,38 +5361,67 @@ function updateHazards(dt) {
 }
 
 /* -------------------------------- boss ----------------------------------- */
-function spawnBoss(silent = false) {
-  if (game.bossSpawned || game.bossDefeated) return;
-  game.bossSpawned = true;
-  save.bossSpawned = true;
+function activeBosses() {
+  return monsters.filter((m) => m.isBoss && !m.dead);
+}
+function refreshBossRef() {
+  game.boss = activeBosses()[0] || null;
+}
+function createBoss(x, y, opts = {}) {
   const def = MONSTER_TYPES.algorithm;
   // sized so a focused fight lasts about half a minute at any level, and the
   // companions' chip damage is a garnish rather than the whole meal
-  const hp = 1100 + player.level * 95;
+  const hp = opts.hp || (1100 + player.level * 95);
   const m = {
-    id: 'boss', type: 'algorithm', isBoss: true, x: PLAZA.x, y: PLAZA.y - 20, r: 64,
+    id: 'boss', type: 'algorithm', isBoss: true, x, y, r: 64,
     hp, maxHp: hp, speed: 34, dmg: 22, xp: 320, joy: 220,
     color: def.color, dark: def.dark, name: def.name, spawnT: 0,
     facing: Math.PI / 2, bob: 0, vx: 0, vy: 0, knockX: 0, knockY: 0,
     flash: 0, marked: 0, stun: 0, dead: false, deathT: 0, atkCd: 1,
     aggro: true, phase: 'active', phaseT: 9,
-    adBreak: 0, attackT: 2.5, beamT: 6, summonStage: 0, targetT: 0
+    adBreak: 0, attackT: 2.5, beamT: 6, summonStage: 0, targetT: 0,
+    spawnedTwin: false
   };
   monsters.push(m);
-  game.boss = m;
+  return m;
+}
+function spawnBossTwin(parent) {
+  if (!parent || parent.dead || parent.spawnedTwin) return null;
+  parent.spawnedTwin = true;
+  if (activeBosses().length >= BOSS_TWIN_CAP) return null;
+  const a = rand(TAU), r = rand(200, 130);
+  const x = clamp(parent.x + Math.cos(a) * r, 90, WORLD_W - 90);
+  const y = clamp(parent.y + Math.sin(a) * r, 90, WORLD_H - 90);
+  const twin = createBoss(x, y, { hp: Math.round(parent.maxHp * 0.65) });
+  refreshBossRef();
+  floatingText(parent.x, parent.y - parent.r - 56, 'A SECOND FEED', PAL.corruptHot, 16, 1.5, { weight: 900 });
+  toast('The Algorithm spawned another Algorithm. Of course it did.', 'warn', '!');
+  audio.sfx('boss');
+  screenShake(10, 0.5);
+  return twin;
+}
+function spawnBoss(silent = false) {
+  if (game.bossSpawned || game.bossDefeated) return;
+  game.bossSpawned = true;
+  save.bossSpawned = true;
+  const first = createBoss(PLAZA.x, PLAZA.y - 20);
+  game.boss = first;
+  const pair = chance(BOSS_TWIN_CHANCE);
+  if (pair) createBoss(PLAZA.x + 150, PLAZA.y + 55);
+  refreshBossRef();
   if (!silent) {
-    toast('THE ALGORITHM has entered the plaza. It brought banners.', 'warn', '!');
-    chatAdd('', 'The sky flickers. The locals gather around you.', 'system');
+    toast(pair ? 'TWO ALGORITHMS have entered the plaza. Mania.' : 'THE ALGORITHM has entered the plaza. It brought banners.', 'warn', '!');
+    chatAdd('', pair ? 'Two feeds wake at once. The kettle rattles.' : 'The sky flickers. The locals gather around you.', 'system');
     audio.sfx('boss');
     audio.setIntense(true);
-    screenShake(14, 0.8);
+    screenShake(pair ? 20 : 14, 0.9);
     botsNearbyChat('boss');
-    burst(m.x, m.y, [PAL.corruptHot, PAL.lav, '#fff'], 40, { speed: 220, life: 1.6, size: 5 });
-    ringFx(m.x, m.y, 30, 260, PAL.corruptHot, 1.2, 10);
-    world.cleanse(m.x, m.y, 190, 0.35, 'player');
+    burst(first.x, first.y, [PAL.corruptHot, PAL.lav, '#fff'], 40, { speed: 220, life: 1.6, size: 5 });
+    ringFx(first.x, first.y, 30, 260, PAL.corruptHot, 1.2, 10);
+    world.cleanse(first.x, first.y, 190, 0.35, 'player');
   }
   for (const b of bots) {
-    if (dist(b.x, b.y, PLAZA.x, PLAZA.y) > 600) { b.state = 'fight'; b.target = m; b.stateT = 20; }
+    if (dist(b.x, b.y, PLAZA.x, PLAZA.y) > 600) { b.state = 'fight'; b.target = first; b.stateT = 20; }
   }
   saveGame();
 }
@@ -5413,6 +5480,7 @@ function updateBoss(m, dt) {
   if (td < m.r + player.r + 10) contactAttack(m, player, dt, 1);
   // summon aid at health thresholds
   const frac = m.hp / m.maxHp;
+  if (!m.spawnedTwin && frac < 0.5) spawnBossTwin(m);
   if (m.summonStage === 0 && frac < 0.7) {
     m.summonStage = 1;
     summonBossAdds(m, 2);
@@ -5445,12 +5513,26 @@ function summonBossAdds(boss, count) {
   botsNearbyChat('boss');
 }
 function bossDefeated(m) {
+  save.stats.bosses = (save.stats.bosses || 0) + 1;
+  save.stats.kills = (save.stats.kills || 0) + 1;
+  addJoy(120, true, m.x, m.y - 50);
+  gainXp(180);
+  burst(m.x, m.y, [PAL.corruptHot, PAL.lav, PAL.sun, '#fff'], 36, { speed: 220, life: 1.5, size: 4, gravity: 20 });
+  refreshBossRef();
+  const remaining = activeBosses();
+  if (remaining.length) {
+    floatingText(m.x, m.y - 84, 'ONE FEED DOWN', '#fffdf4', 19, 1.6, { weight: 900, vy: -16 });
+    toast('One Algorithm down. ' + remaining.length + ' still live.', 'warn', '!');
+    audio.sfx('levelup');
+    screenShake(10, 0.5);
+    saveGame();
+    updateHUD(true);
+    return;
+  }
   game.bossDefeated = true;
   game.boss = null;
   save.bossDefeated = true;
-  save.stats.bosses = (save.stats.bosses || 0) + 1;
   grantAchievement('algorithm_unplugged');
-  save.stats.kills = (save.stats.kills || 0) + 1;
   audio.setIntense(false);
   audio.sfx('victory');
   screenShake(20, 1.1);
@@ -8297,8 +8379,10 @@ function drawAimReticle() {
   }
 }
 function drawBossBar() {
-  const m = game.boss;
-  if (!m || m.dead) return;
+  const bosses = activeBosses();
+  const m = bosses[0];
+  if (!m) return;
+  const bossLabel = bosses.length > 1 ? 'THE ALGORITHM ×' + bosses.length : 'THE ALGORITHM';
   const g = ctx;
   const w = window.innerWidth;
   const barW = Math.min(520, w - 90);
@@ -8310,7 +8394,7 @@ function drawBossBar() {
   rr(g, x, y, barW, 44, 10); g.fill();
   g.strokeStyle = 'rgba(255,248,236,0.85)'; g.lineWidth = 2; rr(g, x, y, barW, 44, 10); g.stroke();
   g.fillStyle = '#fff8ec'; g.font = 'bold 11px ui-monospace, monospace'; g.textAlign = 'left';
-  g.fillText('THE ALGORITHM', x + 12, y + 16);
+  g.fillText(bossLabel, x + 12, y + 16);
   g.fillStyle = 'rgba(255,179,198,0.85)'; g.font = '8px ui-monospace, monospace';
   g.fillText(m.adBreak > 0 ? 'AD BREAK · ' + Math.ceil(m.adBreak) + 's' : 'LIVE · SPONSORED', x + 12, y + 30);
   const bx = x + 130, bw = barW - 174;
@@ -8360,7 +8444,7 @@ function drawOffscreenMarker(wx, wy, label, color, dashed) {
 }
 function drawOffscreenMarkers() {
   if (game.state !== 'playing' && game.state !== 'dying') return;
-  if (game.boss && !game.boss.dead) drawOffscreenMarker(game.boss.x, game.boss.y, 'THE ALGORITHM', '#ff5c8a');
+  if (game.boss && !game.boss.dead) drawOffscreenMarker(game.boss.x, game.boss.y, activeBosses().length > 1 ? 'THE ALGORITHM ×' + activeBosses().length : 'THE ALGORITHM', '#ff5c8a');
   if (!save.stats.notes && dist(player.x, player.y, BENCH.x, BENCH.y) > 620) {
     drawOffscreenMarker(BENCH.x, BENCH.y, 'cozy bench', '#ff9eb5');
   }
@@ -8545,7 +8629,7 @@ function drawSpeechBubbles() {
     drawSpeechBubble(p.x, p.y, b.name, b.bubble, c.dark, clamp(b.bubbleT / 0.6, 0, 1));
   }
   // the newest note on the kindness wall (quiet during boss fights)
-  if (!player.dead && (!game.boss || game.boss.dead) && dist(player.x, player.y, BENCH.x, BENCH.y) < 200) {
+  if (!player.dead && activeBosses().length === 0 && dist(player.x, player.y, BENCH.x, BENCH.y) < 200) {
     const notes = loadNotes();
     if (notes.length) {
       const latest = notes[notes.length - 1];

@@ -1,6 +1,6 @@
 # AdBlock Island
 
-**v0.7.0 · beta** · [Play it](https://potaterrr.github.io/adblock-island/) · [Patch notes](https://potaterrr.github.io/projects/adblock-island/#patch-notes)
+**v0.8.0 · Mania** · [Play it](https://potaterrr.github.io/adblock-island/) · [Patch notes](https://potaterrr.github.io/projects/adblock-island/#patch-notes)
 
 A wholesome micro-MMO in a single HTML file, currently in **beta**. The ads took the beach, the locals kept the kettle on. Pick a class, sweep the static, bonk the ad-monsters, and leave a kind note for whoever washes ashore next.
 
@@ -12,7 +12,7 @@ index.html   ← the entire game (≈420 KB, markup + CSS + renderer + audio + l
 
 ## Status: beta
 
-**v0.7.0 is a beta.** The island is playable end to end — seven classes, two companions, the wave ladder, Endless mode with checkpoints, medals, items, the Algorithm, kindness notes and same-keyboard co-op — but it is not a finished MMORPG.
+**v0.8.0 Mania is a beta.** The island is playable end to end — seven classes, two companions, the wave ladder, Endless mode with checkpoints, medals, items, the Algorithm, kindness notes and same-keyboard co-op — but it is not a finished MMORPG. Mania rules are live: death resets the run, and the Algorithm is no longer guaranteed to arrive alone.
 
 Versions count from zero while the game is in beta, so every release is `0.x`; the title card's build tag and the top entry of the patch notes always agree.
 
@@ -27,20 +27,20 @@ Still pending, in short:
 
 The full, honest list lives in **[Still pending](CHANGELOG.md#still-pending)** at the top of the patch notes.
 
-## What's new in v0.7.0
+## What's new in v0.8.0 — Mania
 
 A short version of the [patch notes](CHANGELOG.md):
 
-- **Endless mode after the ladder.** Clearing wave 10 still saves the island, but now it opens the last door: wave 11 starts **Endless**, with no final wave and a rising damage curve.
-- **Checkpoints every three endless waves.** Waves 11, 14, 17, 20… pause the island, pay a checkpoint bundle (80, 100, 120… Joy), and offer an optional upgrade. Continue is always available.
-- **Upgrades are optional again.** After every wave clear you can open the shop, or take **Next wave** immediately. The next wave is never locked behind a purchase.
-- **The ads hit back.** Enemy damage gains a pressure multiplier from wave 7 onward and climbs hard in Endless. A hero who never buys **Deep Breaths** will go down; the same wave is survivable with vitality ranks. Dying in Endless restarts the current wave and keeps your Joy and upgrades for this run.
-- **Endless medals.** Beyond the Ladder, Deep Static, Ad Infinitum, Tea Break and Kettle On join the gallery.
-- **Release zip.** `adblock-island-beta-v0.7.0.zip` is a self-contained build of this single file plus these docs. It runs from `file://`, from GitHub Pages, or from any static host — no CDN, no backend, no network calls.
+- **Mania mode is live.** The title screen carries the MANIA badge and the rules.
+- **Death resets the run.** Dying returns you to **wave 1 (Super Easy)**. Joy, upgrades, level, boss progress and island corruption reset with it. Medals, notes, settings and lifetime bests still persist.
+- **The Algorithm brings friends.** The boss encounter has a **40% chance** to spawn two bosses at once. Any boss below **50% health** can split into another boss, up to **4 live at once**.
+- **Partial boss rewards.** Downing one boss pays some Joy and XP; only the last one triggers the island collapse and the Algorithm Unplugged medal.
+- **Still next pass.** The Archivist/Moderator classes and the dock/shopkeeper are documented in the patch notes for the next build.
+- **Release zip.** `adblock-island-beta-v0.8.0.zip` is a self-contained build of this single file plus these docs. It runs from `file://`, from GitHub Pages, or from any static host — no CDN, no backend, no network calls.
 
 ## Download
 
-**[Download v0.7.0 beta](https://github.com/potaterrr/adblock-island/releases/tag/v0.7.0)** (`adblock-island-beta-v0.7.0.zip`, also at the repo root). It is rebuilt from `index.html`, `README.md` and `CHANGELOG.md`. Unzip it, open `index.html`, and it plays — online or offline.
+**[Download v0.8.0 Mania](https://github.com/potaterrr/adblock-island/releases/tag/v0.8.0)** (`adblock-island-beta-v0.8.0.zip`, also at the repo root). It is rebuilt from `index.html`, `README.md` and `CHANGELOG.md`. Unzip it, open `index.html`, and it plays — online or offline.
 
 One honest caveat: **co-op is local, not networked.** "Play with a friend" puts player two on the same keyboard (arrow keys) on the same screen. A single static HTML file cannot do online matchmaking, peer-to-peer play or accounts on its own, so the zip is a complete single-player/co-op game, not an online multiplayer client. The next planned step is **4-player room-code online co-op** — Vercel static hosting plus a tiny signaling API and host-authoritative WebRTC — and the patch notes keep that roadmap honest.
 
@@ -76,15 +76,15 @@ It is not a sad story. The ocean is still warm, the kettle still works, and the 
 
 **4. Survive the waves.** Every run starts at **Super Easy** and climbs only when you say so. Clear a wave and choose **Upgrade** or **Next wave**; the next wave is always available, and the shop never starts it early. **Next wave** gives you a **10-second countdown** to take a breath or change your mind. Each clear pays bonus Joy and XP and hands you a **medal or a free item**, plus the next chapter of the island's story. Watch the card under your portrait for the wave, the tier, what's left, and (in Endless) the enemy damage pressure.
 
-**5. Reach Super Hard, then Endless.** Wave 10 is the last of the campaign ladder: clear it and the island stops serving ads for good. There is no fail screen — the ladder simply restarts at Super Easy next visit. If you want more, wave 11 opens **Endless mode**: no final wave, enemy damage climbs with depth, and every third wave is a **checkpoint** that pauses the island, pays you Joy (80, 100, 120…), and offers an optional upgrade. Continue is always available.
+**5. Reach Super Hard, then Endless.** Wave 10 is the last of the campaign ladder: clear it and the island stops serving ads for good. If you want more, wave 11 opens **Endless mode**: no final wave, enemy damage climbs with depth, and every third wave is a **checkpoint** that pauses the island, pays you Joy (80, 100, 120…), and offers an optional upgrade. Continue is always available. In **Mania**, dying resets the run to wave 1; medals and notes survive, run progress does not.
 
-**6. Wake the Algorithm.** When the island is about 64% clear, the boss wakes at the plaza and starts running ad breaks. Dodge the sponsored beams, break its health thresholds, and finish the fight. Waves pause while it is out.
+**6. Wake the Algorithm.** When the island is about 64% clear, the boss wakes at the plaza and starts running ad breaks. Dodge the sponsored beams, break its health thresholds, and finish the fight. In **Mania**, there is a 40% chance it arrives as a pair, and any boss below 50% health can split into another boss (up to four live at once). Waves pause while bosses are out.
 
 **7. Be a neighbour.** The two heroes whose classes you did not pick are already here: they cleanse, chip ads, heal and chat, and they can be knocked out and carried back to the bench. At the cozy bench (`F`), sit down and pin a note to the kindness wall — it is saved in your browser and read by whoever visits next, including you on a bad day.
 
 **8. Bring a friend (optional).** Choose **play with a friend** on the title screen for same-keyboard co-op: player 2 moves on the arrow keys and attacks automatically, shares Joy and waves, and is a real hero that ads will target.
 
-There is no timer and no score to chase. Play for ten minutes or an hour. Run progress resets each visit; medals, notes, settings and lifetime bests save automatically in `localStorage`.
+There is no timer and no score to chase. Play for ten minutes or an hour. In Mania, death resets the run to wave 1. Run progress also resets each visit; medals, notes, settings and lifetime bests save automatically in `localStorage`.
 
 ## Play it
 
@@ -181,7 +181,7 @@ Every third endless wave — 11, 14, 17, 20… — is a **checkpoint**:
 - The upgrade shop opens. Buying is optional; **Continue** is always enabled.
 - Press `U` to shop, then **Continue** to start the next wave. **Step away** lets you leave the checkpoint and wander; the wave card brings the checkpoint back.
 
-Dying in Endless restarts the current wave; checkpoint progress is kept for this run. Joy and upgrades reset on the next run. The ladder still starts at Super Easy next visit, and your deepest wave is saved on the pause screen.
+Dying in Endless is a Mania reset: the run returns to wave 1, and Joy, upgrades, level, boss progress and island corruption start over. Your deepest wave is still saved on the pause screen.
 
 Endless medals: **Beyond the Ladder** (enter Endless), **Tea Break** (first checkpoint), **Deep Static** (wave 20), **Kettle On** (five checkpoints), **Ad Infinitum** (wave 30).
 
@@ -212,7 +212,7 @@ They can be knocked out. A downed companion sits out 14 seconds and walks back f
 ## What is on the island
 
 - **Wave combat:** escalating crews from Super Easy through Super Hard, then Endless mode with checkpoint pauses, optional upgrades, rising enemy damage pressure, and on-screen wave banners plus a HUD tracker.
-- **Four ad-monsters plus a boss:** Pop-Up Imps spawn clickable `[X]` windows, Unskippable Behemoths are invulnerable until their SKIP window, Clickbait Mimics hide as free Joy, and Banner Bats throw flyers. The Algorithm runs ad breaks, sponsored beam attacks, and summons more content at health thresholds.
+- **Four ad-monsters plus a boss:** Pop-Up Imps spawn clickable `[X]` windows, Unskippable Behemoths are invulnerable until their SKIP window, Clickbait Mimics hide as free Joy, and Banner Bats throw flyers. The Algorithm runs ad breaks, sponsored beam attacks, and summons more content at health thresholds. In Mania it can arrive as a pair and split below 50% health.
 - **Joy and clarity:** every fully cleansed tile pays Joy and experience. Spend Joy on upgrades or cozy cosmetics.
 - **Same-keyboard co-op:** a second hero on the arrow keys, sharing one screen and one wave.
 - **A party of three:** the two heroes whose classes you did not pick fight beside you, cleanse, heal, chat, and can be knocked out and revive at the bench.
@@ -251,7 +251,7 @@ adblock-island/
 ├── index.html                      # the whole game: markup, styles, canvas renderer, audio, logic
 ├── CHANGELOG.md                    # version history and patch notes
 ├── README.md
-├── adblock-island-beta-v0.7.0.zip  # self-contained release build
+├── adblock-island-beta-v0.8.0.zip  # self-contained release build
 └── .nojekyll                       # keep GitHub Pages from running Jekyll
 ```
 
@@ -263,10 +263,11 @@ On a touch screen the HUD is deliberately thinner than the desktop one: a compac
 
 ## Patch notes
 
-The full history lives in the **[live patch notes](https://potaterrr.github.io/projects/adblock-island/#patch-notes)** (source: [CHANGELOG.md](CHANGELOG.md)), newest first, and the version on the title card always matches its top entry. **0.7.0** is the Endless mode patch: checkpoints, optional upgrades, the damage curve and five new endless medals. Its footnote notes that run progress now resets each visit. If you have played before, **0.6.0** is the balance pass — the two heroes whose classes you did not pick became your party, the ladder became a table of fixed crews, and class power finally applies to every hit — and **0.6.1** is the phone HUD diet, which folds the top of the screen into one quiet bar.
+The full history lives in the **[live patch notes](https://potaterrr.github.io/projects/adblock-island/#patch-notes)** (source: [CHANGELOG.md](CHANGELOG.md)), newest first, and the version on the title card always matches its top entry. **0.8.0 Mania** is the hard-mode release: death resets the run, the boss can arrive as a pair, and bosses split below 50% health. **0.7.0** is the Endless mode patch: checkpoints, optional upgrades, the damage curve and five new endless medals. If you have played before, **0.6.0** is the balance pass — the two heroes whose classes you did not pick became your party, the ladder became a table of fixed crews, and class power finally applies to every hit — and **0.6.1** is the phone HUD diet, which folds the top of the screen into one quiet bar.
 
 | Version | Date | Headline |
 | --- | --- | --- |
+| [0.8.0](CHANGELOG.md#080--mania-2026-11-04) | 2026-11-04 | Mania: death resets the run, 40% double bosses, splitting bosses |
 | [0.7.0](CHANGELOG.md#070--2026-11-04) | 2026-11-04 | Endless mode, checkpoints, optional upgrades, run-only progression and a damage curve that punishes no-upgrade runs |
 | [0.6.7](CHANGELOG.md#067--2026-11-02) | 2026-11-02 | Class identity pass: unique silhouettes, held gear and real projectiles for every class |
 | [0.6.6](CHANGELOG.md#066--2026-11-02) | 2026-11-02 | Achievements + toasts + medal gallery, four new classes, PATCH NOTES button |
