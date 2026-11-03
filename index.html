@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
 <meta name="theme-color" content="#bde8f2">
-<meta name="description" content="AdBlock Island — a wholesome micro-MMO in beta (v0.9.4). Nine classes, a south-shore dock, and a Halloween theme. Clear the static and leave a kind note on the beach.">
+<meta name="description" content="AdBlock Island — a wholesome micro-MMO in beta (v0.9.5). Nine classes, a south-shore dock, and a Halloween theme. Clear the static and leave a kind note on the beach.">
 <meta name="author" content="potaterrr">
 <meta name="application-name" content="AdBlock Island">
 <meta name="apple-mobile-web-app-title" content="AdBlock Island">
@@ -1431,7 +1431,7 @@ body.halloween .note-card .note-pin{background:#fffaf0}
         <div class="logo-badges">
           <div class="logo-kicker">a wholesome micro-MMO</div>
           <div class="beta-pill" id="betaPill" title="This is a beta build. The patch notes list what is still pending.">
-            <span class="beta-dot"></span>beta · <b id="betaVersion">v0.9.4</b>
+            <span class="beta-dot"></span>beta · <b id="betaVersion">v0.9.5</b>
           </div>
           <div class="mania-pill" title="Mania rules: death resets the run to wave 1, and bosses bring friends.">MANIA</div>
           <div class="halloween-pill" id="halloweenPill" title="Halloween theme is on. Toggle it in Settings.">HALLOWEEN</div>
@@ -1598,7 +1598,7 @@ const ICONS = {
 };
 const svg = (name) => ICONS[name] || ICONS.spark;
 
-const VERSION = '0.9.4';
+const VERSION = '0.9.5';
 
 /* Endless mode tuning. Named on purpose: after a playtest, change these
    numbers instead of hunting through the wave and damage code. */
@@ -2147,6 +2147,7 @@ const BOSS_TWIN_CHANCE = 0.50;
 const BOSS_TWIN_CAP = 4;
 const BOSS_SPLIT_FRAC = 0.75;
 function bossCanSplit(m) {
+  if (game.bossSplitLocked) return false;
   if (!m || m.dead || (m.splits || 0) >= 1) return false;
   if (!settings.quadBoss && (m.generation || 0) > 0) return false;
   return true;
@@ -3955,6 +3956,7 @@ function startGame() {
   // Medals, items and lifetime bests carry over; run progress does not.
   monsters.length = 0;
   game.boss = null;
+  game.bossSplitLocked = false;
   resizeCanvas();
   game.waveStory = null;
   game.waveReward = null;
@@ -4719,6 +4721,7 @@ function restartManiaRun() {
   beams.length = 0;
   clearPopups(true);
   game.boss = null;
+  game.bossSplitLocked = false;
   game.bossSpawned = false;
   game.bossDefeated = false;
   game.won = false;
@@ -5645,7 +5648,11 @@ function activeBosses() {
   return monsters.filter((m) => m.isBoss && !m.dead);
 }
 function refreshBossRef() {
-  game.boss = activeBosses()[0] || null;
+  const bosses = activeBosses();
+  game.boss = bosses[0] || null;
+  // once four feeds are live, stop splitting for the rest of this fight:
+  // the player can then kill the remaining bosses one at a time.
+  if (bosses.length >= BOSS_TWIN_CAP) game.bossSplitLocked = true;
   // entering or leaving a boss fight changes the render resolution cap
   resizeCanvas();
 }
@@ -5706,6 +5713,7 @@ function spawnBossTwin(parent) {
 function spawnBoss(silent = false) {
   if (game.bossSpawned || game.bossDefeated) return;
   game.bossSpawned = true;
+  game.bossSplitLocked = false;
   save.bossSpawned = true;
   const first = createBoss(PLAZA.x, PLAZA.y - 20);
   game.boss = first;
@@ -5854,6 +5862,7 @@ function bossDefeated(m) {
   }
   game.bossDefeated = true;
   game.boss = null;
+  game.bossSplitLocked = false;
   save.bossDefeated = true;
   grantAchievement('algorithm_unplugged');
   audio.setIntense(false);
