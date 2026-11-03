@@ -22,6 +22,7 @@ Still pending, in short:
 
 - **Achievements.** Medals now cover waves, each class, co-op, the Algorithm boss, spending, cleanup and Endless milestones, with a gallery and unlock toasts in the pause screen. Dated unlock history and account-wide persistence are still to come.
 - **Cool items.** Waves give seven small items that are mostly free upgrade ranks. A real inventory, cosmetic drops with an equip screen, rarity tiers and usable items are still to come.
+- **Next pass.** Two new classes — **Archivist / support** and **Moderator / crowd control** — with procedural Canvas art, plus a south-shore **dock** and a **shopkeeper** NPC/stall reserved for future shop and travel expansion.
 - **MMORPG essentials.** Online multiplayer and rooms, accounts and cross-device saves, moderated chat, parties and guilds, quests and raids, trading, anti-cheat and live ops. These need a backend; a static `index.html` on GitHub Pages cannot provide them. The next planned step is **4-player room-code co-op**: Vercel hosts the game and a tiny signaling API, a free Redis store holds room codes and WebRTC handshakes, and one player hosts the authoritative simulation. It is deliberately not shipped yet.
 
 The full, honest list lives in **[Still pending](CHANGELOG.md#still-pending)** at the top of the patch notes.
