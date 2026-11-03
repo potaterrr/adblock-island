@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
 <meta name="theme-color" content="#bde8f2">
-<meta name="description" content="AdBlock Island — a wholesome micro-MMO in beta (v0.9.2). Nine classes, a south-shore dock, and a Halloween theme. Clear the static and leave a kind note on the beach.">
+<meta name="description" content="AdBlock Island — a wholesome micro-MMO in beta (v0.9.3). Nine classes, a south-shore dock, and a Halloween theme. Clear the static and leave a kind note on the beach.">
 <meta name="author" content="potaterrr">
 <meta name="application-name" content="AdBlock Island">
 <meta name="apple-mobile-web-app-title" content="AdBlock Island">
@@ -1431,7 +1431,7 @@ body.halloween .note-card .note-pin{background:#fffaf0}
         <div class="logo-badges">
           <div class="logo-kicker">a wholesome micro-MMO</div>
           <div class="beta-pill" id="betaPill" title="This is a beta build. The patch notes list what is still pending.">
-            <span class="beta-dot"></span>beta · <b id="betaVersion">v0.9.2</b>
+            <span class="beta-dot"></span>beta · <b id="betaVersion">v0.9.3</b>
           </div>
           <div class="mania-pill" title="Mania rules: death resets the run to wave 1, and bosses bring friends.">MANIA</div>
           <div class="halloween-pill" id="halloweenPill" title="Halloween theme is on. Toggle it in Settings.">HALLOWEEN</div>
@@ -1598,7 +1598,7 @@ const ICONS = {
 };
 const svg = (name) => ICONS[name] || ICONS.spark;
 
-const VERSION = '0.9.2';
+const VERSION = '0.9.3';
 
 /* Endless mode tuning. Named on purpose: after a playtest, change these
    numbers instead of hunting through the wave and damage code. */
@@ -3946,6 +3946,7 @@ function startGame() {
   // Medals, items and lifetime bests carry over; run progress does not.
   monsters.length = 0;
   game.boss = null;
+  resizeCanvas();
   game.waveStory = null;
   game.waveReward = null;
   game.endless = false;
@@ -4703,6 +4704,8 @@ function restartManiaRun() {
   hazards.length = 0;
   particles.length = 0;
   floaters.length = 0;
+  game.boss = null;
+  resizeCanvas();
   rings.length = 0;
   beams.length = 0;
   clearPopups(true);
@@ -4903,8 +4906,11 @@ function spawnMonster(type, opts = {}) {
   if (type === 'mimic') { m.phase = 'hidden'; m.hidden = true; }
   if (type === 'behemoth') { m.phase = 'playing'; m.phaseT = 5 + rand(2, 0); }
   monsters.push(m);
-  burst(x, y, PAL.corrupt2, 12, { speed: 70, life: 0.7, size: 3 });
-  ringFx(x, y, 8, 44, m.color, 0.45, 3);
+  // Summoned adds arrive in groups. Keep their spawn flourish small so a
+  // four-boss fight cannot dump hundreds of particles in a single frame.
+  const fxCount = opts.summon ? 4 : 12;
+  burst(x, y, PAL.corrupt2, fxCount, { speed: 70, life: 0.7, size: 3 });
+  ringFx(x, y, 8, opts.summon ? 30 : 44, m.color, opts.summon ? 0.25 : 0.45, opts.summon ? 2 : 3);
   return m;
 }
 function revealMimic(m, bonked) {
@@ -5631,6 +5637,8 @@ function activeBosses() {
 }
 function refreshBossRef() {
   game.boss = activeBosses()[0] || null;
+  // entering or leaving a boss fight changes the render resolution cap
+  resizeCanvas();
 }
 function createBoss(x, y, opts = {}) {
   const def = MONSTER_TYPES.algorithm;
@@ -5682,7 +5690,7 @@ function spawnBoss(silent = false) {
     audio.setIntense(true);
     screenShake(pair ? 20 : 14, 0.9);
     botsNearbyChat('boss');
-    burst(first.x, first.y, [PAL.corruptHot, PAL.lav, '#fff'], 40, { speed: 220, life: 1.6, size: 5 });
+    burst(first.x, first.y, [PAL.corruptHot, PAL.lav, '#fff'], pair ? 24 : 32, { speed: 220, life: 1.6, size: 5 });
     ringFx(first.x, first.y, 30, 260, PAL.corruptHot, 1.2, 10);
     world.cleanse(first.x, first.y, 190, 0.35, 'player');
   }
@@ -5719,8 +5727,9 @@ function updateBoss(m, dt) {
     // radial banner burst
     if (m.attackT <= 0) {
       m.attackT = rand(3.8, 2.6);
-      for (let i = 0; i < 9; i++) {
-        const a = (i / 9) * TAU + m.bob * 0.1;
+      const shots = activeBosses().length > 1 ? 6 : 9;
+      for (let i = 0; i < shots; i++) {
+        const a = (i / shots) * TAU + m.bob * 0.1;
         spawnProjectile({
           x: m.x + Math.cos(a) * 40, y: m.y + Math.sin(a) * 40,
           vx: Math.cos(a) * 145, vy: Math.sin(a) * 145, r: 9, life: 5,
@@ -5767,7 +5776,13 @@ function updateBoss(m, dt) {
   }
 }
 function summonBossAdds(boss, count) {
-  for (let i = 0; i < count; i++) {
+  const bossCount = activeBosses().length;
+  const liveAdds = monsters.filter((m) => !m.dead && !m.isBoss).length;
+  // four bosses should feel like four bosses, not a particle firehose.
+  const addCap = bossCount > 1 ? 8 : 14;
+  const room = Math.max(0, addCap - liveAdds);
+  const n = Math.min(room, Math.max(1, count - (bossCount - 1)));
+  for (let i = 0; i < n; i++) {
     const a = rand(TAU), r = rand(120, 70);
     const m = spawnMonster(pick(['popimp', 'mimic', 'banner']), {
       x: boss.x + Math.cos(a) * r, y: boss.y + Math.sin(a) * r, summon: true
@@ -6454,8 +6469,11 @@ function resizeCanvas() {
   // 2x retina is a lot of fill-rate for a full-canvas game. 1.5x still looks
   // crisp at arm's length and cuts the pixel count by ~44% on a 2x screen.
   // Phones get a slightly lower cap because they are the tightest budget.
+  // Boss fights drop one more notch: four feeds plus adds is the one moment
+  // where a weak GPU has to redraw several large animated bodies at once.
   const coarse = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
-  const cap = coarse ? 1.25 : 1.5;
+  const bossFight = typeof activeBosses === 'function' && activeBosses().length > 0;
+  const cap = bossFight ? (coarse ? 1 : 1.1) : (coarse ? 1.25 : 1.5);
   const dpr = Math.min(window.devicePixelRatio || 1, cap);
   const w = window.innerWidth, h = window.innerHeight;
   if (canvas.width !== Math.floor(w * dpr) || canvas.height !== Math.floor(h * dpr)) {
@@ -8426,6 +8444,23 @@ function drawMonster(m) {
   g.restore();
 }
 
+const BOSS_CARD_COLORS = ['#fffdf4', '#ffe39a', '#ffd6e2', '#e6dcff'];
+function bossCardSprite(i) {
+  if (!renderCache.bossCards) renderCache.bossCards = [];
+  if (renderCache.bossCards[i]) return renderCache.bossCards[i];
+  const c = document.createElement('canvas');
+  c.width = 40; c.height = 28;
+  const g = c.getContext('2d');
+  g.translate(20, 14);
+  g.fillStyle = BOSS_CARD_COLORS[i % 4];
+  rr(g, -18, -12, 36, 24, 4); g.fill();
+  g.strokeStyle = '#3c3453'; g.lineWidth = 1.5;
+  rr(g, -18, -12, 36, 24, 4); g.stroke();
+  g.fillStyle = '#3c3453'; g.font = 'bold 6px ui-monospace, monospace'; g.textAlign = 'center';
+  g.fillText(i % 2 ? 'BUY' : 'HOT', 0, 0); g.fillText('NOW', 0, 6);
+  renderCache.bossCards[i] = c;
+  return c;
+}
 function drawBoss(m) {
   const g = ctx;
   const t = game.worldTime;
@@ -8449,8 +8484,9 @@ function drawBoss(m) {
   g.fillStyle = '#4b335f'; g.strokeStyle = '#2a1b3a'; g.lineWidth = 4;
   rr(g, -106, -118, 212, 176, 16); g.fill(); g.stroke();
   g.fillStyle = '#2f2040'; rr(g, -96, -108, 192, 150, 11); g.fill();
-  // glitch rows
-  for (let i = 0; i < 7; i++) {
+  // glitch rows (fewer when four feeds are on screen)
+  const detail = activeBosses().length > 1;
+  for (let i = 0; i < (detail ? 4 : 7); i++) {
     const yy = -100 + i * 21;
     const off = (Math.sin(t * 2.4 + i * 1.7) * 12) * (hash2(i, Math.floor(t * 4)) > 0.6 ? 1 : 0.2);
     g.fillStyle = ['rgba(255,92,138,0.35)', 'rgba(201,188,246,0.22)', 'rgba(255,225,77,0.18)'][i % 3];
@@ -8458,13 +8494,16 @@ function drawBoss(m) {
   }
   // eyes
   const eyeData = [[-58, -68], [0, -76], [58, -68], [-30, -34], [30, -34]];
+  const lookAngle = angleTo(m.x, m.y, player.x, player.y);
+  const lookX = Math.cos(lookAngle) * 5;
+  const lookY = Math.sin(lookAngle) * 4;
   eyeData.forEach(([ex, ey], i) => {
     const blink = Math.sin(t * 1.3 + i * 1.9) > 0.9;
     g.fillStyle = blink ? '#2f2040' : '#fffdf4';
     g.beginPath(); g.ellipse(ex, ey, 19, blink ? 2 : 13, 0, 0, TAU); g.fill();
     if (!blink) {
-      const lx = Math.cos(angleTo(m.x, m.y, player.x, player.y)) * 5;
-      const ly = Math.sin(angleTo(m.x, m.y, player.x, player.y)) * 4;
+      const lx = lookX;
+      const ly = lookY;
       g.fillStyle = '#ff5c8a';
       g.beginPath(); g.arc(ex + lx, ey + ly, 6, 0, TAU); g.fill();
       g.fillStyle = '#2f2040';
@@ -8499,18 +8538,15 @@ function drawBoss(m) {
     g.fillText('AD BREAK ' + Math.ceil(Math.max(0, m.adBreak)), 0, -178);
   }
   g.restore();
-  // orbiting sponsored cards
-  for (let i = 0; i < 4; i++) {
+  // orbiting sponsored cards (pre-rendered so text is not redrawn per frame)
+  const cardCount = detail ? 2 : 4;
+  for (let i = 0; i < cardCount; i++) {
     const a = t * 0.6 + i * 1.6;
     const ox = Math.cos(a) * 150, oy = -60 + Math.sin(a) * 45;
     g.save();
     g.translate(ox, oy);
     g.rotate(Math.sin(a) * 0.2);
-    g.fillStyle = ['#fffdf4', '#ffe39a', '#ffd6e2', '#e6dcff'][i];
-    rr(g, -18, -12, 36, 24, 4); g.fill();
-    g.strokeStyle = '#3c3453'; g.lineWidth = 1.5; rr(g, -18, -12, 36, 24, 4); g.stroke();
-    g.fillStyle = '#3c3453'; g.font = 'bold 6px ui-monospace, monospace'; g.textAlign = 'center';
-    g.fillText(i % 2 ? 'BUY' : 'HOT', 0, 0); g.fillText('NOW', 0, 6);
+    g.drawImage(bossCardSprite(i), -20, -14);
     g.restore();
   }
   if (m.flash > 0) {
@@ -8904,9 +8940,13 @@ function drawBossBar() {
   g.fillStyle = 'rgba(255,255,255,0.15)'; rr(g, bx, y + 12, bw, 14, 7); g.fill();
   const frac = clamp(m.hp / m.maxHp, 0, 1);
   if (frac > 0) {
-    const grd = g.createLinearGradient(bx, 0, bx + bw, 0);
-    grd.addColorStop(0, '#ff5c8a'); grd.addColorStop(0.6, '#ff9eb5'); grd.addColorStop(1, '#ffe39a');
-    g.fillStyle = grd; rr(g, bx, y + 12, bw * frac, 14, 7); g.fill();
+    if (!renderCache.bossBarGrad || renderCache.bossBarW !== bw) {
+      const grd = g.createLinearGradient(bx, 0, bx + bw, 0);
+      grd.addColorStop(0, '#ff5c8a'); grd.addColorStop(0.6, '#ff9eb5'); grd.addColorStop(1, '#ffe39a');
+      renderCache.bossBarGrad = grd;
+      renderCache.bossBarW = bw;
+    }
+    g.fillStyle = renderCache.bossBarGrad; rr(g, bx, y + 12, bw * frac, 14, 7); g.fill();
   }
   g.fillStyle = '#fff8ec'; g.font = 'bold 8px ui-monospace, monospace'; g.textAlign = 'right';
   g.strokeStyle = 'rgba(60,52,83,0.85)'; g.lineWidth = 3;
@@ -8958,8 +8998,11 @@ function drawNameplates() {
   if (!settings.names) return;
   const g = ctx;
   const vw = window.innerWidth;
+  const maxNames = activeBosses().length > 1 ? 8 : 14;
+  let drawn = 0;
 
   for (const m of monsters) {
+    if (drawn >= maxNames) break;
     if (m.dead || m.isBoss || m.hidden || m.spawnT > 0) continue;
     if (!inView(m.x, m.y, 60)) continue;
     const d = dist(player.x, player.y, m.x, m.y);
@@ -9006,6 +9049,7 @@ function drawNameplates() {
       g.fillText(tag, gx + gw / 2, gy + 8.5);
     }
     g.restore();
+    drawn++;
   }
 
   // bots: quiet little names, only nearby so the island stays breathable
