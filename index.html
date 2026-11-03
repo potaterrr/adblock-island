@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
 <meta name="theme-color" content="#bde8f2">
-<meta name="description" content="AdBlock Island — a wholesome micro-MMO in beta (v0.9.3). Nine classes, a south-shore dock, and a Halloween theme. Clear the static and leave a kind note on the beach.">
+<meta name="description" content="AdBlock Island — a wholesome micro-MMO in beta (v0.9.4). Nine classes, a south-shore dock, and a Halloween theme. Clear the static and leave a kind note on the beach.">
 <meta name="author" content="potaterrr">
 <meta name="application-name" content="AdBlock Island">
 <meta name="apple-mobile-web-app-title" content="AdBlock Island">
@@ -1431,14 +1431,14 @@ body.halloween .note-card .note-pin{background:#fffaf0}
         <div class="logo-badges">
           <div class="logo-kicker">a wholesome micro-MMO</div>
           <div class="beta-pill" id="betaPill" title="This is a beta build. The patch notes list what is still pending.">
-            <span class="beta-dot"></span>beta · <b id="betaVersion">v0.9.3</b>
+            <span class="beta-dot"></span>beta · <b id="betaVersion">v0.9.4</b>
           </div>
           <div class="mania-pill" title="Mania rules: death resets the run to wave 1, and bosses bring friends.">MANIA</div>
           <div class="halloween-pill" id="halloweenPill" title="Halloween theme is on. Toggle it in Settings.">HALLOWEEN</div>
         </div>
         <h1 class="logo">ADBLOCK<br><span>ISLAND</span></h1>
         <p class="tagline">The ads took the beach. Mania took the schedule. Grab a broom, bonk some <b>sponsored content</b>, and leave a kind note for whoever washes ashore next.</p>
-        <div class="mania-note">MANIA MODE · death resets the run to wave 1 · two bosses can spawn · bosses split at 50%</div>
+        <div class="mania-note">MANIA MODE · death resets the run to wave 1 · bosses split at 75% · 1 → 2 → 4 · faster every split</div>
       </div>
       <div class="title-side">
         <label class="field-label" for="nameInput">your island name</label>
@@ -1598,7 +1598,7 @@ const ICONS = {
 };
 const svg = (name) => ICONS[name] || ICONS.spark;
 
-const VERSION = '0.9.3';
+const VERSION = '0.9.4';
 
 /* Endless mode tuning. Named on purpose: after a playtest, change these
    numbers instead of hunting through the wave and damage code. */
@@ -2140,12 +2140,21 @@ const DOCK = { x: 1725, y: 2005, radius: 175 };
 const SHOPKEEPER = { x: 1468, y: 1968, radius: 135, name: 'Mira' };
 const BOSS_CLARITY = 0.64;
 const WIN_CLARITY = 0.70;
-/* Mania: the Algorithm can arrive as a pair, and bosses split below 50% HP.
-   Four-boss mode lets each one split twice, so a single boss can still end
-   with four live Algorithms if the health bar is pushed through both breaks. */
+/* Mania: the Algorithm can arrive as a pair. At 75% HP a boss splits once;
+   its children can split again, so one boss can become two and then four.
+   Split children are smaller, and each live boss speeds up the whole fight. */
 const BOSS_TWIN_CHANCE = 0.50;
 const BOSS_TWIN_CAP = 4;
-function bossSplitLimit() { return settings.quadBoss ? 2 : 1; }
+const BOSS_SPLIT_FRAC = 0.75;
+function bossCanSplit(m) {
+  if (!m || m.dead || (m.splits || 0) >= 1) return false;
+  if (!settings.quadBoss && (m.generation || 0) > 0) return false;
+  return true;
+}
+function bossSpeedMult() {
+  const n = activeBosses().length;
+  return n >= 3 ? 1.5 : n === 2 ? 1.25 : 1;
+}
 const PATH_POINTS = [
   [1600, 1960], [1660, 1860], [1610, 1740], [1480, 1630], [1520, 1500],
   [1600, 1390], [1560, 1260], [1600, 1140], [1570, 1010], [1600, 900]
@@ -3622,7 +3631,7 @@ function buildHelpPanel() {
       </div>
       <div class="help-block">
         <h4>Mania rules</h4>
-        <p>Death is a reset: the run returns to <b>wave 1</b>, and Joy, upgrades, level and island progress start over. The Algorithm has a <b>50%</b> chance to arrive as a pair. Every boss below <b>50%</b> health can split again, and with <b>Four-boss Mania</b> on each boss can split twice — so one boss can still become four as the health bar drops. Turn the option off in Settings for the old one-split rule. Downing one boss pays partial Joy and XP; only the last one ends the fight.</p>
+        <p>Death is a reset: the run returns to <b>wave 1</b>, and Joy, upgrades, level and island progress start over. The Algorithm has a <b>50%</b> chance to arrive as a pair. At <b>75%</b> health a boss splits once, and its children can split again: one boss becomes two, then four. Split bosses are smaller. Two live bosses move and attack <b>25% faster</b>; three or four move and attack <b>50% faster</b>. Beams and summons are randomised. Turn <b>Four-boss Mania</b> off in Settings to stop children from splitting. Downing one boss pays partial Joy and XP; only the last one ends the fight.</p>
       </div>
       <div class="help-block">
         <h4>Play with a friend</h4>
@@ -3664,7 +3673,7 @@ function buildSettingsPanel() {
     ${toggle('names', 'Floating names', 'show who is nearby')}
     ${toggle('scanlines', 'Soft CRT scanlines', 'retro-ish, very subtle')}
     ${toggle('halloween', 'Halloween theme', 'warm dusk, pumpkins and a few bats')}
-    ${toggle('quadBoss', 'Four-boss Mania', 'bosses can split twice below 50% HP, up to four live')}
+    ${toggle('quadBoss', 'Four-boss Mania', 'children can split again at 75% HP, up to four live')}
     ${toggle('reduceMotion', 'Reduce motion', 'calmer animations and camera')}
     ${toggle('haptics', 'Tiny vibrations', 'on supported phones')}
     <div class="section-title">Island admin</div>
@@ -5645,8 +5654,10 @@ function createBoss(x, y, opts = {}) {
   // sized so a focused fight lasts about half a minute at any level, and the
   // companions' chip damage is a garnish rather than the whole meal
   const hp = opts.hp || (1100 + player.level * 95);
+  const scale = clamp(opts.scale || 1, 0.62, 1);
   const m = {
-    id: 'boss', type: 'algorithm', isBoss: true, x, y, r: 64,
+    id: 'boss', type: 'algorithm', isBoss: true, x, y, r: Math.round(64 * scale),
+    scale, generation: opts.generation || 0,
     hp, maxHp: hp, speed: 34, dmg: 22, xp: 320, joy: 220,
     color: def.color, dark: def.dark, name: def.name, spawnT: 0,
     facing: Math.PI / 2, bob: 0, vx: 0, vy: 0, knockX: 0, knockY: 0,
@@ -5659,20 +5670,38 @@ function createBoss(x, y, opts = {}) {
   return m;
 }
 function spawnBossTwin(parent) {
-  if (!parent || parent.dead) return null;
-  if ((parent.splits || 0) >= bossSplitLimit()) return null;
+  if (!bossCanSplit(parent)) return null;
   if (activeBosses().length >= BOSS_TWIN_CAP) return null;
+  // The parent is consumed by the split: 1 boss becomes two smaller ones, and
+  // each of those can do the same once, producing the 1 → 2 → 4 ladder.
   parent.splits = (parent.splits || 0) + 1;
-  const a = rand(TAU), r = rand(200, 130);
-  const x = clamp(parent.x + Math.cos(a) * r, 90, WORLD_W - 90);
-  const y = clamp(parent.y + Math.sin(a) * r, 90, WORLD_H - 90);
-  const twin = createBoss(x, y, { hp: Math.round(parent.maxHp * 0.65) });
+  parent.dead = true;
+  parent.deathT = 0;
+  const room = Math.max(0, BOSS_TWIN_CAP - activeBosses().length);
+  const count = Math.min(2, room);
+  const childScale = Math.max(0.62, (parent.scale || 1) * 0.82);
+  const baseAngle = rand(TAU);
+  let first = null;
+  for (let i = 0; i < count; i++) {
+    const a = baseAngle + i * Math.PI + rand(0.45, -0.45);
+    const r = rand(200, 120);
+    const x = clamp(parent.x + Math.cos(a) * r, 90, WORLD_W - 90);
+    const y = clamp(parent.y + Math.sin(a) * r, 90, WORLD_H - 90);
+    const twin = createBoss(x, y, {
+      hp: Math.round(parent.maxHp * 0.65),
+      scale: childScale,
+      generation: (parent.generation || 0) + 1
+    });
+    if (!first) first = twin;
+  }
+  burst(parent.x, parent.y, [PAL.corruptHot, PAL.lav, '#fff'], 22, { speed: 180, life: 1.1, size: 4 });
+  ringFx(parent.x, parent.y, 30, 220, PAL.corruptHot, 0.8, 8);
   refreshBossRef();
-  floatingText(parent.x, parent.y - parent.r - 56, 'A SECOND FEED', PAL.corruptHot, 16, 1.5, { weight: 900 });
-  toast('The Algorithm spawned another Algorithm. Of course it did.', 'warn', '!');
+  floatingText(parent.x, parent.y - parent.r - 56, 'THE FEED SPLITS', PAL.corruptHot, 16, 1.5, { weight: 900 });
+  toast('The Algorithm split in two. Both halves are faster.', 'warn', '!');
   audio.sfx('boss');
   screenShake(10, 0.5);
-  return twin;
+  return first;
 }
 function spawnBoss(silent = false) {
   if (game.bossSpawned || game.bossDefeated) return;
@@ -5700,9 +5729,10 @@ function spawnBoss(silent = false) {
   saveGame();
 }
 function updateBoss(m, dt) {
-  m.phaseT -= dt;
-  m.attackT -= dt;
-  m.beamT -= dt;
+  const tempo = bossSpeedMult();
+  m.phaseT -= dt * tempo;
+  m.attackT -= dt * tempo;
+  m.beamT -= dt * tempo;
   const td = dist(m.x, m.y, player.x, player.y);
   const ang = angleTo(m.x, m.y, player.x, player.y);
   m.facing = ang;
@@ -5713,21 +5743,27 @@ function updateBoss(m, dt) {
       audio.sfx('popbad');
     }
   } else {
-    if (td > 270) moveWithCollision(m, Math.cos(ang) * m.speed * dt, Math.sin(ang) * m.speed * dt);
-    else if (td < 160) moveWithCollision(m, -Math.cos(ang) * m.speed * 0.7 * dt, -Math.sin(ang) * m.speed * 0.7 * dt);
-    // sponsored beam telegraph
+    if (td > 270) moveWithCollision(m, Math.cos(ang) * m.speed * tempo * dt, Math.sin(ang) * m.speed * tempo * dt);
+    else if (td < 160) moveWithCollision(m, -Math.cos(ang) * m.speed * 0.7 * tempo * dt, -Math.sin(ang) * m.speed * 0.7 * tempo * dt);
+    // sponsored beam telegraph: one or two beams, with a random spread
     if (m.beamT <= 0) {
-      m.beamT = rand(6.6, 4.2);
-      hazards.push({
-        x: m.x, y: m.y, angle: ang + rand(0.16, -0.16), length: 720, width: 58,
-        windup: 1.15, t: 0, damage: 16, fired: false, color: PAL.corruptHot
-      });
+      m.beamT = rand(7.0, 4.4);
+      const beamBudget = activeBosses().length > 1 ? 8 : 6;
+      const beamCount = Math.min(1 + (chance(0.35) ? 1 : 0), Math.max(0, beamBudget - hazards.length));
+      for (let i = 0; i < beamCount; i++) {
+        const spread = i === 0 ? rand(0.5, -0.5) : rand(1.5, -1.5);
+        hazards.push({
+          x: m.x, y: m.y, angle: ang + spread, length: rand(820, 600), width: rand(70, 48),
+          windup: rand(1.35, 0.95), t: 0, damage: 16, fired: false, color: PAL.corruptHot
+        });
+      }
       audio.sfx('mark');
     }
     // radial banner burst
     if (m.attackT <= 0) {
       m.attackT = rand(3.8, 2.6);
-      const shots = activeBosses().length > 1 ? 6 : 9;
+      const liveSponsored = projectiles.filter((p) => p.kind === 'sponsored' && !p.dead).length;
+      const shots = Math.min(activeBosses().length > 1 ? 6 : 9, Math.max(0, 48 - liveSponsored));
       for (let i = 0; i < shots; i++) {
         const a = (i / shots) * TAU + m.bob * 0.1;
         spawnProjectile({
@@ -5755,13 +5791,16 @@ function updateBoss(m, dt) {
   if (td < m.r + player.r + 10) contactAttack(m, player, dt, 1);
   // summon aid at health thresholds
   const frac = m.hp / m.maxHp;
-  if (frac < 0.5 && (m.splits || 0) < bossSplitLimit()) spawnBossTwin(m);
+  if (frac <= BOSS_SPLIT_FRAC && bossCanSplit(m)) {
+    const twin = spawnBossTwin(m);
+    if (twin) return;
+  }
   if (m.summonStage === 0 && frac < 0.7) {
     m.summonStage = 1;
-    summonBossAdds(m, 2);
+    summonBossAdds(m, randInt(1, 3));
   } else if (m.summonStage === 1 && frac < 0.36) {
     m.summonStage = 2;
-    summonBossAdds(m, 3);
+    summonBossAdds(m, randInt(2, 4));
   }
   // companions chip the boss a little, but never enough to finish it for you
   m.botCd = (m.botCd || 0) - dt;
@@ -5781,10 +5820,13 @@ function summonBossAdds(boss, count) {
   // four bosses should feel like four bosses, not a particle firehose.
   const addCap = bossCount > 1 ? 8 : 14;
   const room = Math.max(0, addCap - liveAdds);
-  const n = Math.min(room, Math.max(1, count - (bossCount - 1)));
+  const roll = Math.max(1, Math.round(count * rand(1.3, 0.7)));
+  const n = Math.min(room, Math.max(1, roll - (bossCount > 1 ? bossCount - 1 : 0)));
+  const summonPool = ['popimp', 'popimp', 'mimic', 'banner'];
+  if (chance(0.12)) summonPool.push('behemoth');
   for (let i = 0; i < n; i++) {
-    const a = rand(TAU), r = rand(120, 70);
-    const m = spawnMonster(pick(['popimp', 'mimic', 'banner']), {
+    const a = rand(TAU), r = rand(150, 70);
+    const m = spawnMonster(pick(summonPool), {
       x: boss.x + Math.cos(a) * r, y: boss.y + Math.sin(a) * r, summon: true
     });
     if (m) m.spawnT = 0.5;
@@ -8467,6 +8509,7 @@ function drawBoss(m) {
   if (!inView(m.x, m.y, 240)) return;
   g.save();
   g.translate(m.x, m.y);
+  g.scale(m.scale || 1, m.scale || 1);
   g.fillStyle = 'rgba(45,30,58,0.35)';
   g.beginPath(); g.ellipse(0, 74, 96, 22, 0, 0, TAU); g.fill();
   // tendrils / legs
