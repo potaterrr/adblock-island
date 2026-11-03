@@ -1481,7 +1481,15 @@ const ICONS = {
 };
 const svg = (name) => ICONS[name] || ICONS.spark;
 
-const VERSION = '0.6.7';
+const VERSION = '0.7.0';
+
+/* Endless mode tuning. Named on purpose: after a playtest, change these
+   numbers instead of hunting through the wave and damage code. */
+const ENDLESS_START = 11;
+const ENDLESS_CHECKPOINT_EVERY = 3;
+const CHECKPOINT_JOY_BASE = 60;
+const CHECKPOINT_JOY_STEP = 20;
+const DAMAGE_PRESSURE_CAP = 2.6;
 
 /* ------------------------------- classes -------------------------------- */
 const CLASSES = {
@@ -1894,14 +1902,15 @@ const audio = new AudioEngine();
 const defaultSave = () => ({
   name: '', cls: 'blocker', level: 1, xp: 0, joy: 0, totalJoy: 0,
   upgrades: {}, cosmetics: ['none'], equipped: 'none',
-  stats: { tiles: 0, kills: 0, notes: 0, bosses: 0, seconds: 0 },
+  stats: { tiles: 0, kills: 0, notes: 0, bosses: 0, seconds: 0, checkpoints: 0 },
   corruption: null, bossSpawned: false, bossDefeated: false, won: false, wave: 1, coop: false,
-  achievements: [], items: [], waveCampaignWon: false,
+  achievements: [], items: [], waveCampaignWon: false, endlessBest: 0,
   seed: Math.floor(Math.random() * 1e9), createdAt: Date.now()
 });
 let save = Object.assign(defaultSave(), store.get(SAVE_KEY, {}) || {});
 save.upgrades = save.upgrades || {};
-save.stats = Object.assign({ tiles: 0, kills: 0, notes: 0, bosses: 0, seconds: 0, joySpent: 0 }, save.stats || {});
+save.stats = Object.assign({ tiles: 0, kills: 0, notes: 0, bosses: 0, seconds: 0, joySpent: 0, checkpoints: 0 }, save.stats || {});
+save.endlessBest = Math.max(0, Number(save.endlessBest) || 0);
 save.cosmetics = Array.isArray(save.cosmetics) && save.cosmetics.length ? save.cosmetics : ['none'];
 if (!CLASSES[save.cls]) save.cls = 'blocker';
 if (!save.upgrades || typeof save.upgrades !== 'object') save.upgrades = {};
@@ -1914,6 +1923,12 @@ const persistSave = () => { try { store.set(SAVE_KEY, save); } catch (e) {} };
 function upgradeCost(u) {
   const rank = save.upgrades[u.id] || 0;
   return rank >= u.max ? null : u.costs[Math.min(rank, u.costs.length - 1)];
+}
+function canAffordAnyUpgrade() {
+  return UPGRADES.some((u) => {
+    const cost = upgradeCost(u);
+    return cost != null && player.joy >= cost;
+  });
 }
 function statUp(id) { return save.upgrades[id] || 0; }
 const stats = {
@@ -2208,6 +2223,9 @@ const game = {
   chatCd: 3, ambientChatCd: 12, popupCheck: 0, tutorialT: 0,
   victoryT: 0, deathT: 0, lastFrame: 0, pausedFrame: 0,
   wave: 0, waveState: 'idle', waveT: 0, waveTotal: 0, coop: false,
+  endless: false, checkpointPending: false, checkpointAway: false, checkpointIndex: 0, checkpointJoy: 0,
+  checkpointUpgradesBought: 0, checkpointOpenT: 0, waveUpgradesBought: 0,
+  waveRestartPending: false,
   turrets: []
 };
 const cam = { x: SPAWN.x, y: SPAWN.y, zoom: 1, shake: 0, shakeX: 0, shakeY: 0, targetZoom: 1 };
@@ -2622,7 +2640,7 @@ function bindUI() {
   // the wave card doubles as the "what next?" button once a wave is cleared
   ui.waveCard.addEventListener('click', () => {
     if (game.state !== 'playing') return;
-    if (game.waveState === 'cleared') openPanel('wave');
+    if (game.waveState === 'cleared') openPanel(game.checkpointPending ? 'checkpoint' : 'wave');
   });
   ui.chatToggleBtn.addEventListener('click', () => {
     if (input.touch) {
@@ -2663,6 +2681,10 @@ function bindUI() {
     }
     // the wave-cleared card has two buttons and two keys: Enter takes the
     // next wave, U opens the shop without dismissing the choice.
+    if (game.state === 'modal' && game.modalType === 'checkpoint') {
+      if (k === 'enter') { e.preventDefault(); continueEndless(); return; }
+      if (k === 'u') { e.preventDefault(); openPanel('upgrades'); return; }
+    }
     if (game.state === 'modal' && game.modalType === 'wave') {
       if (k === 'enter') { e.preventDefault(); startWaveCountdown(); return; }
       if (k === 'u') { e.preventDefault(); openPanel('upgrades'); return; }
@@ -2670,7 +2692,7 @@ function bindUI() {
     // if the card was dismissed, Enter brings it back rather than skipping it
     if (game.state === 'playing' && game.waveState === 'cleared' && k === 'enter') {
       e.preventDefault();
-      openPanel('wave');
+      openPanel(game.checkpointPending ? 'checkpoint' : 'wave');
       return;
     }
     if (game.state === 'modal' || game.state === 'paused' || game.state === 'victory') return;
@@ -2696,7 +2718,7 @@ function bindUI() {
     if (k === 'f') interactBench();
     if (k === 'u') openPanel('upgrades');
     if (k === 'h') openPanel('help');
-    if (k === 'n' && game.waveState === 'cleared') openPanel('wave');
+    if (k === 'n' && game.waveState === 'cleared') openPanel(game.checkpointPending ? 'checkpoint' : 'wave');
     if (k === 'm') ui.muteBtn.click();
     if (k === 'c') { if (input.touch) ui.chatPanel.classList.add('open'); ui.chatInput.focus(); }
   });
@@ -3114,12 +3136,14 @@ const PANEL_META = {
   settings: { title: 'Cozy settings', sub: 'Sound, motion, and a fresh start if you need one.', icon: 'gear' },
   pause: { title: 'Taking a breath', sub: 'The ads can wait. They are very good at waiting.', icon: 'pause' },
   wave: { title: 'Wave cleared', sub: 'The island takes a breath. You decide what comes next.', icon: 'sun' },
+  checkpoint: { title: 'Endless checkpoint', sub: 'The island pauses. Spend a little Joy, then climb again.', icon: 'spark' },
   victory: { title: 'Island restored', sub: 'You did a good thing. Look at all this green.', icon: 'sun' }
 };
 
 function openPanel(type) {
   if (type === 'kindness' && game.state !== 'playing' && game.state !== 'modal') return;
   if (type === 'wave') { game.wavePanelPending = false; game.wavePanelT = 0; }
+  if (type === 'checkpoint') { game.checkpointAway = false; game.checkpointOpenT = 0; game.wavePanelPending = false; }
   if (game.state === 'modal' && game.modalType === type) return;
   modalPrevState = (game.state === 'modal') ? modalPrevState : game.state;
   game.state = 'modal';
@@ -3142,6 +3166,16 @@ function openPanel(type) {
 }
 function closePanel() {
   if (game.state !== 'modal') return;
+  // A checkpoint is a real pause: the next wave waits for one small upgrade.
+  // The explicit "Step away" action is the only way out of it.
+  if (game.modalType === 'checkpoint' && game.checkpointPending && !game.checkpointAway) {
+    toast('The checkpoint is waiting. Spend a little Joy, then continue.', 'warn', '✿');
+    return;
+  }
+  if (game.modalType === 'upgrades' && game.checkpointPending) {
+    openPanel('checkpoint');
+    return;
+  }
   ui.modalLayer.classList.remove('show');
   const wasType = game.modalType;
   game.modalType = null;
@@ -3175,6 +3209,9 @@ function panelFoot(buttons) {
       if (act === 'resume') closePanel();
       if (act === 'explore') closePanel();
       if (act === 'nextwave') startWaveCountdown();
+      if (act === 'checkpoint') openPanel('checkpoint');
+      if (act === 'continueendless') continueEndless();
+      if (act === 'closecheckpoint') closeCheckpoint();
     });
   });
 }
@@ -3186,6 +3223,7 @@ function buildPanel(type) {
   else if (type === 'settings') buildSettingsPanel();
   else if (type === 'pause') buildPausePanel();
   else if (type === 'wave') buildWavePanel();
+  else if (type === 'checkpoint') buildCheckpointPanel();
   else if (type === 'victory') buildVictoryPanel();
 }
 
@@ -3234,7 +3272,9 @@ function buildUpgradesPanel() {
   $$('[data-buy]', body).forEach((btn) => btn.addEventListener('click', () => buyUpgrade(btn.dataset.buy)));
   $$('[data-cos]', body).forEach((btn) => btn.addEventListener('click', () => selectCosmetic(btn.dataset.cos)));
   $$('[data-cos-canvas]', body).forEach((cv) => drawAvatarPortrait(cv, player.cls, cv.dataset.cosCanvas, { level: player.level }));
-  panelFoot([{ label: 'Back to the island', action: 'close', kind: 'primary' }]);
+  panelFoot(game.checkpointPending
+    ? [{ label: 'Back to the checkpoint', action: 'checkpoint', kind: 'primary' }]
+    : [{ label: 'Back to the island', action: 'close', kind: 'primary' }]);
 }
 function buyUpgrade(id) {
   const u = UPGRADES.find((x) => x.id === id);
@@ -3243,6 +3283,8 @@ function buyUpgrade(id) {
   if (cost == null) return;
   if (!spendJoy(cost)) { toast('Not quite enough Joy yet. Cleanse a few more tiles.', 'warn', '✿'); return; }
   save.upgrades[id] = rank + 1;
+  game.waveUpgradesBought = (game.waveUpgradesBought || 0) + 1;
+  if (game.checkpointPending) game.checkpointUpgradesBought = (game.checkpointUpgradesBought || 0) + 1;
   if (id === 'vitality') {
     player.maxHp = CLASSES[player.cls].hp + stats.bonusHp() + (player.level - 1) * 9;
     player.hp = Math.min(player.maxHp, player.hp + 15);
@@ -3396,7 +3438,7 @@ function buildHelpPanel() {
       </div>
       <div class="help-block">
         <h4>Waves</h4>
-        <p>Every run starts at <b>Super Easy</b>. Clear the crew and the island asks what you want: <b>Upgrade</b> (the shop is safe — it never starts the next wave) or <b>Next wave</b>, which gives you a 10-second countdown. Each clear hands you a medal or a free item and a chapter of the island's log. Clear <b>Super Hard</b> and the ads stop being served. The Algorithm still interrupts when the island gets clear enough to wake it.</p>
+        <p>Every run starts at <b>Super Easy</b>. Clear the crew and the island asks for one small upgrade before the next wave: the shop is safe, and buying there never starts the wave early. Each clear hands you a medal or a free item and a chapter of the island's log. Clear <b>Super Hard</b> and <b>Endless mode</b> begins — every third wave is a checkpoint that pauses the island, pays you Joy, and waits while you upgrade. Enemy damage climbs with depth, so a hero who never buys <b>Deep Breaths</b> will not last. The Algorithm still interrupts when the island is clear enough to wake it.</p>
       </div>
       <div class="help-block">
         <h4>Play with a friend</h4>
@@ -3493,6 +3535,7 @@ function buildPausePanel() {
       <span class="chip">✿ ${Math.floor(player.joy)} Joy</span>
       <span class="chip">${Math.round(world.cleansePercent() * 100)}% clarity</span>
       <span class="chip">${fmtTime(save.stats.seconds || 0)} together</span>
+      ${save.endlessBest > 10 ? `<span class="chip">deepest: wave ${fmt(save.endlessBest)}</span>` : ''}
     </div>
     <div class="help-grid">
       <div class="help-block"><h4>A small pause</h4><p>Nothing is chasing you right now. The island will keep. Stretch your shoulders, sip something, blink slowly.</p></div>
@@ -3556,13 +3599,16 @@ function buildWavePanel() {
   const medals = WAVE_ACHIEVEMENTS.filter((a) => save.achievements.includes(a.id)).length;
   const bonus = 10 + n * 4;
 
+  const gate = (game.waveUpgradesBought || 0) === 0 && canAffordAnyUpgrade();
   ui.modalTitle.textContent = 'Wave ' + n + ' cleared';
-  ui.modalSub.textContent = 'Upgrading never starts the next wave. The island waits for you.';
+  ui.modalSub.textContent = gate
+    ? 'One small upgrade before the next wave. The island waits for you.'
+    : 'Upgrading never starts the next wave. The island waits for you.';
 
-  const winBlock = n >= 10 ? `
+  const winBlock = n === 10 ? `
     <div class="wave-win">
       <h3>You saved this island from serving ads.</h3>
-      <p>Super Hard is cleared. The kettle is on, the plaza is quiet, and the locals will be telling this one for years. Stay for the sunset, or keep going — the ads come back a little politer after this.</p>
+      <p>Super Hard is cleared. The kettle is on, the plaza is quiet, and the locals will be telling this one for years. Stay for the sunset, or step through the last door — <b>Endless mode</b> begins at wave 11. Every third wave pauses at a checkpoint, pays you Joy, and asks for one small upgrade before the next climb.</p>
     </div>` : '';
 
   const rewardBlock = reward ? `
@@ -3594,9 +3640,10 @@ function buildWavePanel() {
       <b>${next.tier.label}</b>
       <span>${next.tier.note}</span>
       <span class="wn-count">${next.count} ads · wave ${n + 1}</span>
-      <span class="wn-crew">${crewSummary(next.crew)}</span>
+      <span class="wn-crew">${crewSummary(next.crew)}${n + 1 >= ENDLESS_START ? ' · enemy damage ×' + damagePressure(n + 1).toFixed(1) : ''}</span>
     </div>
-    <div class="wave-keys"><kbd>Enter</kbd> next wave <span>·</span> <kbd>U</kbd> upgrade</div>
+    <div class="wave-keys">${gate ? '<kbd>U</kbd> upgrade to unlock the next wave' : `<kbd>Enter</kbd> ${n === 10 ? 'enter endless' : 'next wave'} <span>·</span> <kbd>U</kbd> upgrade`}</div>
+    ${gate ? '<p style="margin:10px 0 0;font-size:11px;color:var(--ink-faint);line-height:1.6">Buy at least one small upgrade to unlock the next wave. Free items and cleansing do not open this gate — it is here to make sure you spend Joy before the ads get serious.</p>' : ''}
     <div class="kind-row" style="margin-top:12px">
       <span class="chip on">✿ ${Math.floor(player.joy)} Joy to spend</span>
       <span class="chip">Level ${player.level}</span>
@@ -3604,10 +3651,58 @@ function buildWavePanel() {
     </div>
   `;
 
-  panelFoot([
+  panelFoot(gate ? [
+    { label: 'Upgrade first', action: 'upgrades', kind: 'primary', title: 'Press U' },
+    { label: 'Not yet', action: 'close' }
+  ] : [
     { label: 'Upgrade', action: 'upgrades', title: 'Press U' },
     { label: 'Not yet', action: 'close' },
-    { label: n >= 10 ? 'Keep going · 10s' : 'Next wave · 10s', action: 'nextwave', kind: 'primary', title: 'Press Enter' }
+    { label: n === 10 ? 'Enter Endless · 10s' : 'Next wave · 10s', action: 'nextwave', kind: 'primary', title: 'Press Enter' }
+  ]);
+}
+
+/* --------------------------- endless checkpoint -------------------------- */
+function buildCheckpointPanel() {
+  const n = game.wave || 1;
+  const next = wavePlan(n + 1);
+  const gate = (game.checkpointUpgradesBought || 0) === 0 && canAffordAnyUpgrade();
+  const joy = game.checkpointJoy || 0;
+  const spent = game.checkpointUpgradesBought || 0;
+  const reward = game.waveReward;
+  ui.modalTitle.textContent = 'Endless checkpoint ' + (game.checkpointIndex || 1);
+  ui.modalSub.textContent = 'The island pauses here. Spend a little Joy, then climb again.';
+  ui.modalBody.innerHTML = `
+    <div class="wave-win">
+      <h3>Checkpoint ${game.checkpointIndex || 1} · wave ${n} cleared.</h3>
+      <p>The ads have stopped for a moment. The island put <b>+${joy} Joy</b> in your hands, and this checkpoint waits until you have spent at least one upgrade.</p>
+    </div>
+    ${reward ? `<div class="wave-reward">
+      <span class="wr-ico">${svg(reward.icon)}</span>
+      <div>
+        <small>${reward.kind === 'achievement' ? 'Achievement unlocked' : 'Free item'}</small>
+        <b>${reward.name}</b>
+        <p>${reward.desc}</p>
+      </div>
+    </div>` : ''}
+    <div class="kind-row">
+      <span class="chip on">✿ ${Math.floor(player.joy)} Joy</span>
+      <span class="chip">${spent ? spent + ' upgrade' + (spent === 1 ? '' : 's') + ' bought' : 'no upgrades bought yet'}</span>
+      <span class="chip">${fmt(save.stats.checkpoints || 0)} checkpoint${(save.stats.checkpoints || 0) === 1 ? '' : 's'} reached</span>
+      <span class="chip">deepest: wave ${fmt(save.endlessBest || n)}</span>
+    </div>
+    <div class="wave-next">
+      <span class="wn-kicker">next</span>
+      <b>${next.tier.label}</b>
+      <span>${next.tier.note}</span>
+      <span class="wn-count">${next.count} ads · wave ${n + 1}</span>
+      <span class="wn-crew">${crewSummary(next.crew)} · enemy damage ×${damagePressure(n + 1).toFixed(1)}</span>
+    </div>
+    <p style="margin:12px 0 0;font-size:11px;color:var(--ink-faint);line-height:1.6">${gate ? 'Buy at least one small upgrade to unlock the next wave. Upgrades are permanent and never start the wave early.' : 'Every upgrade is maxed, or nothing is affordable. The island lets you continue.'}</p>
+  `;
+  panelFoot([
+    { label: 'Upgrade', action: 'upgrades', kind: 'primary', title: 'Press U' },
+    { label: gate ? 'Upgrade to continue' : 'Continue · next wave', action: 'continueendless', kind: gate ? '' : 'primary', disabled: gate, title: gate ? 'Buy one upgrade first' : 'Press Enter' },
+    { label: 'Step away', action: 'closecheckpoint' }
   ]);
 }
 
@@ -3653,6 +3748,15 @@ function startGame() {
   game.boss = null;
   game.waveStory = null;
   game.waveReward = null;
+  game.endless = false;
+  game.checkpointPending = false;
+  game.checkpointAway = false;
+  game.checkpointIndex = 0;
+  game.checkpointJoy = 0;
+  game.checkpointOpenT = 0;
+  game.checkpointUpgradesBought = 0;
+  game.waveUpgradesBought = 0;
+  game.waveRestartPending = false;
   if (save.bossSpawned && !save.bossDefeated) {
     spawnBoss(true);
   }
@@ -4249,7 +4353,7 @@ function damageMonster(m, amount, opts = {}) {
 function damagePlayer(amount, sourceX, sourceY, opts = {}) {
   if (game.state !== 'playing' || player.dead) return;
   if (player.invuln > 0) return;
-  let dmg = amount;
+  let dmg = amount * damagePressure(game.wave);
   if (player.cls === 'blocker') dmg *= 0.85;
   if (player.marked > 0) dmg *= 1.2;
   if (player.shield > 0) {
@@ -4284,9 +4388,23 @@ function knockOut() {
   audio.setIntense(false);
   screenShake(10, 0.5);
   burst(player.x, player.y, [PAL.pink, PAL.lav, '#fff'], 28, { speed: 130, life: 1.4, size: 4, gravity: -20 });
-  toast('The island caught you. Take a breath — you will be back at the bench.', 'warn', '♥');
+  game.waveRestartPending = !!(game.endless && game.waveState === 'fight' && !(game.boss && !game.boss.dead));
+  if (game.waveRestartPending) {
+    toast('The feed pushed you back. Wave ' + game.wave + ' restarts — your Joy and upgrades are safe.', 'warn', '♥');
+  } else {
+    toast('The island caught you. Take a breath — you will be back at the bench.', 'warn', '♥');
+  }
+  if (!statUp('vitality') && game.wave >= 7) {
+    const tm = setTimeout(() => {
+      if (game.state === 'title') return;
+      toast('That hurt. Deep Breaths raises your max HP; the endless ads hit much harder than the beach did.', 'warn', '✿');
+    }, 2400);
+    pendingTimeouts.push(tm);
+  }
 }
 function respawnPlayer() {
+  const restartWave = game.waveRestartPending;
+  game.waveRestartPending = false;
   player.dead = false;
   player.hp = player.maxHp;
   player.x = BENCH.x - 40; player.y = BENCH.y + 70;
@@ -4298,6 +4416,15 @@ function respawnPlayer() {
   burst(player.x, player.y, [PAL.mint, '#fff'], 22, { speed: 100, life: 1, size: 3.5, gravity: -10 });
   audio.sfx('heal');
   updateHpUI();
+  if (restartWave) {
+    for (let i = monsters.length - 1; i >= 0; i--) {
+      const m = monsters[i];
+      if (!m.isBoss && m.wave === game.wave) monsters.splice(i, 1);
+    }
+    toast('Back on your feet. Wave ' + game.wave + ' restarts — the checkpoint kept your Joy and upgrades.', 'good', '♥');
+    startWave(game.wave, { silent: false });
+    return;
+  }
   toast('Back on your feet. Your Joy is safe. The bench saved your seat.', 'good', '♥');
   if (game.waveState === 'cleared') {
     game.wavePanelPending = true;
@@ -4498,7 +4625,7 @@ const WAVE_TIERS = [
   { max: 6, label: 'Normal', note: 'the ads brought friends', color: '#2f7f9c', dot: '#8ad7e8' },
   { max: 8, label: 'Hard', note: 'banners on every tile', color: '#9a6b1f', dot: '#ffe39a' },
   { max: 10, label: 'Super Hard', note: 'hold the line', color: '#c2375f', dot: '#ff8fa3' },
-  { max: Infinity, label: 'Super Hard+', note: 'they keep coming', color: '#a02a4e', dot: '#ff6b8b' }
+  { max: Infinity, label: 'Endless', note: 'the ads keep coming', color: '#7a3fa8', dot: '#c9a6ff' }
 ];
 
 /* A chapter of the island's story unlocks with every wave you clear, so the
@@ -4538,6 +4665,11 @@ const EXTRA_ACHIEVEMENTS = [
   { id: 'field_medic', name: 'Field Medic', desc: 'Reach wave 5 as a Medic.', icon: 'heart' },
   { id: 'zero_day', name: 'Zero-Day', desc: 'Reach wave 5 as a Hacker.', icon: 'chain' },
   { id: 'hype_train', name: 'Hype Train', desc: 'Reach wave 5 as a Streamer.', icon: 'spark' },
+  { id: 'beyond_ladder', name: 'Beyond the Ladder', desc: 'Enter Endless mode after clearing Super Hard.', icon: 'bolt' },
+  { id: 'deep_static', name: 'Deep Static', desc: 'Reach wave 20 in Endless mode.', icon: 'star' },
+  { id: 'ad_infinitum', name: 'Ad Infinitum', desc: 'Reach wave 30 in Endless mode.', icon: 'spark' },
+  { id: 'tea_break', name: 'Tea Break', desc: 'Reach your first Endless checkpoint.', icon: 'spark' },
+  { id: 'kettle_on', name: 'Kettle On', desc: 'Reach five Endless checkpoints.', icon: 'sun' },
   { id: 'better_together', name: 'Better Together', desc: 'Clear a wave in co-op.', icon: 'heart' },
   { id: 'big_spender', name: 'Big Spender', desc: 'Spend 500 Joy on upgrades.', icon: 'coin' },
   { id: 'spotless', name: 'Spotless', desc: 'Clear every tile of static on the island.', icon: 'leaf' }
@@ -4557,6 +4689,18 @@ const WAVE_ITEMS = [
 function waveTier(n) {
   for (const t of WAVE_TIERS) if (n <= t.max) return t;
   return WAVE_TIERS[WAVE_TIERS.length - 1];
+}
+
+/* Enemy damage climbs faster than the base wave recipe. The campaign gets a
+   polite nudge after wave 6; Endless is where a hero with no Deep Breaths
+   ranks starts going down. */
+function damagePressure(n) {
+  if (n <= 6) return 1;
+  if (n <= 10) return 1 + (n - 6) * 0.05;
+  return Math.min(DAMAGE_PRESSURE_CAP, 1.5 + (n - ENDLESS_START) * 0.10);
+}
+function isEndlessCheckpoint(n) {
+  return n >= ENDLESS_START && (n - ENDLESS_START) % ENDLESS_CHECKPOINT_EVERY === 0;
 }
 
 function waveStoryFor(n) {
@@ -4715,6 +4859,7 @@ function grantWaveReward(n) {
 /* ---------------------------- wave lifecycle ------------------------------ */
 function startWave(n, opts = {}) {
   const plan = wavePlan(n);
+  const isEndlessStart = n === ENDLESS_START;
   game.wave = n;
   game.waveState = 'fight';
   game.waveT = 0;
@@ -4723,7 +4868,20 @@ function startWave(n, opts = {}) {
   game.waveStory = null;
   game.wavePanelPending = false;
   game.wavePanelT = 0;
+  game.checkpointPending = false;
+  game.checkpointAway = false;
+  game.checkpointOpenT = 0;
+  game.checkpointUpgradesBought = 0;
+  game.waveUpgradesBought = 0;
+  game.waveRestartPending = false;
+  game.endless = n >= ENDLESS_START;
   save.wave = n;
+  if (game.endless) {
+    save.endlessBest = Math.max(save.endlessBest || 0, n);
+    if (n === ENDLESS_START) grantAchievement('beyond_ladder');
+    if (n === 20) grantAchievement('deep_static');
+    if (n === 30) grantAchievement('ad_infinitum');
+  }
   if (game.boss && !game.boss.dead) {
     // the boss interrupted the schedule: hold this wave until it is dealt with
     game.waveState = 'held';
@@ -4744,14 +4902,23 @@ function startWave(n, opts = {}) {
   }
   if (opts.silent) { updateWaveChip(); return; }
   waveBannerShow({
-    kicker: 'wave ' + n,
-    label: plan.tier.label,
-    note: plan.note || plan.tier.note,
-    count: plan.count + (plan.count === 1 ? ' ad' : ' ads') + ' incoming'
+    kicker: isEndlessStart ? 'endless mode' : 'wave ' + n,
+    label: isEndlessStart ? 'The ladder ends here' : plan.tier.label,
+    note: isEndlessStart ? 'the ads keep coming · checkpoint every 3 waves' : (plan.note || plan.tier.note),
+    count: plan.count + (plan.count === 1 ? ' ad' : ' ads') + ' incoming',
+    cls: isEndlessStart ? 'cleared' : ''
   });
   audio.sfx(n >= 7 ? 'boss' : 'wave');
+  if (isEndlessStart) {
+    toast('Endless mode. Every third wave is a checkpoint — spend Joy before the next climb.', 'good', '∞');
+    chatAdd('', 'Endless mode · the ladder ends at 10, but the ads keep coming. Every third wave is a checkpoint.', 'system');
+  }
   const bot = pick(bots.filter((b) => b.bubbleT <= 0));
-  if (bot) botSay(bot, pick([
+  if (bot) botSay(bot, isEndlessStart ? pick([
+    'endless. okay. kettle first.',
+    'every third wave we stop for tea. and upgrades.',
+    'the ads are polite again. do not trust it.'
+  ]) : pick([
     'wave ' + n + '. we have done worse.',
     'heads up, ' + plan.count + ' of them this time',
     plan.tier.label.toLowerCase() + '? okay. okay okay.',
@@ -4765,6 +4932,7 @@ function startWave(n, opts = {}) {
    or a small free item) and open the choice: upgrade, or start the next wave. */
 function waveCleared(n) {
   const bonus = 10 + n * 4;
+  const checkpoint = isEndlessCheckpoint(n);
   player.joy += bonus;
   save.joy = player.joy;
   save.totalJoy = (save.totalJoy || 0) + bonus;
@@ -4787,24 +4955,50 @@ function waveCleared(n) {
   game.waveReward = reward;
   game.waveState = 'cleared';
   game.waveT = 0;
-  game.wavePanelPending = true;
+  game.waveUpgradesBought = 0;
+  game.checkpointPending = checkpoint;
+  game.checkpointAway = false;
+  game.checkpointOpenT = 0;
+  game.checkpointUpgradesBought = 0;
+  if (checkpoint) {
+    game.checkpointIndex = (game.checkpointIndex || 0) + 1;
+    game.checkpointJoy = CHECKPOINT_JOY_BASE + game.checkpointIndex * CHECKPOINT_JOY_STEP;
+    player.joy += game.checkpointJoy;
+    save.joy = player.joy;
+    save.totalJoy = (save.totalJoy || 0) + game.checkpointJoy;
+    save.stats.checkpoints = (save.stats.checkpoints || 0) + 1;
+    updateJoyUI();
+    floatingText(player.x, player.y - 42, '+' + game.checkpointJoy + ' joy · checkpoint', '#d08a17', 15, 1.4);
+    grantAchievement('tea_break');
+    if (save.stats.checkpoints >= 5) grantAchievement('kettle_on');
+  }
+  game.wavePanelPending = !checkpoint;
   game.wavePanelT = 0;
 
   waveBannerShow({
-    kicker: 'wave ' + n + ' cleared',
-    label: n >= 10 ? 'Super Hard cleared' : 'Nice work',
-    note: '+' + bonus + ' joy · ' + (reward.kind === 'achievement' ? 'medal: ' + reward.name : 'item: ' + reward.name),
+    kicker: checkpoint ? 'endless checkpoint ' + game.checkpointIndex : 'wave ' + n + ' cleared',
+    label: checkpoint ? 'Checkpoint' : (n === 10 ? 'Super Hard cleared' : 'Nice work'),
+    note: checkpoint
+      ? '+' + bonus + ' joy · checkpoint +' + game.checkpointJoy + ' joy'
+      : '+' + bonus + ' joy · ' + (reward.kind === 'achievement' ? 'medal: ' + reward.name : 'item: ' + reward.name),
     cls: 'cleared',
     hold: input.touch ? 1800 : 2600
   });
-  audio.sfx(n >= 10 ? 'victory' : 'levelup');
-  if (n >= 10) {
+  audio.sfx(n === 10 ? 'victory' : 'levelup');
+  if (n === 10) {
     launchConfetti();
     toast('You saved this island from serving ads.', 'good', '✿');
   }
   chatAdd('', 'Island log · ' + story.title + ' — ' + story.text, 'system');
+  if (checkpoint) {
+    chatAdd('', 'Endless checkpoint ' + game.checkpointIndex + ' · +' + game.checkpointJoy + ' Joy. Spend it before the next wave.', 'system');
+  }
   const bot = pick(bots.filter((b) => b.bubbleT <= 0));
-  if (bot) botSay(bot, n >= 10 ? pick([
+  if (bot) botSay(bot, checkpoint ? pick([
+    'checkpoint. tea first, then upgrades.',
+    'the kettle is on. spend a little joy.',
+    'this is the part where we get stronger.'
+  ]) : n === 10 ? pick([
     'you did it. the kettle is definitely on.',
     'no ads. just us and the sea.',
     'we are going to talk about this for years.'
@@ -4822,6 +5016,12 @@ function waveCleared(n) {
 
 function startWaveCountdown() {
   if (game.waveState !== 'cleared') return;
+  if (game.checkpointPending) { openPanel('checkpoint'); return; }
+  if ((game.waveUpgradesBought || 0) === 0 && canAffordAnyUpgrade()) {
+    toast('Spend a little Joy on an upgrade before the next wave.', 'warn', '✿');
+    openPanel('upgrades');
+    return;
+  }
   game.waveState = 'countdown';
   game.waveT = 10;
   game.wavePanelPending = false;
@@ -4833,12 +5033,52 @@ function startWaveCountdown() {
   saveGame();
 }
 
+function openCheckpointPanel() {
+  if (game.state !== 'playing' || !game.checkpointPending) return;
+  game.checkpointAway = false;
+  game.checkpointOpenT = 0;
+  game.wavePanelPending = false;
+  openPanel('checkpoint');
+}
+function closeCheckpoint() {
+  if (!game.checkpointPending) { closePanel(); return; }
+  game.checkpointAway = true;
+  game.checkpointOpenT = 0;
+  closePanel();
+  toast('Checkpoint saved. Tap the wave card when you are ready to spend Joy and climb.', '', '✦');
+  updateWaveChip();
+}
+function continueEndless() {
+  if (!game.checkpointPending) return;
+  if ((game.checkpointUpgradesBought || 0) === 0 && canAffordAnyUpgrade()) {
+    toast('Buy at least one small upgrade before the next wave.', 'warn', '✿');
+    openPanel('upgrades');
+    return;
+  }
+  const next = game.wave + 1;
+  game.checkpointPending = false;
+  game.checkpointAway = false;
+  game.checkpointOpenT = 0;
+  closePanel();
+  toast('Checkpoint cleared. Wave ' + next + ' incoming.', '', '✦');
+  setTimeout(() => { if (game.state === 'playing') startWave(next); }, 240);
+}
+
 function updateWaves(dt) {
   // Note: the island-clarity victory (game.won) must not stop the wave ladder.
   // The two systems are separate: you can restore the island and still climb.
   if (game.state !== 'playing') return;
   if (!game.wave) { startWave(1); return; }
   if (game.waveState === 'cleared') {
+    // Endless checkpoints get the first say: they pause the island and wait
+    // for one upgrade before the next wave.
+    if (game.checkpointPending) {
+      if (!game.checkpointAway) {
+        game.checkpointOpenT = (game.checkpointOpenT || 0) + dt;
+        if (game.checkpointOpenT >= 0.9) openCheckpointPanel();
+      }
+      return;
+    }
     // The choice card is opened from the update loop rather than a one-shot
     // timer, so pausing, dying, a boss showing up or opening another panel
     // right as the wave ends can no longer swallow the popup.
@@ -4861,6 +5101,7 @@ function updateWaves(dt) {
 
 function openWavePanel() {
   if (game.state !== 'playing' || game.waveState !== 'cleared') return;
+  if (game.checkpointPending) { openCheckpointPanel(); return; }
   if (!game.wavePanelPending) return;
   game.wavePanelPending = false;
   game.wavePanelT = 0;
@@ -4894,9 +5135,13 @@ function updateWaveChip() {
   ui.waveCard.classList.toggle('breaking', state === 'countdown');
   ui.waveCard.classList.toggle('ready', state === 'cleared');
   ui.waveCard.classList.toggle('counting', state === 'countdown');
-  ui.waveCard.title = state === 'cleared' ? 'Wave cleared — tap to choose upgrade or next wave'
-    : state === 'countdown' ? 'Next wave is counting down' : '';
-  if (state === 'cleared') {
+  ui.waveCard.title = game.checkpointPending ? 'Endless checkpoint — tap to spend Joy'
+    : state === 'cleared' ? 'Wave cleared — tap to choose upgrade or next wave'
+    : state === 'countdown' ? 'Next wave is counting down'
+    : game.endless ? 'Endless mode · enemy damage ×' + damagePressure(n).toFixed(1) : '';
+  if (game.checkpointPending) {
+    ui.waveChipLeft.textContent = game.checkpointAway ? 'checkpoint · tap to return' : 'checkpoint · upgrade to continue';
+  } else if (state === 'cleared') {
     ui.waveChipLeft.textContent = 'cleared · tap to choose';
   } else if (game.boss && !game.boss.dead) {
     ui.waveChipLeft.textContent = state === 'countdown' ? 'next wave paused — boss' : 'paused — boss on the island';
@@ -4915,8 +5160,10 @@ function updateWaveChip() {
   }
   if (ui.waveChipTypes) {
     const summary = state === 'fight' || state === 'held' ? crewSummary(liveCrew()) : '';
-    ui.waveChipTypes.textContent = summary;
-    ui.waveChipTypes.style.display = summary ? '' : 'none';
+    const pressure = game.endless ? 'pressure ×' + damagePressure(n).toFixed(1) : '';
+    const text = [summary, pressure].filter(Boolean).join(' · ');
+    ui.waveChipTypes.textContent = text;
+    ui.waveChipTypes.style.display = text ? '' : 'none';
     ui.waveChipTypes.title = summary ? 'still standing: ' + summary : '';
   }
 }

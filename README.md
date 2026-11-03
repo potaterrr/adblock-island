@@ -1,18 +1,18 @@
 # AdBlock Island
 
-**v0.6.7 · beta** · [Play it](https://potaterrr.github.io/adblock-island/) · [Patch notes](https://potaterrr.github.io/projects/adblock-island/#patch-notes)
+**v0.7.0 · beta** · [Play it](https://potaterrr.github.io/adblock-island/) · [Patch notes](https://potaterrr.github.io/projects/adblock-island/#patch-notes)
 
 A wholesome micro-MMO in a single HTML file, currently in **beta**. The ads took the beach, the locals kept the kettle on. Pick a class, sweep the static, bonk the ad-monsters, and leave a kind note for whoever washes ashore next.
 
 Everything is self-contained: no build step, no CDN, no images, no fonts, no backend, no accounts, no trackers. The island is drawn with the Canvas 2D API, and the ocean, lo-fi chords, and sound effects are synthesized with the Web Audio API.
 
 ```
-index.html   ← the entire game (≈405 KB, markup + CSS + renderer + audio + logic)
+index.html   ← the entire game (≈420 KB, markup + CSS + renderer + audio + logic)
 ```
 
 ## Status: beta
 
-**v0.6.7 is a beta.** The island is playable end to end — seven classes, two companions, the wave ladder, medals, items, the Algorithm, kindness notes and same-keyboard co-op — but it is not a finished MMORPG.
+**v0.7.0 is a beta.** The island is playable end to end — seven classes, two companions, the wave ladder, Endless mode with checkpoints, medals, items, the Algorithm, kindness notes and same-keyboard co-op — but it is not a finished MMORPG.
 
 Versions count from zero while the game is in beta, so every release is `0.x`; the title card's build tag and the top entry of the patch notes always agree.
 
@@ -20,26 +20,28 @@ Storage keys: `adblock-island.save.v0`, `adblock-island.notes.v0` and `adblock-i
 
 Still pending, in short:
 
-- **Achievements.** Medals now cover waves, each class, co-op, the Algorithm boss, spending and cleanup, with a gallery and unlock toasts in the pause screen. Dated unlock history and account-wide persistence are still to come.
+- **Achievements.** Medals now cover waves, each class, co-op, the Algorithm boss, spending, cleanup and Endless milestones, with a gallery and unlock toasts in the pause screen. Dated unlock history and account-wide persistence are still to come.
 - **Cool items.** Waves give seven small items that are mostly free upgrade ranks. A real inventory, cosmetic drops with an equip screen, rarity tiers and usable items are still to come.
-- **MMORPG essentials.** Online multiplayer and rooms, accounts and cross-device saves, moderated chat, parties and guilds, quests and raids, trading, anti-cheat and live ops. These need a backend; a static `index.html` on GitHub Pages cannot provide them.
+- **MMORPG essentials.** Online multiplayer and rooms, accounts and cross-device saves, moderated chat, parties and guilds, quests and raids, trading, anti-cheat and live ops. These need a backend; a static `index.html` on GitHub Pages cannot provide them. The next planned step is **4-player room-code co-op**: Vercel hosts the game and a tiny signaling API, a free Redis store holds room codes and WebRTC handshakes, and one player hosts the authoritative simulation. It is deliberately not shipped yet.
 
 The full, honest list lives in **[Still pending](CHANGELOG.md#still-pending)** at the top of the patch notes.
 
-## What's new in v0.6.7
+## What's new in v0.7.0
 
 A short version of the [patch notes](CHANGELOG.md):
 
-- **Every class looks and plays differently now.** Engineer, Medic, Hacker and Streamer no longer reuse the Reader's robe, pointed hat or beam attack. Each has its own silhouette, held gear, projectile and hit behaviour.
-- **Bug fixes.** The four new classes had silently fallen through to the Reader's attack and body; class projectiles all rendered as the same recoloured circle; piercing shots could tick the same ad every frame; turrets dealt invisible instant damage; the overclock buff ignored attack speed; the changelog was ordered oldest-first.
-- **Patch notes button.** The title-screen button now opens the [live patch notes page](https://potaterrr.github.io/projects/adblock-island/#patch-notes) instead of the repo home page, and it finally renders as a real button instead of an underlined inline link.
-- **Release zip.** `adblock-island-beta-v0.6.7.zip` is a self-contained build of this single file plus these docs. It runs from `file://`, from GitHub Pages, or from any static host — no CDN, no backend, no network calls.
+- **Endless mode after the ladder.** Clearing wave 10 still saves the island, but now it opens the last door: wave 11 starts **Endless**, with no final wave and a rising damage curve.
+- **Checkpoints every three endless waves.** Waves 11, 14, 17, 20… pause the island, pay a checkpoint bundle (80, 100, 120… Joy), and wait while you upgrade. The next wave is locked until you have spent at least one upgrade.
+- **Upgrades are part of the wave now.** After every wave clear, the next wave stays locked while you can afford an upgrade and have not bought one. Free items do not open the gate; Joy does.
+- **The ads hit back.** Enemy damage gains a pressure multiplier from wave 7 onward and climbs hard in Endless. A hero who never buys **Deep Breaths** will go down; the same wave is survivable with vitality ranks. Dying in Endless restarts the current wave and keeps your Joy and upgrades.
+- **Endless medals.** Beyond the Ladder, Deep Static, Ad Infinitum, Tea Break and Kettle On join the gallery.
+- **Release zip.** `adblock-island-beta-v0.7.0.zip` is a self-contained build of this single file plus these docs. It runs from `file://`, from GitHub Pages, or from any static host — no CDN, no backend, no network calls.
 
 ## Download
 
-**[Download v0.6.7 beta](https://github.com/potaterrr/adblock-island/releases/tag/v0.6.7)** (`adblock-island-beta-v0.6.7.zip`, also at the repo root). It is rebuilt from `index.html`, `README.md` and `CHANGELOG.md`. Unzip it, open `index.html`, and it plays — online or offline.
+**[Download v0.7.0 beta](https://github.com/potaterrr/adblock-island/releases/tag/v0.7.0)** (`adblock-island-beta-v0.7.0.zip`, also at the repo root). It is rebuilt from `index.html`, `README.md` and `CHANGELOG.md`. Unzip it, open `index.html`, and it plays — online or offline.
 
-One honest caveat: **co-op is local, not networked.** "Play with a friend" puts player two on the same keyboard (arrow keys) on the same screen. A single static HTML file cannot do online matchmaking, peer-to-peer play or accounts on its own, so the zip is a complete single-player/co-op game, not an online multiplayer client.
+One honest caveat: **co-op is local, not networked.** "Play with a friend" puts player two on the same keyboard (arrow keys) on the same screen. A single static HTML file cannot do online matchmaking, peer-to-peer play or accounts on its own, so the zip is a complete single-player/co-op game, not an online multiplayer client. The next planned step is **4-player room-code online co-op** — Vercel static hosting plus a tiny signaling API and host-authoritative WebRTC — and the patch notes keep that roadmap honest.
 
 ## Screenshots
 
@@ -71,9 +73,9 @@ It is not a sad story. The ocean is still warm, the kettle still works, and the 
 
 **3. Clean the static.** Purple static sits on the ground across the island. Walking over it scrubs a little; hitting it with your weapon clears it much faster and pays **Joy** and **XP**. Joy is spent on permanent upgrades (`U`) — damage, health, speed, cleanse radius, and cozy cosmetics.
 
-**4. Survive the waves.** Every run starts at **Super Easy** and climbs only when you say so. Clear a wave and the island asks what's next: **Upgrade** (the shop is safe — it never starts the next wave) or **Next wave**, which gives you a **10-second countdown** to spend Joy, take a breath, or change your mind. Each clear pays bonus Joy and XP and hands you a **medal or a free item**, plus the next chapter of the island's story. Watch the card under your portrait for the wave, the tier and what's left.
+**4. Survive the waves.** Every run starts at **Super Easy** and climbs only when you say so. Clear a wave and the island asks for **one small upgrade before the next wave**: the shop is safe and never starts the wave early, but the next-wave button stays locked while you can afford an upgrade and have not bought one. When you are ready, **Next wave** gives you a **10-second countdown** to take a breath or change your mind. Each clear pays bonus Joy and XP and hands you a **medal or a free item**, plus the next chapter of the island's story. Watch the card under your portrait for the wave, the tier, what's left, and (in Endless) the enemy damage pressure.
 
-**5. Reach Super Hard.** Wave 10 is the last of the ladder: clear it and the island stops serving ads for good. There is no fail screen — the ladder simply restarts at Super Easy next visit, and after Super Hard the endless **Super Hard+** waves are there if you want to keep going.
+**5. Reach Super Hard, then Endless.** Wave 10 is the last of the campaign ladder: clear it and the island stops serving ads for good. There is no fail screen — the ladder simply restarts at Super Easy next visit. If you want more, wave 11 opens **Endless mode**: no final wave, enemy damage climbs with depth, and every third wave is a **checkpoint** that pauses the island, pays you Joy (80, 100, 120…), and waits while you upgrade. You cannot start the next wave until you have spent at least one upgrade.
 
 **6. Wake the Algorithm.** When the island is about 64% clear, the boss wakes at the plaza and starts running ad breaks. Dodge the sponsored beams, break its health thresholds, and finish the fight. Waves pause while it is out.
 
@@ -139,7 +141,7 @@ Ads arrive in waves instead of trickling in at random. Each wave has a fixed cre
 | 5–6 | Normal | eight and nine ads, more mimics, flyers coming faster |
 | 7–8 | Hard | nine and eleven ads; behemoths from wave 7, two of them at wave 8 |
 | 9–10 | Super Hard | thirteen and fourteen ads, three behemoths, damage ×1.36 and ×1.45 |
-| 11+ | Super Hard+ | the same shape, growing a fixed amount each wave up to twenty ads |
+| 11+ | Endless | the same shape, growing a fixed amount each wave up to twenty ads, with enemy damage pressure rising every wave |
 
 Every stage is a fixed recipe (`STAGE_CREWS` in the source), so the preview on the cleared-wave card always matches what actually spawns. The card under your portrait names what is left standing — `2 pop-ups · 1 behemoth` — instead of only counting it.
 
@@ -148,6 +150,7 @@ Every stage is a fixed recipe (`STAGE_CREWS` in the source), so the preview on t
 Clearing a wave never rolls straight into the next one. The island stops and asks, with a card showing the wave you just cleared, the chapter of the island log you unlocked, the reward you earned, and a preview of what's coming:
 
 - **Upgrade** opens the shop. Buying things never starts the next wave — you can sit there as long as you like.
+- **The next wave is gated.** If you can afford an upgrade and have not bought one since the wave cleared, the card replaces **Next wave** with **Upgrade first**. Free items and cleansing do not open the gate; spending Joy does. If nothing is affordable, the island lets you pass rather than soft-lock the run.
 - **Next wave** starts a **10-second countdown** (shown on the card under your portrait). Open the shop during it and the countdown politely pauses until you close it. Press `N` or tap the wave card to reopen the choice if you closed it.
 
 **Every clear hands you something.** Milestone waves give a medal; the rest give a free item — a spare broom, a wool blanket, a jar of joy, a kettle break — which is a free upgrade rank, a heal, or Joy.
@@ -165,7 +168,21 @@ Medals and found items live in the pause screen (`Esc`), and carry over between 
 
 ### The end of the ladder
 
-Wave 10 is **Super Hard**. Clear it and the island tells you plainly: *you saved this island from serving ads*. The kettle is on, the plaza is quiet, and the story reaches its last chapter. Keep going if you like — waves 11+ are endless **Super Hard+**, with a few extra island-log entries, and the next visit starts back at Super Easy whenever you want to climb again.
+Wave 10 is **Super Hard**. Clear it and the island tells you plainly: *you saved this island from serving ads*. The kettle is on, the plaza is quiet, and the story reaches its last chapter. Stay for the sunset, or step into **Endless mode**.
+
+### Endless mode
+
+Wave 11 begins **Endless**. The ads come back, and they hit harder every wave: enemy damage gains a pressure multiplier that starts at ×1.5 on wave 11, reaches ×2.4 by wave 20, and caps at ×2.6 after that. A hero who never buys **Deep Breaths** will not last; the same wave is survivable with vitality ranks and a little care.
+
+Every third endless wave — 11, 14, 17, 20… — is a **checkpoint**:
+
+- The island pauses and pays a checkpoint bundle: **80, 100, 120… Joy** (`60 + 20 × checkpoint`).
+- The upgrade shop opens. The next wave is locked until you buy at least one upgrade (or everything is maxed).
+- Press `U` to shop, then **Continue** to start the next wave. **Step away** lets you leave the checkpoint and wander; the wave card brings the checkpoint back.
+
+Dying in Endless restarts the current wave. Joy, upgrades and checkpoint progress are kept. The run still starts at Super Easy next visit, and your deepest wave is saved on the pause screen.
+
+Endless medals: **Beyond the Ladder** (enter Endless), **Tea Break** (first checkpoint), **Deep Static** (wave 20), **Kettle On** (five checkpoints), **Ad Infinitum** (wave 30).
 
 The Algorithm still interrupts the schedule when the island is clear enough to wake it; waves pause until that fight is over. The wave banner announces each new tier, the card under your portrait tracks the wave, its difficulty and what's left, and your companions comment in chat.
 
@@ -193,7 +210,7 @@ They can be knocked out. A downed companion sits out 14 seconds and walks back f
 
 ## What is on the island
 
-- **Wave combat:** escalating crews from Super Easy to Super Hard+, with on-screen wave banners and a HUD tracker.
+- **Wave combat:** escalating crews from Super Easy through Super Hard, then Endless mode with checkpoint pauses, upgrade gates, rising enemy damage pressure, and on-screen wave banners plus a HUD tracker.
 - **Four ad-monsters plus a boss:** Pop-Up Imps spawn clickable `[X]` windows, Unskippable Behemoths are invulnerable until their SKIP window, Clickbait Mimics hide as free Joy, and Banner Bats throw flyers. The Algorithm runs ad breaks, sponsored beam attacks, and summons more content at health thresholds.
 - **Joy and clarity:** every fully cleansed tile pays Joy and experience. Spend Joy on permanent upgrades or cozy cosmetics.
 - **Same-keyboard co-op:** a second hero on the arrow keys, sharing one screen and one wave.
@@ -230,10 +247,11 @@ Clearing site data resets the island. Nothing is sent anywhere.
 
 ```
 adblock-island/
-├── index.html     # the whole game: markup, styles, canvas renderer, audio, logic
-├── CHANGELOG.md   # version history and patch notes
+├── index.html                      # the whole game: markup, styles, canvas renderer, audio, logic
+├── CHANGELOG.md                    # version history and patch notes
 ├── README.md
-└── .nojekyll      # keep GitHub Pages from running Jekyll
+├── adblock-island-beta-v0.7.0.zip  # self-contained release build
+└── .nojekyll                       # keep GitHub Pages from running Jekyll
 ```
 
 ## Performance notes
@@ -244,10 +262,11 @@ On a touch screen the HUD is deliberately thinner than the desktop one: a compac
 
 ## Patch notes
 
-The full history lives in the **[live patch notes](https://potaterrr.github.io/projects/adblock-island/#patch-notes)** (source: [CHANGELOG.md](CHANGELOG.md)), newest first, and the version on the title card always matches its top entry. The two most recent releases are the ones worth reading if you have played before: **0.6.0** is the balance pass — the two heroes whose classes you did not pick became your party, the ladder became a table of fixed crews, and class power finally applies to every hit — and **0.6.1** is the phone HUD diet, which folds the top of the screen into one quiet bar.
+The full history lives in the **[live patch notes](https://potaterrr.github.io/projects/adblock-island/#patch-notes)** (source: [CHANGELOG.md](CHANGELOG.md)), newest first, and the version on the title card always matches its top entry. **0.7.0** is the Endless mode patch: checkpoints, the forced upgrade gate, the damage curve and five new endless medals. If you have played before, **0.6.0** is the balance pass — the two heroes whose classes you did not pick became your party, the ladder became a table of fixed crews, and class power finally applies to every hit — and **0.6.1** is the phone HUD diet, which folds the top of the screen into one quiet bar.
 
 | Version | Date | Headline |
 | --- | --- | --- |
+| [0.7.0](CHANGELOG.md#070--2026-11-04) | 2026-11-04 | Endless mode, checkpoints, mandatory upgrades and a damage curve that punishes no-upgrade runs |
 | [0.6.7](CHANGELOG.md#067--2026-11-02) | 2026-11-02 | Class identity pass: unique silhouettes, held gear and real projectiles for every class |
 | [0.6.6](CHANGELOG.md#066--2026-11-02) | 2026-11-02 | Achievements + toasts + medal gallery, four new classes, PATCH NOTES button |
 | [0.6.5](CHANGELOG.md#065--2026-11-02) | 2026-11-02 | Class-specific projectile visuals |
