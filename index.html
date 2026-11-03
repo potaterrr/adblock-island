@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
 <meta name="theme-color" content="#bde8f2">
-<meta name="description" content="AdBlock Island — a wholesome micro-MMO in beta (v0.9.6). Nine classes, a south-shore dock, and a Halloween theme. Clear the static and leave a kind note on the beach.">
+<meta name="description" content="AdBlock Island — a wholesome micro-MMO in beta (v0.9.7). Nine classes, a south-shore dock, and a Halloween theme. Clear the static and leave a kind note on the beach.">
 <meta name="author" content="potaterrr">
 <meta name="application-name" content="AdBlock Island">
 <meta name="apple-mobile-web-app-title" content="AdBlock Island">
@@ -845,9 +845,13 @@ body.touch .chat-panel.collapsed .chat-log,body.touch .chat-panel.collapsed #cha
 .ad-popup .ad-sub{font-size:10px;color:var(--ink-soft);line-height:1.3;margin:0}
 .ad-popup .ad-cta{
   display:inline-block;margin-top:8px;padding:4px 12px;border:2px solid var(--line);
-  border-radius:6px;background:var(--sun);font-family:var(--ui);font-size:9px;font-weight:900;
+  border-radius:6px;background:var(--sun);color:var(--ink);cursor:pointer;
+  font-family:var(--ui);font-size:9px;font-weight:900;
   box-shadow:2px 2px 0 rgba(60,52,83,.25);letter-spacing:.04em;
 }
+.ad-popup .ad-cta:active{transform:translateY(1px);box-shadow:1px 1px 0 rgba(60,52,83,.25)}
+.ad-popup.trap{animation:adTrap .22s ease}
+@keyframes adTrap{0%,100%{filter:none}45%{filter:brightness(1.6) saturate(1.8)}}
 .ad-popup .ad-x{
   position:absolute;top:-2px;right:-2px;width:46px;height:46px;z-index:5;
   border:3px solid var(--line);border-radius:0 0 0 12px;
@@ -1431,7 +1435,7 @@ body.halloween .note-card .note-pin{background:#fffaf0}
         <div class="logo-badges">
           <div class="logo-kicker">a wholesome micro-MMO</div>
           <div class="beta-pill" id="betaPill" title="This is a beta build. The patch notes list what is still pending.">
-            <span class="beta-dot"></span>beta · <b id="betaVersion">v0.9.6</b>
+            <span class="beta-dot"></span>beta · <b id="betaVersion">v0.9.7</b>
           </div>
           <div class="mania-pill" title="Mania rules: death resets the run to wave 1, and bosses bring friends.">MANIA</div>
           <div class="halloween-pill" id="halloweenPill" title="Halloween theme is on. Toggle it in Settings.">HALLOWEEN</div>
@@ -1598,7 +1602,7 @@ const ICONS = {
 };
 const svg = (name) => ICONS[name] || ICONS.spark;
 
-const VERSION = '0.9.6';
+const VERSION = '0.9.7';
 
 /* Endless mode tuning. Named on purpose: after a playtest, change these
    numbers instead of hunting through the wave and damage code. */
@@ -3380,7 +3384,11 @@ function closePanel() {
   }, 180);
   if (wasType === 'kindness') { player.sit = false; }
   if (wasType === 'upgrades' && game.waveState === 'cleared' && game.state !== 'title') {
-    toast('Upgrades saved. Tap the wave card when you are ready for the next one.', '', '✦');
+    // Leaving the shop after a clear means "go". Wait for the close transition
+    // so restoration of the playing state cannot race the countdown.
+    setTimeout(() => {
+      if (game.state === 'playing' && game.waveState === 'cleared') startWaveCountdown();
+    }, 230);
   }
   resetArmed = false;
   audio.sfx('ui');
@@ -3617,7 +3625,7 @@ function buildHelpPanel() {
       </div>
       <div class="help-block">
         <h4>Ads, explained</h4>
-        <p><b>Pop-Up Imps</b> spawn little [X] windows — click them! <b>Unskippable Behemoths</b> are invulnerable while the ad plays, then weak during SKIP. <b>Clickbait Mimics</b> look like free joy. They are not free joy. <b>Banner Bats</b> throw flyers.</p>
+        <p><b>Pop-Up Imps</b> spawn little [X] windows — click the ✕, never <b>CLICK HERE</b>. The CTA is a trap that takes a random cut of your health. <b>Unskippable Behemoths</b> are invulnerable while the ad plays, then weak during SKIP. <b>Clickbait Mimics</b> look like free joy. They are not free joy. <b>Banner Bats</b> throw flyers.</p>
       </div>
       <div class="help-block">
         <h4>Be kind, rest often</h4>
@@ -3629,7 +3637,7 @@ function buildHelpPanel() {
       </div>
       <div class="help-block">
         <h4>Waves</h4>
-        <p>Every run starts at <b>Super Easy</b>. Clear the crew and choose <b>Upgrade</b> or <b>Next wave</b>; the next wave is always available, and the shop never starts it early. Each clear hands you a medal or a free item and a chapter of the island's log. Clear <b>Super Hard</b> and <b>Endless mode</b> begins — every third wave is a checkpoint that pauses the island, pays you Joy, and offers an optional upgrade. Continue is always available. Enemy damage climbs with depth, so a hero who never buys <b>Deep Breaths</b> will not last. The Algorithm still interrupts when the island is clear enough to wake it.</p>
+        <p>Every run starts at <b>Super Easy</b>. Clear the crew and choose <b>Upgrade</b> or <b>Next wave</b>; the next wave is always available, and leaving the upgrade shop after a clear starts the next-wave countdown automatically. Each clear hands you a medal or a free item and a chapter of the island's log. Clear <b>Super Hard</b> and <b>Endless mode</b> begins — every third wave is a checkpoint that pauses the island, pays you Joy, and offers an optional upgrade. Continue is always available. Enemy damage climbs with depth, so a hero who never buys <b>Deep Breaths</b> will not last. The Algorithm still interrupts when the island is clear enough to wake it.</p>
       </div>
       <div class="help-block">
         <h4>Mania rules</h4>
@@ -3798,7 +3806,7 @@ function buildWavePanel() {
   const bonus = 10 + n * 4;
 
   ui.modalTitle.textContent = 'Wave ' + n + ' cleared';
-  ui.modalSub.textContent = 'Upgrading never starts the next wave. The island waits for you.';
+  ui.modalSub.textContent = 'Leaving the shop starts the next wave. The island waits while you browse.';
 
   const winBlock = n === 10 ? `
     <div class="wave-win">
@@ -4655,7 +4663,7 @@ function damageMonster(m, amount, opts = {}) {
 function damagePlayer(amount, sourceX, sourceY, opts = {}) {
   if (game.state !== 'playing' || player.dead) return;
   if (player.invuln > 0) return;
-  let dmg = amount * damagePressure(game.wave);
+  let dmg = amount * (opts.ignorePressure ? 1 : damagePressure(game.wave));
   if (player.cls === 'blocker') dmg *= 0.85;
   if (player.cls === 'moderator') dmg *= 0.90;
   if (player.marked > 0) dmg *= 1.2;
@@ -4815,7 +4823,7 @@ function spawnAdPopup(monster) {
     <div class="ad-body">
       <p class="ad-title">${title}</p>
       <p class="ad-sub">${sub}</p>
-      <span class="ad-cta">CLICK HERE →</span>
+      <button type="button" class="ad-cta">CLICK HERE →</button>
     </div>
     <button class="ad-x" aria-label="Close pop-up ad">✕</button>
   `;
@@ -4828,6 +4836,13 @@ function spawnAdPopup(monster) {
     closePopup(p, true);
   });
   btn.addEventListener('click', (e) => { e.stopPropagation(); e.preventDefault(); });
+  const cta = $('.ad-cta', el);
+  const trap = (e) => {
+    e.stopPropagation(); e.preventDefault();
+    clickAdCta(p);
+  };
+  cta.addEventListener('pointerdown', trap);
+  cta.addEventListener('click', (e) => { e.stopPropagation(); e.preventDefault(); });
   el.addEventListener('pointerdown', (e) => e.stopPropagation());
   audio.sfx('ui');
 }
@@ -4862,6 +4877,27 @@ function closePopup(p, clicked) {
       screenShake(2, 0.2);
     }
   }
+}
+function clickAdCta(p) {
+  if (!p || p.expired || player.dead) return;
+  p.expired = true;
+  const idxp = popups.indexOf(p);
+  if (idxp >= 0) popups.splice(idxp, 1);
+  if (p.el) {
+    p.el.classList.add('trap', 'leaving');
+    setTimeout(() => p.el.remove(), 220);
+  }
+  // The "CLICK HERE" trap: a random cut of the player's current health,
+  // capped at 75%. It ignores wave pressure so the percentage is honest.
+  const pct = rand(0.25, 0.75);
+  const dmg = Math.max(1, Math.round(player.hp * pct));
+  player.invuln = 0;
+  damagePlayer(dmg, p.x, p.y, { source: 'popup-cta', ignorePressure: true });
+  player.marked = Math.max(player.marked, 4);
+  screenShake(8, 0.35);
+  audio.sfx('popbad');
+  floatingText(player.x, player.y - 48, 'AD TRAP', PAL.corruptHot, 16, 1.4, { weight: 900 });
+  toast('You clicked "CLICK HERE". Ads take a random cut of your health for that.', 'warn', '!');
 }
 function closePopupsFor(monster, gentle) {
   for (const p of popups.slice()) if (p.m === monster) closePopup(p, false);
