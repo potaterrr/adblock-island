@@ -1,6 +1,6 @@
 # AdBlock Island
 
-**v0.1.0 · Online beta, back to normal** · [Play it](https://potaterrr.github.io/adblock-island/) · [Patch notes](https://potaterrr.github.io/projects/adblock-island/#patch-notes)
+**v0.1.0 · Online beta, back to normal** · [Play on Vercel](https://adblock-island.vercel.app/) · [Play on GitHub Pages](https://potaterrr.github.io/adblock-island/) · [Patch notes](https://potaterrr.github.io/projects/adblock-island/#patch-notes)
 
 A wholesome micro-RPG in a single HTML file, currently in **beta**. The ads took the beach, the locals kept the kettle on. Pick a class, sweep the static, bonk the ad-monsters, and leave a kind note for whoever washes ashore next.
 
@@ -88,6 +88,8 @@ It is not a sad story. The ocean is still warm, the kettle still works, and the 
 There is no timer and no score to chase. Play for ten minutes or an hour. Run progress resets each visit; medals, notes, settings and lifetime bests save automatically in `localStorage`.
 
 ## Play it
+
+The online-beta build is live at **https://adblock-island.vercel.app/**.
 
 Open `index.html` directly, or serve the folder:
 
