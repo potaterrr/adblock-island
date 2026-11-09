@@ -47,6 +47,35 @@ Until then, the honest description is: a single-player and local co-op cozy micr
 
 ---
 
+## v0.2.0 — Room codes (phase 1) (2026-11-09)
+
+The first online build. The island itself is untouched; this release connects players before it puts them on the same beach.
+
+### The lobby
+
+- **`play online` button.** It sits directly under **wash ashore** and uses the same `.big-btn` style, so the title screen has one obvious pair of doors.
+- **Create or join.** Open a room to get a six-character code (no `0`, `O`, `1`, `I`), or type a friend's code. Up to **four heroes** per room.
+- **Invite links.** `?room=CODE` opens the lobby with the code filled in.
+- **Live roster.** The lobby lists every hero, their class, who is host, who is you, and a green dot plus round-trip ping once the data channel is open.
+- **Leave on close.** Closing the panel, pressing `Esc`, or clicking the backdrop leaves the room and closes the peer connections. The host leaving closes the room for everyone.
+
+### The handshake
+
+- **`api/signaling.js`** is a single Vercel function: `create`, `join`, `poll`, `signal` and `leave`. It stores room metadata and the SDP/ICE handshake in **Upstash Redis** (REST), with a two-hour room TTL and a 30-second stale-peer sweep.
+- **WebRTC data channels** connect every guest straight to the host. STUN only (no TURN yet), ordered channels, and a ping/pong every 2.5 seconds for the latency readout.
+- **No gameplay state crosses the wire yet.** Everyone stays in the lobby; spawning heroes into one island is phase 2.
+
+### Honest limits
+
+- Needs the free Upstash Redis store connected to the project. Without it the lobby says room codes are not switched on and the rest of the game plays as before.
+- No accounts, no chat, no host migration, no reconnect, no anti-cheat. If the host leaves, the room closes.
+- The offline build still makes **zero network calls**; the lobby is the only thing that talks to the server.
+
+### Housekeeping
+
+- `npm`-free deployment: the function has no dependencies, and the site still needs no build step.
+- Version **0.2.0**; release zip rebuilt.
+
 ## v0.1.0 — Online beta, back to normal (2026-11-09)
 
 First release on the **online-beta** branch, and a reset of the version count for the networked era. The page and the file do not change shape: one `index.html`, one page, different notes.

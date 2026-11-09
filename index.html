@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
 <meta name="theme-color" content="#bde8f2">
-<meta name="description" content="AdBlock Island — a wholesome micro-RPG in beta (v0.1.0). Nine classes and a south-shore dock. Clear the static and leave a kind note on the beach.">
+<meta name="description" content="AdBlock Island — a wholesome micro-RPG in beta (v0.2.0). Nine classes and a south-shore dock. Clear the static and leave a kind note on the beach.">
 <meta name="author" content="potaterrr">
 <meta name="application-name" content="AdBlock Island">
 <meta name="apple-mobile-web-app-title" content="AdBlock Island">
@@ -227,6 +227,19 @@ button{cursor:pointer;border:0;background:none}
   background:var(--sun);box-shadow:0 0 0 2px rgba(255,255,255,.35);
 }
 .beta-pill b{font-weight:900;color:var(--sun);text-transform:none;letter-spacing:.06em}
+.room-code{
+  display:inline-block;font-family:var(--ui);font-weight:900;font-size:clamp(22px,4vw,30px);
+  letter-spacing:.28em;color:var(--ink);background:var(--paper-2);
+  border:2px dashed var(--line);border-radius:10px;padding:8px 14px 8px 20px;
+}
+.net-line{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 10px;border:2px solid rgba(60,52,83,.14);border-radius:8px;background:var(--paper-2);margin:6px 0;font-family:var(--ui);font-size:11px}
+.net-line b{font-size:12px}
+.net-dot{width:9px;height:9px;border-radius:50%;background:#c9b9a5;flex:0 0 9px}
+.net-dot.on{background:#3f9a73;box-shadow:0 0 0 3px rgba(63,154,115,.18)}
+.net-dot.wait{background:var(--sun)}
+.net-hint{font-size:10px;color:var(--ink-faint);line-height:1.6;margin:10px 0 0}
+.net-row{display:flex;gap:8px;align-items:center;margin:10px 0}
+.net-input{flex:1;min-width:0;font-family:var(--ui);font-weight:800;font-size:14px;letter-spacing:.14em;text-transform:uppercase;padding:10px 12px;border:2px solid var(--line);border-radius:8px;background:var(--paper-2);color:var(--ink)}
 @keyframes betaPop{0%,100%{transform:rotate(1.5deg) scale(1)}50%{transform:rotate(1.5deg) scale(1.04)}}
 h1.logo{
   margin:0;font-family:var(--ui);font-weight:900;line-height:.92;
@@ -1324,7 +1337,7 @@ body.scanlines::after{
         <div class="logo-badges">
           <div class="logo-kicker">a wholesome micro-RPG</div>
           <div class="beta-pill" id="betaPill" title="This is a beta build. The patch notes list what is still pending.">
-            <span class="beta-dot"></span>beta · <b id="betaVersion">v0.1.0</b>
+            <span class="beta-dot"></span>beta · <b id="betaVersion">v0.2.0</b>
           </div>
         </div>
         <h1 class="logo">ADBLOCK<br><span>ISLAND</span></h1>
@@ -1334,6 +1347,7 @@ body.scanlines::after{
         <label class="field-label" for="nameInput">your island name</label>
         <input id="nameInput" maxlength="16" placeholder="a friendly nickname" autocomplete="off" spellcheck="false">
         <button class="big-btn" id="startBtn">wash ashore →</button>
+        <button class="big-btn" id="onlineBtn">play online →</button>
         <a class="big-btn" id="patchNotesBtn" href="https://potaterrr.github.io/projects/adblock-island/#patch-notes" target="_blank" rel="noopener">PATCH NOTES →</a>
         <button class="text-btn" id="titleHelpBtn">how to play &amp; controls</button>
         <button class="text-btn" id="titleFullscreenBtn">fullscreen</button>
@@ -1489,7 +1503,7 @@ const ICONS = {
 };
 const svg = (name) => ICONS[name] || ICONS.spark;
 
-const VERSION = '0.1.0';
+const VERSION = '0.2.0';
 
 /* Endless mode tuning. Named on purpose: after a playtest, change these
    numbers instead of hunting through the wave and damage code. */
@@ -2685,6 +2699,8 @@ function buildClassCards() {
 
 function bindUI() {
   $('#startBtn').addEventListener('click', startGame);
+  const onlineBtn = $('#onlineBtn');
+  if (onlineBtn) onlineBtn.addEventListener('click', () => { openPanel('online'); audio.sfx('select'); });
   ui.nameInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') startGame(); });
   $('#titleHelpBtn').addEventListener('click', () => openPanel('help'));
   if (ui.titleFullscreenBtn) ui.titleFullscreenBtn.addEventListener('click', toggleFullscreen);
@@ -2694,6 +2710,11 @@ function bindUI() {
     syncCoopBtn();
     audio.sfx('ui');
   });
+  const urlRoom = new URLSearchParams(location.search).get('room');
+  if (urlRoom) {
+    NET.draftCode = urlRoom.toUpperCase().replace(/[^A-Z2-9]/g, '').slice(0, 6);
+    setTimeout(() => { if (game.state === 'title') openPanel('online'); }, 400);
+  }
   ui.muteBtn.addEventListener('click', () => {
     settings.muted = !settings.muted;
     audio.setMuted(settings.muted);
@@ -3205,6 +3226,386 @@ function seedChat() {
 }
 
 /* ------------------------------- panels --------------------------------- */
+/* ============================================================================
+   ONLINE LOBBY (phase 1)
+   Room codes and the WebRTC handshake. Every call here is inert until the
+   player opens the online panel, so the offline build makes no network calls.
+   ============================================================================ */
+function escapeHtml(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+const NET = {
+  phase: 'idle',          // idle | busy | room | error
+  role: null,             // host | guest
+  code: null,
+  peerId: null,
+  room: null,
+  error: '',
+  draftCode: '',
+  pollT: null,
+  peers: new Map(),       // peerId -> { pc, dc, connected, latency, pendingIce, pingT }
+  seen: new Set(),
+  ice: { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:stun1.l.google.com:19302' }] }
+};
+
+function netName() {
+  const typed = (ui.nameInput && ui.nameInput.value || '').trim();
+  return (typed || save.name || 'a neighbour').slice(0, 16);
+}
+
+async function netApi(action, extra = {}) {
+  const res = await fetch('/api/signaling', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(Object.assign({ action }, extra))
+  });
+  let data = null;
+  try { data = await res.json(); } catch (e) {}
+  if (!data) throw new Error('The lobby desk is not answering. Try again in a moment.');
+  if (!data.ok) throw new Error(data.error || 'The lobby desk said no.');
+  return data;
+}
+
+function netRender() {
+  if (game.modalType === 'online') renderOnlinePanel();
+}
+
+async function netCreateRoom() {
+  if (NET.phase === 'busy') return;
+  NET.phase = 'busy'; NET.error = ''; netRender();
+  try {
+    const data = await netApi('create', { name: netName(), cls: selectedClass });
+    NET.role = 'host';
+    NET.code = data.code;
+    NET.peerId = data.peerId;
+    NET.room = data.room;
+    NET.phase = 'room';
+    netStartPolling();
+    audio.sfx('start');
+  } catch (e) {
+    NET.phase = 'error'; NET.error = e.message;
+  }
+  netRender();
+}
+
+async function netJoinRoom() {
+  if (NET.phase === 'busy') return;
+  const code = (NET.draftCode || '').toUpperCase().replace(/[^A-Z2-9]/g, '').slice(0, 6);
+  if (code.length !== 6) { toast('A room code is six letters and numbers.', 'warn', '!'); return; }
+  NET.phase = 'busy'; NET.error = ''; netRender();
+  try {
+    const data = await netApi('join', { code, name: netName(), cls: selectedClass });
+    NET.role = 'guest';
+    NET.code = code;
+    NET.peerId = data.peerId;
+    NET.room = data.room;
+    NET.phase = 'room';
+    netStartPolling();
+    audio.sfx('start');
+  } catch (e) {
+    NET.phase = 'error'; NET.error = e.message;
+  }
+  netRender();
+}
+
+function netReset(message) {
+  clearTimeout(NET.pollT); NET.pollT = null;
+  for (const rec of NET.peers.values()) netDropPeer(rec);
+  NET.peers.clear();
+  NET.seen.clear();
+  NET.phase = message ? 'error' : 'idle';
+  NET.error = message || '';
+  NET.role = null; NET.code = null; NET.peerId = null; NET.room = null;
+  netRender();
+}
+
+function netLeave() {
+  if (NET.code && NET.peerId) {
+    try {
+      fetch('/api/signaling', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'leave', code: NET.code, peerId: NET.peerId }),
+        keepalive: true
+      }).catch(() => {});
+    } catch (e) {}
+  }
+  netReset('');
+}
+
+function netApiQuiet(action, extra) {
+  try {
+    fetch('/api/signaling', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(Object.assign({ action }, extra))
+    }).catch(() => {});
+  } catch (e) {}
+}
+
+function netStartPolling() {
+  clearTimeout(NET.pollT);
+  const tick = async () => {
+    if (NET.phase !== 'room' || !NET.code) return;
+    try {
+      const data = await netApi('poll', { code: NET.code, peerId: NET.peerId });
+      NET.room = data.room;
+      for (const m of (data.messages || [])) {
+        if (!m || !m.id || NET.seen.has(m.id)) continue;
+        NET.seen.add(m.id);
+        if (NET.seen.size > 400) NET.seen.clear();
+        netHandleSignal(m);
+      }
+      if (NET.role === 'host') netHostStayInTouch();
+      netPrunePeers();
+      netRender();
+    } catch (e) {
+      if (/left the room|closed|No room|not found/i.test(e.message)) {
+        netReset(e.message);
+        return;
+      }
+    }
+    NET.pollT = setTimeout(tick, 1200);
+  };
+  tick();
+}
+
+function netHostStayInTouch() {
+  if (!NET.room) return;
+  const ids = new Set((NET.room.peers || []).map((p) => p.id));
+  for (const p of NET.room.peers || []) {
+    if (p.id === NET.peerId) continue;
+    if (!NET.peers.has(p.id)) netOfferTo(p.id);
+  }
+  for (const id of NET.peers.keys()) {
+    if (!ids.has(id)) { netDropPeer(NET.peers.get(id)); NET.peers.delete(id); }
+  }
+}
+
+function netPrunePeers() {
+  if (!NET.room) return;
+  const ids = new Set((NET.room.peers || []).map((p) => p.id));
+  for (const [id, rec] of NET.peers) {
+    if (!ids.has(id)) { netDropPeer(rec); NET.peers.delete(id); }
+  }
+}
+
+function netPeerRec(id) {
+  let rec = NET.peers.get(id);
+  if (!rec) {
+    rec = { pc: null, dc: null, connected: false, latency: 0, pendingIce: [], pingT: null };
+    NET.peers.set(id, rec);
+  }
+  return rec;
+}
+
+function netDropPeer(rec) {
+  if (!rec) return;
+  if (rec.pingT) { clearInterval(rec.pingT); rec.pingT = null; }
+  try { if (rec.dc) rec.dc.close(); } catch (e) {}
+  try { if (rec.pc) rec.pc.close(); } catch (e) {}
+  rec.connected = false;
+}
+
+function netSendSignal(to, kind, payload) {
+  netApiQuiet('signal', { code: NET.code, from: NET.peerId, to, kind, payload });
+}
+
+function netWire(id, rec, dc) {
+  rec.dc = dc;
+  dc.onopen = () => {
+    rec.connected = true;
+    if (rec.pingT) clearInterval(rec.pingT);
+    rec.pingT = setInterval(() => {
+      try { if (dc.readyState === 'open') dc.send(JSON.stringify({ t: 'ping', at: Date.now() })); } catch (e) {}
+    }, 2500);
+    netRender();
+  };
+  dc.onmessage = (e) => {
+    let msg = null;
+    try { msg = JSON.parse(e.data); } catch (err) { return; }
+    if (!msg) return;
+    if (msg.t === 'ping') {
+      try { dc.send(JSON.stringify({ t: 'pong', at: msg.at })); } catch (err) {}
+    } else if (msg.t === 'pong') {
+      rec.latency = Math.max(0, Date.now() - (msg.at || Date.now()));
+      netRender();
+    }
+  };
+  dc.onclose = () => { rec.connected = false; if (rec.pingT) { clearInterval(rec.pingT); rec.pingT = null; } netRender(); };
+  dc.onerror = () => { rec.connected = false; netRender(); };
+}
+
+async function netOfferTo(id) {
+  const rec = netPeerRec(id);
+  try {
+    const pc = new RTCPeerConnection(NET.ice);
+    rec.pc = pc;
+    const dc = pc.createDataChannel('island', { ordered: true });
+    netWire(id, rec, dc);
+    pc.onicecandidate = (e) => {
+      if (e.candidate) netSendSignal(id, 'ice', e.candidate.toJSON ? e.candidate.toJSON() : e.candidate);
+    };
+    pc.onconnectionstatechange = () => {
+      if (['failed', 'disconnected', 'closed'].includes(pc.connectionState)) {
+        rec.connected = false;
+        netRender();
+      }
+    };
+    const offer = await pc.createOffer();
+    await pc.setLocalDescription(offer);
+    netSendSignal(id, 'offer', { type: 'offer', sdp: pc.localDescription.sdp });
+  } catch (e) {
+    NET.peers.delete(id);
+  }
+}
+
+async function netAcceptOffer(from, rec, payload) {
+  if (!payload || !payload.sdp) return;
+  try {
+    if (!rec.pc) {
+      const pc = new RTCPeerConnection(NET.ice);
+      rec.pc = pc;
+      pc.ondatachannel = (e) => netWire(from, rec, e.channel);
+      pc.onicecandidate = (e) => {
+        if (e.candidate) netSendSignal(from, 'ice', e.candidate.toJSON ? e.candidate.toJSON() : e.candidate);
+      };
+    }
+    await rec.pc.setRemoteDescription(payload);
+    for (const c of rec.pendingIce) { try { await rec.pc.addIceCandidate(c); } catch (e) {} }
+    rec.pendingIce = [];
+    const answer = await rec.pc.createAnswer();
+    await rec.pc.setLocalDescription(answer);
+    netSendSignal(from, 'answer', { type: 'answer', sdp: rec.pc.localDescription.sdp });
+  } catch (e) {}
+}
+
+async function netHandleSignal(m) {
+  const rec = netPeerRec(m.from);
+  if (m.kind === 'offer') {
+    await netAcceptOffer(m.from, rec, m.payload);
+  } else if (m.kind === 'answer') {
+    if (rec.pc) {
+      try {
+        await rec.pc.setRemoteDescription(m.payload);
+        for (const c of rec.pendingIce) { try { await rec.pc.addIceCandidate(c); } catch (e) {} }
+        rec.pendingIce = [];
+      } catch (e) {}
+    }
+  } else if (m.kind === 'ice' && m.payload) {
+    if (rec.pc && rec.pc.remoteDescription) {
+      try { await rec.pc.addIceCandidate(m.payload); } catch (e) {}
+    } else {
+      rec.pendingIce.push(m.payload);
+    }
+  }
+  netRender();
+}
+
+function buildOnlinePanel() {
+  renderOnlinePanel();
+  panelFoot([{ label: 'Close', action: 'close' }]);
+}
+
+function renderOnlinePanel() {
+  const body = ui.modalBody;
+  if (!body) return;
+  const phase = NET.phase;
+  if (phase === 'room') {
+    const peers = (NET.room && NET.room.peers) ? NET.room.peers : [];
+    const hostId = NET.room && NET.room.host ? NET.room.host.id : null;
+    const rows = peers
+      .slice()
+      .sort((a, b) => (a.id === hostId ? -1 : b.id === hostId ? 1 : 0))
+      .map((p) => {
+        const rec = NET.peers.get(p.id);
+        const connected = p.id === NET.peerId || (rec && rec.connected);
+        const latency = rec && rec.latency ? ' · ' + rec.latency + 'ms' : '';
+        const tag = p.id === hostId ? 'host' : 'hero';
+        const you = p.id === NET.peerId ? ' · you' : '';
+        return `<div class="net-line">
+          <span class="net-dot ${connected ? 'on' : 'wait'}"></span>
+          <b>${escapeHtml(p.name)}</b>
+          <span>${escapeHtml((CLASSES[p.cls] && CLASSES[p.cls].name) || 'AdBlocker')}</span>
+          <span style="margin-left:auto;color:var(--ink-faint)">${tag}${you}${latency}</span>
+        </div>`;
+      })
+      .join('');
+    const connectedCount = peers.filter((p) => p.id === NET.peerId || (NET.peers.get(p.id) && NET.peers.get(p.id).connected)).length;
+    body.innerHTML = `
+      <div class="help-block">
+        <h4>Your room</h4>
+        <p>Share this code, or send the invite link. Up to four heroes. The room closes when the host leaves.</p>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:10px 0 4px">
+          <span class="room-code" id="roomCodeText">${escapeHtml(NET.code || '')}</span>
+          <button class="btn" id="netCopyBtn">copy code</button>
+          <button class="btn" id="netCopyLinkBtn">copy invite link</button>
+        </div>
+      </div>
+      <div class="help-block">
+        <h4>Heroes (${connectedCount}/${peers.length})</h4>
+        ${rows || '<p>Nobody else yet. The code is waiting.</p>'}
+      </div>
+      <p class="net-hint">Phase 1 connects the room over WebRTC. Spawning every hero into the same island is the next build.</p>
+      <div class="net-row">
+        <button class="btn danger" id="netLeaveBtn">leave the room</button>
+      </div>
+    `;
+    const copy = async (text) => {
+      try {
+        await navigator.clipboard.writeText(text);
+        toast('Copied.', 'good', '✦');
+      } catch (e) {
+        toast('Copy failed — select the code and copy it by hand.', 'warn', '!');
+      }
+    };
+    const copyBtn = $('#netCopyBtn', body);
+    if (copyBtn) copyBtn.addEventListener('click', () => { copy(NET.code || ''); audio.sfx('ui'); });
+    const linkBtn = $('#netCopyLinkBtn', body);
+    if (linkBtn) linkBtn.addEventListener('click', () => {
+      const link = location.origin + location.pathname + '?room=' + (NET.code || '');
+      copy(link); audio.sfx('ui');
+    });
+    const leaveBtn = $('#netLeaveBtn', body);
+    if (leaveBtn) leaveBtn.addEventListener('click', () => { netLeave(); audio.sfx('ui'); });
+    return;
+  }
+  if (phase === 'busy') {
+    body.innerHTML = `<p style="padding:14px 0;font-family:var(--ui);font-size:12px">Tuning the lobby desk…</p>`;
+    return;
+  }
+  if (phase === 'error') {
+    body.innerHTML = `
+      <div class="help-block"><h4>The desk could not help</h4><p>${escapeHtml(NET.error || 'Something went wrong.')}</p></div>
+      <button class="btn" id="netBackBtn">back</button>
+    `;
+    const back = $('#netBackBtn', body);
+    if (back) back.addEventListener('click', () => { NET.phase = 'idle'; NET.error = ''; renderOnlinePanel(); audio.sfx('ui'); });
+    return;
+  }
+  body.innerHTML = `
+    <div class="help-block">
+      <h4>Room-code co-op</h4>
+      <p>Open a room and share the six-character code, or type a friend's code. Up to four heroes, no accounts, no chat. The room closes when the host leaves.</p>
+    </div>
+    <button class="big-btn" id="netCreateBtn">open a room →</button>
+    <div class="net-row">
+      <input class="net-input" id="netCodeInput" maxlength="6" placeholder="ROOM CODE" autocomplete="off" spellcheck="false" value="${escapeHtml(NET.draftCode || '')}">
+      <button class="btn" id="netJoinBtn">join</button>
+    </div>
+    <p class="net-hint">This build connects the room over WebRTC. Spawning every hero into the same island is the next build.</p>
+  `;
+  const create = $('#netCreateBtn', body);
+  if (create) create.addEventListener('click', () => { netCreateRoom(); audio.sfx('select'); });
+  const input = $('#netCodeInput', body);
+  if (input) {
+    input.addEventListener('input', () => { NET.draftCode = input.value.toUpperCase().replace(/[^A-Z2-9]/g, '').slice(0, 6); input.value = NET.draftCode; });
+    input.addEventListener('keydown', (e) => { if (e.key === 'Enter') netJoinRoom(); });
+  }
+  const join = $('#netJoinBtn', body);
+  if (join) join.addEventListener('click', () => { netJoinRoom(); audio.sfx('ui'); });
+}
+
 const PANEL_META = {
   upgrades: { title: 'A slightly better broom', sub: 'Spend Joy on small improvements for this run. The island rewards patience.', icon: 'spark' },
   kindness: { title: 'The kindness wall', sub: 'A bench, a wall, and a quiet promise: no ads, no rush, no bad faith.', icon: 'note' },
@@ -3214,6 +3615,7 @@ const PANEL_META = {
   wave: { title: 'Wave cleared', sub: 'The island takes a breath. You decide what comes next.', icon: 'sun' },
   checkpoint: { title: 'Endless checkpoint', sub: 'The island pauses. Spend a little Joy, then climb again.', icon: 'spark' },
   dock: { title: 'Mira’s dock shop', sub: 'A quiet counter at the end of the pier. Stock is still arriving.', icon: 'coin' },
+  online: { title: 'Play online', sub: 'A short room code, a WebRTC handshake, and up to four heroes.', icon: 'spark' },
   victory: { title: 'Island restored', sub: 'You did a good thing. Look at all this green.', icon: 'sun' }
 };
 
@@ -3253,6 +3655,7 @@ function closePanel() {
     openPanel('checkpoint');
     return;
   }
+  if (game.modalType === 'online' && NET.phase === 'room') netLeave();
   ui.modalLayer.classList.remove('show');
   const wasType = game.modalType;
   game.modalType = null;
@@ -3306,6 +3709,7 @@ function buildPanel(type) {
   else if (type === 'wave') buildWavePanel();
   else if (type === 'checkpoint') buildCheckpointPanel();
   else if (type === 'dock') buildDockPanel();
+  else if (type === 'online') buildOnlinePanel();
   else if (type === 'victory') buildVictoryPanel();
 }
 
@@ -3528,6 +3932,7 @@ function buildHelpPanel() {
       <div class="help-block">
         <h4>Play with a friend</h4>
         <p>Turn on <b>play with a friend</b> on the title screen for same-keyboard co-op. You keep <kbd>WASD</kbd>, <kbd>J</kbd>, <kbd>Q</kbd>, <kbd>E</kbd>; your friend moves with the <kbd>arrow keys</kbd> and auto-swings at whatever they face. The camera holds you both, so stay within a screen of each other.</p>
+        <p>For separate keyboards, press <b>play online</b> on the title screen. Open a room, share the six-character code or the invite link, and up to four heroes can join the lobby over WebRTC. This build connects the room; spawning everyone into the same island is the next build.</p>
       </div>
       <div class="help-block">
         <h4>This build</h4>
