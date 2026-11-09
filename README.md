@@ -1,8 +1,8 @@
 # AdBlock Island
 
-**v0.9.8 · Fullscreen option** · [Play it](https://potaterrr.github.io/adblock-island/) · [Patch notes](https://potaterrr.github.io/projects/adblock-island/#patch-notes)
+**v0.1.0 · Online beta, back to normal** · [Play it](https://potaterrr.github.io/adblock-island/) · [Patch notes](https://potaterrr.github.io/projects/adblock-island/#patch-notes)
 
-A wholesome micro-MMO in a single HTML file, currently in **beta**. The ads took the beach, the locals kept the kettle on. Pick a class, sweep the static, bonk the ad-monsters, and leave a kind note for whoever washes ashore next.
+A wholesome micro-RPG in a single HTML file, currently in **beta**. The ads took the beach, the locals kept the kettle on. Pick a class, sweep the static, bonk the ad-monsters, and leave a kind note for whoever washes ashore next.
 
 Everything is self-contained: no build step, no CDN, no images, no fonts, no backend, no accounts, no trackers. The island is drawn with the Canvas 2D API, and the ocean, lo-fi chords, and sound effects are synthesized with the Web Audio API.
 
@@ -12,7 +12,7 @@ index.html   ← the entire game (≈420 KB, markup + CSS + renderer + audio + l
 
 ## Status: beta
 
-**v0.9.8 is a beta.** The island is playable end to end — nine classes, two companions, the wave ladder, Endless mode with checkpoints, medals, items, the Algorithm, the south-shore dock, a Halloween theme, kindness notes and same-keyboard co-op — but it is not a finished MMORPG. Mania rules are live: death resets the run, and the Algorithm has a 50% chance to wake on each eligible wave.
+**v0.1.0 is a beta**, and it is the first release on the **online-beta** branch. The island is playable end to end — nine classes, two companions, the wave ladder, Endless mode with checkpoints, medals, items, the Algorithm, the south-shore dock, kindness notes and same-keyboard co-op. The Halloween theme and Four-boss Mania mode are gone, the theme is back to the plain island palette, and the Algorithm wakes on a **33%** roll per eligible wave and splits once into two. This branch restarts the version count at **0.1.0** for the networked era; its patch notes are separate from the main branch, but the game is still one page, one file.
 
 Versions count from zero while the game is in beta, so every release is `0.x`; the title card's build tag and the top entry of the patch notes always agree.
 
@@ -22,39 +22,28 @@ Still pending, in short:
 
 - **Achievements.** Medals now cover waves, each class, co-op, the Algorithm boss, spending, cleanup and Endless milestones, with a gallery and unlock toasts in the pause screen. Dated unlock history and account-wide persistence are still to come.
 - **Cool items.** Waves give seven small items that are mostly free upgrade ranks. A real inventory, cosmetic drops with an equip screen, rarity tiers and usable items are still to come.
-- **MMORPG essentials.** Online multiplayer and rooms, accounts and cross-device saves, moderated chat, parties and guilds, quests and raids, trading, anti-cheat and live ops. These need a backend; a static `index.html` on GitHub Pages cannot provide them. The next planned step is **4-player room-code co-op**: Vercel hosts the game and a tiny signaling API, a free Redis store holds room codes and WebRTC handshakes, and one player hosts the authoritative simulation. It is deliberately not shipped yet.
+- **Online co-op essentials.** Networked rooms, accounts and cross-device saves, moderated chat, parties and quests, trading and anti-cheat. These need a backend, so the online build lives on this branch: Vercel hosts the game and a tiny signaling API, a free Redis store holds room codes and WebRTC handshakes, and one player hosts the authoritative simulation. Room-code co-op is the next milestone, not shipped in v0.1.0.
 
 The full, honest list lives in **[Still pending](CHANGELOG.md#still-pending)** at the top of the patch notes.
 
-## What's new in v0.9.8 — Fullscreen option
+## What's new in v0.1.0 — Online beta, back to normal
 
 A short version of the [patch notes](CHANGELOG.md):
 
-- **Fullscreen.** A title-screen button joins the Settings one; both toggle in and out. Orientation is not locked.
-- **Leaving the shop starts the next wave.** Close the upgrade panel after a clear and the normal 10-second countdown begins automatically.
-- **CLICK HERE is a trap.** The pop-up CTA now takes a random 25–75% of your current health. The ✕ still rewards Joy.
-- **One boss, 50% per wave.** Once the island is 64% clear, each wave has a 50% chance to wake the Algorithm. No opening pair; the encounter happens once per run.
-- **Four-boss lock.** Once four bosses are live, splitting stops for the rest of the fight. Kill the remaining bosses one at a time; the boss bar moves to the next live Algorithm.
-- **Split ladder.** A boss splits at **75% HP** into two smaller bosses; each child can split once again at 75%, so **1 → 2 → 4**. Split bosses shrink to 82%, then 67%.
-- **Speed tiers.** One boss is normal, two bosses are **+25%** faster, and three or four are **+50%** faster in movement and attack tempo.
-- **RNG bosses.** Beams are 1–2 random casts with random spread, length and wind-up; summons roll random counts, types and positions, with behemoths as a rare roll.
-- **Boss fights get their own budget.** While any boss is alive the canvas drops to 1.1× desktop / 1.0× touch, then restores after the last one dies. Multi-boss fights draw fewer ornaments, cache the sponsored cards and boss-bar gradient, and cap nameplates.
-- **Boss adds are capped.** Multi-boss fights keep at most 8 live adds, use quieter summon particles, and fire 6-projectile volleys instead of 9. Single-boss fights keep the original numbers.
-- **Smoother canvas.** 1.5× DPR cap on desktop and 1.25× on touch, a 60 fps render ceiling, cached gradients and Halloween layers, a cached minimap terrain pass, and a lighter water animation. Touch devices draw fewer overlay effects.
-- **Four-boss Mania.** The **Settings → Four-boss Mania** option lets split children split once more at **75% HP**, up to four live. Turn it off to stop the ladder at two.
-- **Readable Halloween theme.** Warm parchment surfaces, dark ink, pumpkin-orange accents and a violet-to-peach title sky. Wave banners now use solid paper backing with high-contrast labels, kickers and notes.
-- **Two new classes.** **Archivist / support** marks ads and patches the party; **Moderator / crowd control** stuns, knocks back and shuts down crowds. Both have procedural Canvas portraits, distinct silhouettes, their own gear, projectiles, hit effects, HUD icons, class cards and wave-5 medals.
-- **The dock is real.** The south shore has a pier, crates, a lantern, a bobbing boat and **Mira** the shopkeeper with her stall and an `F` prompt. The panel is honest: shop, travel and dock quests are the next expansion.
-- **Halloween theme.** Default-on, with a Settings toggle: warm autumn dusk, a pumpkin moon, fog, bats, jack-o'-lanterns and a **HALLOWEEN** badge on the title screen. All text stays dark-on-parchment for readability.
-- **Companions, no healer.** The two companions are drawn from AdBlocker, Reader-Mode, Archivist and Moderator, and an AI companion never heals the real player. Fact-Checker and Medic are player-only.
-- **Mania still applies.** Death resets the run, one boss can wake per run at 50% per wave, and bosses split at 75% into the 1 → 2 → 4 ladder.
-- **Release zip.** `adblock-island-beta-v0.9.8.zip` is a self-contained build of this single file plus these docs. It runs from `file://`, from GitHub Pages, or from any static host — no CDN, no backend, no network calls.
+- **Back to the plain island.** The Halloween theme is removed entirely: no theme toggle, no `HALLOWEEN` badge, no pumpkin moon, fog, bats or jack-o'-lanterns. The default palette, title sky and decorations are the ordinary island again.
+- **Mania is out.** The `MANIA` badge, rules note and Settings → Four-boss Mania toggle are gone.
+- **Bosses stop at two.** At 75% HP a boss still splits once into two smaller halves, but children never split again. Two live bosses move and attack 25% faster.
+- **One boss, 33% per wave.** Once the island is 64% clear, each wave has a **33%** chance to wake the Algorithm; a failed roll tries again next wave.
+- **Normal death.** Death no longer wipes the run: you wake at the bench with full health. In Endless during a fight, the current wave restarts and your Joy and upgrades are kept.
+- **Co-op scaling.** Extra humans add ads (up to +6, hard-capped at 22 in a wave) and **+55% monster health** each; the Algorithm scales **+55%** per extra hero, so solo runs keep the tuned numbers.
+- **micro-RPG, not MMO.** Wording across the page, help panel and docs now calls it a co-op RPG.
+- **Version reset.** This branch restarts at **v0.1.0** with its own patch notes; the game is still one page and one file.
 
 ## Download
 
-**[Download v0.9.8](https://github.com/potaterrr/adblock-island/releases/tag/v0.9.8)** (`adblock-island-beta-v0.9.8.zip`, also at the repo root). It is rebuilt from `index.html`, `README.md` and `CHANGELOG.md`. Unzip it, open `index.html`, and it plays — online or offline.
+**[Download v0.1.0](https://github.com/potaterrr/adblock-island/releases/tag/v0.1.0)** (`adblock-island-beta-v0.1.0.zip`, also at the repo root). It is rebuilt from `index.html`, `README.md` and `CHANGELOG.md`. Unzip it, open `index.html`, and it plays — online or offline.
 
-One honest caveat: **co-op is local, not networked.** "Play with a friend" puts player two on the same keyboard (arrow keys) on the same screen. A single static HTML file cannot do online matchmaking, peer-to-peer play or accounts on its own, so the zip is a complete single-player/co-op game, not an online multiplayer client. The next planned step is **4-player room-code online co-op** — Vercel static hosting plus a tiny signaling API and host-authoritative WebRTC — and the patch notes keep that roadmap honest.
+One honest caveat: **co-op is still local in v0.1.0.** "Play with a friend" puts player two on the same keyboard (arrow keys) on the same screen. The online-beta branch is where room-code networking lands: Vercel static hosting plus a tiny signaling API, host-authoritative WebRTC, and the same single page. Until that ships, the zip stays a complete single-player/same-keyboard-co-op game.
 
 ## Screenshots
 
@@ -88,15 +77,15 @@ It is not a sad story. The ocean is still warm, the kettle still works, and the 
 
 **4. Survive the waves.** Every run starts at **Super Easy** and climbs only when you say so. Clear a wave and choose **Upgrade** or **Next wave**; the next wave is always available. **Leaving the upgrade shop after a clear starts the next-wave countdown automatically**, so browse and buy before you close it. **Next wave** gives you a **10-second countdown** to take a breath or change your mind. Each clear pays bonus Joy and XP and hands you a **medal or a free item**, plus the next chapter of the island's story. Watch the card under your portrait for the wave, the tier, what's left, and (in Endless) the enemy damage pressure.
 
-**5. Reach Super Hard, then Endless.** Wave 10 is the last of the campaign ladder: clear it and the island stops serving ads for good. If you want more, wave 11 opens **Endless mode**: no final wave, enemy damage climbs with depth, and every third wave is a **checkpoint** that pauses the island, pays you Joy (80, 100, 120…), and offers an optional upgrade. Continue is always available. In **Mania**, dying resets the run to wave 1; medals and notes survive, run progress does not.
+**5. Reach Super Hard, then Endless.** Wave 10 is the last of the campaign ladder: clear it and the island stops serving ads for good. If you want more, wave 11 opens **Endless mode**: no final wave, enemy damage climbs with depth, and every third wave is a **checkpoint** that pauses the island, pays you Joy (80, 100, 120…), and offers an optional upgrade. Continue is always available.
 
-**6. Wake the Algorithm.** When the island is about 64% clear, the boss wakes at the plaza and starts running ad breaks. Dodge the sponsored beams, break its health thresholds, and finish the fight. In **Mania**, there is exactly **one boss per run**. Once the island is **64% clear**, each wave has a **50%** chance to wake it; a failed roll tries again on the next wave. At **75% health** a boss is consumed and splits into **two smaller bosses**; each child can split once more at 75%, so one boss becomes **two, then four**. Two live bosses move and attack **25% faster**; three or four move and attack **50% faster**. Beams and summons are randomised. **Four-boss Mania** (Settings, on by default) allows the second-generation split; turn it off to stop at two. Waves pause while bosses are out.
+**6. Wake the Algorithm.** When the island is about 64% clear, the boss wakes at the plaza and starts running ad breaks. Dodge the sponsored beams, break its health thresholds, and finish the fight. There is exactly **one boss per run**. Once the island is **64% clear**, each wave has a **33%** chance to wake it; a failed roll tries again on the next wave. At **75% health** a boss is consumed and splits into **two smaller bosses**, and those halves cannot split again. Two live bosses move and attack **25% faster**. Beams and summons are randomised. Waves pause while bosses are out.
 
 **7. Be a neighbour.** Two companions are already here: they cleanse, chip ads, mark or stun, and chat, and they can be knocked out and carried back to the bench. They never heal the real player — the healer kits belong to the player alone. At the cozy bench (`F`), sit down and pin a note to the kindness wall — it is saved in your browser and read by whoever visits next, including you on a bad day.
 
 **8. Bring a friend (optional).** Choose **play with a friend** on the title screen for same-keyboard co-op: player 2 moves on the arrow keys and attacks automatically, shares Joy and waves, and is a real hero that ads will target.
 
-There is no timer and no score to chase. Play for ten minutes or an hour. In Mania, death resets the run to wave 1. Run progress also resets each visit; medals, notes, settings and lifetime bests save automatically in `localStorage`.
+There is no timer and no score to chase. Play for ten minutes or an hour. Run progress resets each visit; medals, notes, settings and lifetime bests save automatically in `localStorage`.
 
 ## Play it
 
@@ -193,7 +182,7 @@ Every third endless wave — 11, 14, 17, 20… — is a **checkpoint**:
 - The upgrade shop opens. Buying is optional; **Continue** is always enabled.
 - Press `U` to shop, then **Continue** to start the next wave. **Step away** lets you leave the checkpoint and wander; the wave card brings the checkpoint back.
 
-Dying in Endless is a Mania reset: the run returns to wave 1, and Joy, upgrades, level, boss progress and island corruption start over. Your deepest wave is still saved on the pause screen.
+Dying anywhere sets you back on your feet at the bench with full health. In Endless, dying during a fight restarts the current wave instead and keeps your Joy and upgrades. Your deepest wave is still saved on the pause screen.
 
 Endless medals: **Beyond the Ladder** (enter Endless), **Tea Break** (first checkpoint), **Deep Static** (wave 20), **Kettle On** (five checkpoints), **Ad Infinitum** (wave 30).
 
@@ -228,13 +217,12 @@ They can be knocked out. A downed companion sits out 14 seconds and walks back f
 ## What is on the island
 
 - **Wave combat:** escalating crews from Super Easy through Super Hard, then Endless mode with checkpoint pauses, optional upgrades, rising enemy damage pressure, and on-screen wave banners plus a HUD tracker.
-- **Four ad-monsters plus a boss:** Pop-Up Imps spawn clickable `[X]` windows, Unskippable Behemoths are invulnerable until their SKIP window, Clickbait Mimics hide as free Joy, and Banner Bats throw flyers. The Algorithm runs ad breaks, sponsored beam attacks, and summons more content at health thresholds. In Mania there is one boss per run; once the island is 64% clear, each wave has a 50% chance to wake it. At 75% HP it splits into two smaller bosses, and children can split once more into four. Two bosses move and attack 25% faster; four are 50% faster. Beams and summons are randomised.
+- **Four ad-monsters plus a boss:** Pop-Up Imps spawn clickable `[X]` windows, Unskippable Behemoths are invulnerable until their SKIP window, Clickbait Mimics hide as free Joy, and Banner Bats throw flyers. The Algorithm runs ad breaks, sponsored beam attacks, and summons more content at health thresholds. There is one boss per run; once the island is 64% clear, each wave has a 33% chance to wake it. At 75% HP it splits once into two smaller bosses that cannot split again. Two bosses move and attack 25% faster. Beams and summons are randomised.
 - **Joy and clarity:** every fully cleansed tile pays Joy and experience. Spend Joy on upgrades or cozy cosmetics.
 - **Same-keyboard co-op:** a second hero on the arrow keys, sharing one screen and one wave.
 - **A party of three:** two companions fight beside you, cleanse, mark or stun, chat, and can be knocked out and revive at the bench. They never heal you.
 - **The dock:** a south-shore pier, a bobbing boat and Mira's stall, with an `F` prompt and a minimap marker.
-- **Halloween theme:** default-on autumn-dusk palette with readable parchment surfaces, pumpkin moon, fog, bats, jack-o'-lanterns and a title-screen badge, toggleable in Settings.
-- **Four-boss Mania:** a Settings option (on by default) that lets split children split once more at 75% HP, up to four live Algorithms. The boss itself has one 50% spawn roll per wave after 64% clarity.
+- **Boss rules, plain and simple:** one Algorithm per run, a 33% spawn roll per wave after 64% clarity, one 75% split into two halves, and a 25% speed bump with both alive.
 - **The kindness wall:** sit at the cozy bench and pin a note for the next person. Notes are saved locally and read by the locals.
 - **Procedural sound:** generated ocean noise, a slow lo-fi chord progression, UI sounds, combat hits, cleansing sparkles, and a boss track that shifts when the fight starts.
 - **Retro-pastel UI:** responsive HUD, minimap, floating damage numbers, speech bubbles, screen shake, particles, scanlines (toggleable), and a reduced-motion option.
@@ -253,13 +241,24 @@ The game lands at `https://<username>.github.io/<repo>/`. It also works from a s
 
 If you use Jekyll and want the file served untouched, keep the empty `.nojekyll` file at the root of the deployed branch.
 
+## Deploying to Vercel
+
+The online-beta branch deploys the same single page to Vercel, which is also where the room-code signaling API will live.
+
+1. Import the repository at [vercel.com/new](https://vercel.com/new) and pick this branch.
+2. Framework preset: **Other**. Build command: none. Output directory: the repo root.
+3. Add an Upstash Redis store from the Vercel Marketplace (free tier) when the signaling API lands; it injects `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN`.
+4. Deploy. The game is served at `https://<project>.vercel.app/`.
+
+Room-code co-op is not in v0.1.0, so no environment variables are needed yet.
+
 ## Save data
 
 The game stores three keys in `localStorage`:
 
 - `adblock-island.save.v0` — name, class, medals, collected items, cosmetics, lifetime stats and bests. Joy, upgrades, level, XP, boss progress and island corruption are intentionally **not** saved.
 - `adblock-island.notes.v0` — the local kindness wall
-- `adblock-island.settings.v0` — volume, mute, scanlines, particles, numbers, reduced motion, Halloween theme, Four-boss Mania
+- `adblock-island.settings.v0` — volume, mute, scanlines, particles, numbers, reduced motion, haptics
 
 Clearing site data removes medals, notes, settings and bests. Run progress is never saved. Nothing is sent anywhere.
 
@@ -270,7 +269,7 @@ adblock-island/
 ├── index.html                      # the whole game: markup, styles, canvas renderer, audio, logic
 ├── CHANGELOG.md                    # version history and patch notes
 ├── README.md
-├── adblock-island-beta-v0.9.8.zip  # self-contained release build
+├── adblock-island-beta-v0.1.0.zip  # self-contained release build
 └── .nojekyll                       # keep GitHub Pages from running Jekyll
 ```
 
@@ -282,10 +281,11 @@ On a touch screen the HUD is deliberately thinner than the desktop one: a compac
 
 ## Patch notes
 
-The full history lives in the **[live patch notes](https://potaterrr.github.io/projects/adblock-island/#patch-notes)** (source: [CHANGELOG.md](CHANGELOG.md)), newest first, and the version on the title card always matches its top entry. **0.9.8** adds a title-screen fullscreen toggle. **0.9.7** makes leaving the upgrade shop start the next wave and turns the pop-up **CLICK HERE** button into a health trap. **0.9.6** makes the boss one-per-run with a 50% chance per wave after 64% clarity, and no opening pair. **0.9.5** locks splitting once four bosses are live, so the survivors can be killed one by one. **0.9.4** is the boss split ladder: 75% HP splits, 1 → 2 → 4, smaller children, +25%/+50% speed tiers and randomised beams and summons. **0.9.3** is the boss-fight hotfix: lower resolution while bosses are live, fewer ornaments and adds in multi-boss fights, and cached card/bar art. **0.9.2** is the performance pass — 1.5× desktop / 1.25× touch DPR caps, a 60 fps render ceiling, cached gradients, Halloween overlay and minimap terrain — plus 50% boss pairs and the Four-boss Mania option. **0.9.1** is a readability pass on the Halloween theme, with high-contrast wave banners. **0.9.0** adds the Archivist and Moderator classes, the south-shore dock and the Halloween theme. **0.8.0 Mania** is the hard-mode release: death resets the run, the boss can arrive as a pair, and bosses split below 50% health. **0.7.0** is the Endless mode patch: checkpoints, optional upgrades, the damage curve and five new endless medals. If you have played before, **0.6.0** is the balance pass — the two heroes whose classes you did not pick became your party, the ladder became a table of fixed crews, and class power finally applies to every hit — and **0.6.1** is the phone HUD diet, which folds the top of the screen into one quiet bar.
+The full history lives in the **[live patch notes](https://potaterrr.github.io/projects/adblock-island/#patch-notes)** (source: [CHANGELOG.md](CHANGELOG.md)), newest first, and the version on the title card always matches its top entry. This branch's notes restart at **0.1.0** for the online era: the Halloween theme and Four-boss Mania are removed, the island is back to its normal palette, bosses spawn on a **33%** roll per eligible wave and split once into two, death puts you back at the bench, and extra humans scale waves and bosses. The 0.9.x history below is from the main branch and still describes how the game got here.
 
 | Version | Date | Headline |
 | --- | --- | --- |
+| [0.1.0](CHANGELOG.md#010--online-beta-back-to-normal-2026-11-09) | 2026-11-09 | Online-beta restart: Halloween and Mania removed, 33% bosses, normal death, co-op scaling |
 | [0.9.8](CHANGELOG.md#098--fullscreen-option-2026-11-04) | 2026-11-04 | Title-screen fullscreen toggle; orientation unchanged |
 | [0.9.7](CHANGELOG.md#097--upgrade-exit--ad-trap-2026-11-04) | 2026-11-04 | Upgrade exit starts next wave; CLICK HERE pop-up trap |
 | [0.9.6](CHANGELOG.md#096--one-boss-50-per-wave-2026-11-04) | 2026-11-04 | One boss per run; 50% spawn roll per wave after 64% clarity |

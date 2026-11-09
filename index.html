@@ -4,15 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
 <meta name="theme-color" content="#bde8f2">
-<meta name="description" content="AdBlock Island — a wholesome micro-MMO in beta (v0.9.8). Nine classes, a south-shore dock, and a Halloween theme. Clear the static and leave a kind note on the beach.">
+<meta name="description" content="AdBlock Island — a wholesome micro-RPG in beta (v0.1.0). Nine classes and a south-shore dock. Clear the static and leave a kind note on the beach.">
 <meta name="author" content="potaterrr">
 <meta name="application-name" content="AdBlock Island">
 <meta name="apple-mobile-web-app-title" content="AdBlock Island">
 <meta name="color-scheme" content="light">
 <link rel="canonical" href="https://potaterrr.github.io/adblock-island/">
 <meta property="og:site_name" content="AdBlock Island">
-<meta property="og:title" content="AdBlock Island · a wholesome micro-MMO (beta)">
-<meta property="og:description" content="The ads took the beach. Pick one of nine classes, meet two companions, and clear the static. A single-file micro-MMO, in beta.">
+<meta property="og:title" content="AdBlock Island · a wholesome micro-RPG (beta)">
+<meta property="og:description" content="The ads took the beach. Pick one of nine classes, meet two companions, and clear the static. A single-file micro-RPG, in beta.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://potaterrr.github.io/adblock-island/">
 <meta property="og:locale" content="en_GB">
@@ -22,11 +22,11 @@
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="The AdBlock Island title screen: a pastel drawing of the island, the game logo, a beta badge, and a wash ashore button.">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="AdBlock Island · a wholesome micro-MMO (beta)">
+<meta name="twitter:title" content="AdBlock Island · a wholesome micro-RPG (beta)">
 <meta name="twitter:description" content="The ads took the beach. Pick one of nine classes, meet two companions, and clear the static.">
 <meta name="twitter:image" content="https://potaterrr.github.io/adblock-island/social-card.jpg">
 <meta name="twitter:image:alt" content="The AdBlock Island title screen with the beta badge and wash ashore button.">
-<title>AdBlock Island · a wholesome micro-MMO (beta)</title>
+<title>AdBlock Island · a wholesome micro-RPG (beta)</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23fff8ec'/%3E%3Cpath d='M8 40c8-6 16 6 24 0s16 6 24 0v16H8z' fill='%238ad7e8'/%3E%3Ccircle cx='32' cy='28' r='12' fill='%23ffd98a'/%3E%3Cpath d='M32 18l7 5-2 9h-10l-2-9z' fill='%23ff9eb5'/%3E%3C/svg%3E">
 <style>
 /* ============================================================
@@ -227,21 +227,6 @@ button{cursor:pointer;border:0;background:none}
   background:var(--sun);box-shadow:0 0 0 2px rgba(255,255,255,.35);
 }
 .beta-pill b{font-weight:900;color:var(--sun);text-transform:none;letter-spacing:.06em}
-/* Mania is the loud one: black label, hot edge, and a warning note. */
-.mania-pill{
-  display:inline-flex;align-items:center;gap:6px;
-  font-family:var(--ui);font-size:10px;font-weight:900;letter-spacing:.18em;
-  text-transform:uppercase;color:#fff2f6;
-  background:#3a2030;border:2px solid var(--line);border-radius:99px;
-  padding:4px 11px;transform:rotate(-1deg);
-  box-shadow:2px 2px 0 rgba(60,52,83,.28), inset 0 0 0 1px rgba(255,92,138,.35);
-}
-.mania-note{
-  display:inline-block;margin-top:10px;padding:5px 9px;
-  border:2px dashed rgba(194,55,95,.55);border-radius:8px;
-  background:rgba(255,227,234,.55);color:#8a2440;
-  font-family:var(--ui);font-size:9px;letter-spacing:.06em;line-height:1.5;
-}
 @keyframes betaPop{0%,100%{transform:rotate(1.5deg) scale(1)}50%{transform:rotate(1.5deg) scale(1.04)}}
 h1.logo{
   margin:0;font-family:var(--ui);font-weight:900;line-height:.92;
@@ -1216,102 +1201,6 @@ body.scanlines::after{
   background:repeating-linear-gradient(180deg,rgba(60,52,83,.18) 0 1px,transparent 1px 3px);
   mix-blend-mode:multiply;
 }
-/* Halloween theme: an autumn dusk. Warm parchment surfaces keep the ink
-   readable, while the title sky, moon, fog and bats carry the season. */
-.halloween-pill{
-  display:none;align-items:center;
-  font-family:var(--ui);font-size:10px;font-weight:900;letter-spacing:.16em;
-  text-transform:uppercase;color:#3a2233;
-  background:var(--sun);border:2px solid var(--line);border-radius:99px;
-  padding:4px 11px;transform:rotate(1deg);
-  box-shadow:2px 2px 0 rgba(58,34,51,.24);
-}
-body.halloween .halloween-pill{display:inline-flex}
-body.halloween{
-  --paper:#fff6e8;
-  --paper-2:#ffedd6;
-  --paper-3:#ffe0bf;
-  --ink:#3a2233;
-  --ink-soft:#5a3a4e;
-  --ink-faint:#7d5d6f;
-  --pink:#ffc4ad;
-  --rose:#e85d75;
-  --mint:#b9e2c6;
-  --sea:#8fd0d8;
-  --sea-deep:#5fb0c4;
-  --sky:#ffe1c2;
-  --lav:#cbb6f0;
-  --sun:#ffb347;
-  --coral:#ff8a5c;
-  --leaf:#a4d48f;
-  --line:#3a2233;
-  --shadow:4px 4px 0 rgba(58,34,51,.18);
-  --shadow-sm:2px 2px 0 rgba(58,34,51,.16);
-}
-body.halloween #titleScreen{
-  background:
-    radial-gradient(1100px 560px at 80% -10%, #ffe0a8 0%, rgba(255,224,168,0) 58%),
-    linear-gradient(180deg,#8fb6d8 0%,#b8a8dd 32%,#f4c6a4 64%,#ffb98a 100%);
-}
-body.halloween #titleScreen::before{
-  opacity:.4;background-image:radial-gradient(rgba(58,34,51,.13) 1px,transparent 1px);
-}
-body.halloween .title-sun{
-  background:radial-gradient(circle at 38% 34%,#fff2c4,#ffc45a 55%,#ff9a3c 100%);
-  box-shadow:0 0 0 18px rgba(255,180,71,.22),0 0 80px rgba(255,154,60,.45);
-}
-body.halloween .cloud{background:#fff6e8;opacity:.75}
-body.halloween .title-sea{
-  background:
-    repeating-linear-gradient(180deg,rgba(255,255,255,.25) 0 2px,transparent 2px 16px),
-    linear-gradient(180deg,#a9c9d4,#8fb8c9 55%,#6fa6b8);
-  border-top-color:rgba(58,34,51,.16);
-}
-body.halloween .title-sea::after{
-  background-image:radial-gradient(rgba(255,255,255,.55) 1.5px,transparent 1.5px);opacity:.45;
-}
-body.halloween .title-card{
-  background:linear-gradient(180deg,rgba(255,249,238,.97),rgba(255,235,210,.98));
-  box-shadow:8px 8px 0 rgba(58,34,51,.18),0 0 0 4px rgba(255,179,71,.25),0 26px 70px rgba(58,34,51,.18);
-}
-body.halloween .title-card::before{border-color:rgba(58,34,51,.12)}
-body.halloween .wave-card{background:rgba(255,246,232,.94)}
-/* wave changes are the one moment the whole screen reads a single card, so
-   the banner keeps a solid paper backing and hard dark text in this theme */
-body.halloween .wave-banner{
-  background:rgba(255,250,240,.98);
-  box-shadow:0 8px 0 rgba(58,34,51,.14),0 22px 44px rgba(58,34,51,.18);
-}
-body.halloween .wave-banner .wb-label{color:#2f1a2a}
-body.halloween .wave-banner .wb-kicker{color:#5a3a4e}
-body.halloween .wave-banner .wb-note{color:#4f3044}
-body.halloween .wave-banner .wb-count{background:rgba(58,34,51,.09);color:#3a2233}
-body.halloween .wave-banner.cleared .wb-label{color:#1f6b50}
-body.halloween .wave-banner.warn .wb-label{color:#b3264a}
-body.halloween .wave-card .wv-label{color:#2f1a2a}
-body.halloween .wave-card .wv-left,
-body.halloween .wave-card .wv-types{color:#5a3a4e}
-body.halloween .chat-panel{background:rgba(255,246,232,.95)}
-body.halloween .chat-line.note{color:#8a5a18}
-body.halloween .panel-foot{background:rgba(255,179,71,.12)}
-body.halloween .help-block,
-body.halloween .stat-box,
-body.halloween .setting-row,
-body.halloween .note-prompt{background:rgba(255,179,71,.13);color:var(--ink)}
-body.halloween .note-prompt:hover,
-body.halloween .panel-close:hover{background:rgba(255,179,71,.25)}
-body.halloween .beta-pill{background:#5a2b4a}
-body.halloween .logo-kicker{background:var(--sun);color:#3a2233}
-body.halloween .class-card{background:#fff6e8}
-body.halloween .class-card.selected{
-  background:linear-gradient(180deg,#fffdf7,#ffe7c2);
-  box-shadow:4px 4px 0 var(--line),0 0 0 4px var(--sun);
-}
-body.halloween .bar,
-body.halloween .bar.xp{background:#f0dcc2}
-body.halloween .quest-card #questList li .qmark,
-body.halloween .note-card,
-body.halloween .note-card .note-pin{background:#fffaf0}
 </style>
 </head>
 <body>
@@ -1433,16 +1322,13 @@ body.halloween .note-card .note-pin{background:#fffaf0}
     <div class="title-top">
       <div class="logo-wrap">
         <div class="logo-badges">
-          <div class="logo-kicker">a wholesome micro-MMO</div>
+          <div class="logo-kicker">a wholesome micro-RPG</div>
           <div class="beta-pill" id="betaPill" title="This is a beta build. The patch notes list what is still pending.">
-            <span class="beta-dot"></span>beta · <b id="betaVersion">v0.9.8</b>
+            <span class="beta-dot"></span>beta · <b id="betaVersion">v0.1.0</b>
           </div>
-          <div class="mania-pill" title="Mania rules: death resets the run to wave 1, and bosses bring friends.">MANIA</div>
-          <div class="halloween-pill" id="halloweenPill" title="Halloween theme is on. Toggle it in Settings.">HALLOWEEN</div>
         </div>
         <h1 class="logo">ADBLOCK<br><span>ISLAND</span></h1>
-        <p class="tagline">The ads took the beach. Mania took the schedule. Grab a broom, bonk some <b>sponsored content</b>, and leave a kind note for whoever washes ashore next.</p>
-        <div class="mania-note">MANIA MODE · death resets the run to wave 1 · bosses split at 75% · 1 → 2 → 4 · faster every split</div>
+        <p class="tagline">The ads took the beach. Grab a broom, bonk some <b>sponsored content</b>, and leave a kind note for whoever washes ashore next.</p>
       </div>
       <div class="title-side">
         <label class="field-label" for="nameInput">your island name</label>
@@ -1494,7 +1380,7 @@ body.halloween .note-card .note-pin{background:#fffaf0}
 'use strict';
 /* ============================================================================
    ADBLOCK ISLAND
-   A single-file, dependency-free micro-MMO. Everything is drawn on canvas and
+   A single-file, dependency-free micro-RPG. Everything is drawn on canvas and
    every sound is synthesized with the Web Audio API. No external assets.
    ============================================================================ */
 
@@ -1603,7 +1489,7 @@ const ICONS = {
 };
 const svg = (name) => ICONS[name] || ICONS.spark;
 
-const VERSION = '0.9.8';
+const VERSION = '0.1.0';
 
 /* Endless mode tuning. Named on purpose: after a playtest, change these
    numbers instead of hunting through the wave and damage code. */
@@ -1842,8 +1728,7 @@ const store = {
 const settings = Object.assign({
   music: 0.5, sfx: 0.7, muted: false,
   shake: true, scanlines: true, particles: true,
-  numbers: true, names: true, reduceMotion: false, haptics: true,
-  halloween: true, quadBoss: true
+  numbers: true, names: true, reduceMotion: false, haptics: true
 }, store.get(SETTINGS_KEY, {}) || {});
 const saveSettings = () => store.set(SETTINGS_KEY, settings);
 
@@ -2145,22 +2030,20 @@ const DOCK = { x: 1725, y: 2005, radius: 175 };
 const SHOPKEEPER = { x: 1468, y: 1968, radius: 135, name: 'Mira' };
 const BOSS_CLARITY = 0.64;
 const WIN_CLARITY = 0.70;
-/* Mania: one boss can wake per run, with a 50% roll each wave after clarity.
-   At 75% HP a boss splits once;
-   its children can split again, so one boss can become two and then four.
-   Split children are smaller, and each live boss speeds up the whole fight. */
-const BOSS_SPAWN_CHANCE = 0.50;
-const BOSS_TWIN_CAP = 4;
+/* One boss can wake per run, with a 33% roll each wave after clarity. At 75%
+   HP a boss splits once into two smaller halves; children cannot split again,
+   so a fight tops out at two bosses. Two live bosses speed up the fight. */
+const BOSS_SPAWN_CHANCE = 0.33;
+const BOSS_TWIN_CAP = 2;
 const BOSS_SPLIT_FRAC = 0.75;
 function bossCanSplit(m) {
   if (game.bossSplitLocked) return false;
   if (!m || m.dead || (m.splits || 0) >= 1) return false;
-  if (!settings.quadBoss && (m.generation || 0) > 0) return false;
+  if ((m.generation || 0) > 0) return false;
   return true;
 }
 function bossSpeedMult() {
-  const n = activeBosses().length;
-  return n >= 3 ? 1.5 : n === 2 ? 1.25 : 1;
+  return activeBosses().length >= 2 ? 1.25 : 1;
 }
 const PATH_POINTS = [
   [1600, 1960], [1660, 1860], [1610, 1740], [1480, 1630], [1520, 1500],
@@ -2251,10 +2134,6 @@ function generateWorld() {
   for (let i = 0; i < 7; i++) {
     const a = (i / 7) * TAU + 0.3;
     world.decor.push({ kind: 'lantern', x: PLAZA.x + Math.cos(a) * (PLAZA.radius - 18), y: PLAZA.y + Math.sin(a) * (PLAZA.radius - 18), s: 1, tall: true, seed: i });
-  }
-  // a few Halloween pumpkins around the beach and plaza
-  for (const [px, py, i] of [[1490, 1878, 0], [1718, 1876, 1], [1480, 1035, 2], [1730, 1032, 3], [1600, 2010, 4]]) {
-    if (world.isLand(px, py)) world.decor.push({ kind: 'pumpkin', x: px, y: py, s: 1, seed: i });
   }
   // ---- ad clusters ----
   const tries = 220;
@@ -3643,8 +3522,8 @@ function buildHelpPanel() {
         <p>Every run starts at <b>Super Easy</b>. Clear the crew and choose <b>Upgrade</b> or <b>Next wave</b>; the next wave is always available, and leaving the upgrade shop after a clear starts the next-wave countdown automatically. Each clear hands you a medal or a free item and a chapter of the island's log. Clear <b>Super Hard</b> and <b>Endless mode</b> begins — every third wave is a checkpoint that pauses the island, pays you Joy, and offers an optional upgrade. Continue is always available. Enemy damage climbs with depth, so a hero who never buys <b>Deep Breaths</b> will not last. The Algorithm still interrupts when the island is clear enough to wake it.</p>
       </div>
       <div class="help-block">
-        <h4>Mania rules</h4>
-        <p>Death is a reset: the run returns to <b>wave 1</b>, and Joy, upgrades, level and island progress start over. There is <b>one boss per run</b>: once the island is <b>64%</b> clear, each wave has a <b>50%</b> chance to wake the Algorithm. At <b>75%</b> health a boss splits once, and its children can split again: one boss becomes two, then four. Split bosses are smaller. Two live bosses move and attack <b>25% faster</b>; three or four move and attack <b>50% faster</b>. Beams and summons are randomised. Turn <b>Four-boss Mania</b> off in Settings to stop children from splitting. Downing one boss pays partial Joy and XP; only the last one ends the fight.</p>
+        <h4>Boss &amp; death rules</h4>
+        <p>There is <b>one boss per run</b>: once the island is <b>64%</b> clear, each wave has a <b>33%</b> chance to wake the Algorithm, and a failed roll tries again on the next wave. At <b>75%</b> health a boss splits once into two smaller halves. Two live bosses move and attack <b>25% faster</b>, and the halves cannot split again. Beams and summons are randomised. Downing one half pays partial Joy and XP; only the last one ends the fight. If you go down, the island sets you back on your feet at the bench. In <b>Endless mode</b> during a fight, the current wave restarts instead, and your Joy and upgrades are kept.</p>
       </div>
       <div class="help-block">
         <h4>Play with a friend</h4>
@@ -3652,7 +3531,7 @@ function buildHelpPanel() {
       </div>
       <div class="help-block">
         <h4>This build</h4>
-        <p>AdBlock Island <b>v${VERSION}</b> is a <b>beta</b> — one HTML file, no build step, no trackers, no accounts. Notes are saved in this browser only. Patch notes live on the <a href="https://potaterrr.github.io/projects/adblock-island/#patch-notes" target="_blank" rel="noopener">project page</a>; its <b>still pending</b> section lists the achievements, items and MMORPG pieces that are not in yet (online play needs servers, which a static page cannot provide).</p>
+        <p>AdBlock Island <b>v${VERSION}</b> is a <b>beta</b> — one HTML file, no build step, no trackers, no accounts. Notes are saved in this browser only. Patch notes live on the <a href="https://potaterrr.github.io/projects/adblock-island/#patch-notes" target="_blank" rel="noopener">project page</a>; its <b>still pending</b> section lists the achievements, items and online co-op pieces that are not in yet (the room-code co-op build is the next thing on the bench).</p>
       </div>
     </div>
     <div class="help-credit">
@@ -3685,8 +3564,6 @@ function buildSettingsPanel() {
     ${toggle('numbers', 'Damage numbers', 'numbers are satisfying')}
     ${toggle('names', 'Floating names', 'show who is nearby')}
     ${toggle('scanlines', 'Soft CRT scanlines', 'retro-ish, very subtle')}
-    ${toggle('halloween', 'Halloween theme', 'warm dusk, pumpkins and a few bats')}
-    ${toggle('quadBoss', 'Four-boss Mania', 'one boss splits into two, then four, at 75% HP')}
     ${toggle('reduceMotion', 'Reduce motion', 'calmer animations and camera')}
     ${toggle('haptics', 'Tiny vibrations', 'on supported phones')}
     <div class="section-title">Island admin</div>
@@ -3714,7 +3591,6 @@ function buildSettingsPanel() {
     btn.setAttribute('aria-pressed', String(settings[key]));
     if (key === 'muted') { audio.setMuted(settings.muted); ui.muteBtn.innerHTML = svg(settings.muted ? 'mute' : 'sound'); }
     if (key === 'reduceMotion') document.body.classList.toggle('reduce-motion', settings.reduceMotion);
-    if (key === 'halloween') document.body.classList.toggle('halloween', settings.halloween);
     saveSettings();
     audio.sfx('ui');
   }));
@@ -3980,9 +3856,11 @@ function startGame() {
   game.checkpointUpgradesBought = 0;
   game.waveUpgradesBought = 0;
   game.waveRestartPending = false;
-  startWave(1, { silent: false });
+  // the partner must exist before the first wave is planned, or wave 1 spawns
+  // with the solo recipe
   game.coop = !!coopEnabled;
   if (game.coop) spawnPartner();
+  startWave(1, { silent: false });
   ui.titleScreen.classList.add('hidden');
   ui.hud.classList.remove('hidden');
   refreshHintBar();
@@ -4700,8 +4578,12 @@ function knockOut() {
   audio.setIntense(false);
   screenShake(10, 0.5);
   burst(player.x, player.y, [PAL.pink, PAL.lav, '#fff'], 28, { speed: 130, life: 1.4, size: 4, gravity: -20 });
-  game.waveRestartPending = false;
-  toast('Mania reset. The run goes back to wave 1 — Joy, upgrades and the island start over.', 'warn', '!');
+  game.waveRestartPending = !!(game.endless && game.waveState === 'fight' && !(game.boss && !game.boss.dead));
+  if (game.waveRestartPending) {
+    toast('The feed pushed you back. Wave ' + game.wave + ' restarts — your Joy and upgrades are safe.', 'warn', '♥');
+  } else {
+    toast('The island caught you. Take a breath — you will be back at the bench.', 'warn', '♥');
+  }
   if (!statUp('vitality') && game.wave >= 7) {
     const tm = setTimeout(() => {
       if (game.state === 'title') return;
@@ -4710,60 +4592,37 @@ function knockOut() {
     pendingTimeouts.push(tm);
   }
 }
-function restartManiaRun() {
-  player.dead = false;
-  player.deadT = 0;
-  game.state = 'playing';
-  game.waveRestartPending = false;
-  resetRunProgress();
-  resetPlayer();
-  generateWorld();
-  makeCompanions();
-  if (game.coop) spawnPartner();
-  monsters.length = 0;
-  projectiles.length = 0;
-  pickups.length = 0;
-  hazards.length = 0;
-  particles.length = 0;
-  floaters.length = 0;
-  game.boss = null;
-  resizeCanvas();
-  rings.length = 0;
-  beams.length = 0;
-  clearPopups(true);
-  game.boss = null;
-  game.bossSplitLocked = false;
-  game.bossSpawned = false;
-  game.bossDefeated = false;
-  game.bossRollWave = 0;
-  game.won = false;
-  game.pendingVictory = false;
-  game.endless = false;
-  game.checkpointPending = false;
-  game.checkpointAway = false;
-  game.checkpointIndex = 0;
-  game.checkpointJoy = 0;
-  game.checkpointOpenT = 0;
-  game.checkpointUpgradesBought = 0;
-  game.waveUpgradesBought = 0;
-  game.waveStory = null;
-  game.waveReward = null;
-  game.lastSave = game.realElapsed;
-  input.keys = Object.create(null);
-  input.attackHeld = false;
-  input.p2.up = input.p2.down = input.p2.left = input.p2.right = false;
-  player.invuln = 2.5;
-  startWave(1, { silent: false });
-  cam.x = player.x; cam.y = player.y - 100;
-  updatePlayerCard();
-  updateHUD(true);
-  audio.setIntense(false);
-  audio.sfx('start');
-  toast('MANIA RESET · back to wave 1. Nothing carries.', 'warn', '!');
-  saveGame();
-}
 function respawnPlayer() {
-  restartManiaRun();
+  const restartWave = game.waveRestartPending;
+  game.waveRestartPending = false;
+  player.dead = false;
+  player.hp = player.maxHp;
+  player.x = BENCH.x - 40; player.y = BENCH.y + 70;
+  player.invuln = 3;
+  player.deadT = 0;
+  player.marked = 0; player.shield = 0; player.shieldT = 0;
+  game.state = 'playing';
+  game.lastSave = game.realElapsed;
+  burst(player.x, player.y, [PAL.mint, '#fff'], 22, { speed: 100, life: 1, size: 3.5, gravity: -10 });
+  audio.sfx('heal');
+  updateHpUI();
+  if (restartWave) {
+    for (let i = monsters.length - 1; i >= 0; i--) {
+      const m = monsters[i];
+      if (!m.isBoss && m.wave === game.wave) monsters.splice(i, 1);
+    }
+    toast('Back on your feet. Wave ' + game.wave + ' restarts — the checkpoint kept your Joy and upgrades.', 'good', '♥');
+    startWave(game.wave, { silent: false });
+    return;
+  }
+  toast('Back on your feet. Your Joy is safe. The bench saved your seat.', 'good', '♥');
+  if (game.waveState === 'cleared') {
+    game.wavePanelPending = true;
+    game.wavePanelT = 0.9;
+    setTimeout(openWavePanel, 900);
+  }
+  const bot = pick(bots);
+  if (bot) { botSay(bot, pick(CHAT.heal)); }
 }
 function killMonster(m) {
   if (m.dead) return;
@@ -5070,6 +4929,25 @@ function waveStoryFor(n) {
   return WAVE_STORY[n] || WAVE_STORY_ENDLESS[(n - 11) % WAVE_STORY_ENDLESS.length];
 }
 
+/* Solo runs are the baseline. Each extra human in the party adds a few ads and
+   a little monster health, so two brooms do not trivialise the ladder. The
+   crew cap keeps the canvas honest on weak GPUs. */
+const PARTY_WAVE_CAP = 22;
+function humanCount() {
+  let n = 1;
+  for (const b of bots) if (b.human) n++;
+  return n;
+}
+function scaleCrewForParty(crew, party) {
+  if (party <= 1) return crew;
+  const add = Math.min(6, Math.round(crew.length * 0.3));
+  for (let i = 0; i < add && crew.length < PARTY_WAVE_CAP; i++) crew.push(crew[i % crew.length]);
+  return crew;
+}
+function partyHpScale(party) {
+  return 1 + (party - 1) * 0.55;
+}
+
 /* The ladder itself. Each stage is a fixed recipe plus its own numbers, so a
    wave reads the same twice, the preview never lies, and every stage is
    allowed to introduce something rather than just multiplying the last one.
@@ -5102,15 +4980,17 @@ function endlessCrew(n) {
 
 function wavePlan(n) {
   const tier = waveTier(n);
+  const party = humanCount();
   const stage = STAGE_CREWS[n - 1];
   if (stage) {
-    return { n, tier, crew: stage.crew.slice(), count: stage.crew.length, hp: stage.hp, dmg: stage.dmg, speed: stage.speed, note: stage.note };
+    const crew = scaleCrewForParty(stage.crew.slice(), party);
+    return { n, tier, crew, count: crew.length, hp: stage.hp * partyHpScale(party), dmg: stage.dmg, speed: stage.speed, note: stage.note };
   }
   const extra = n - STAGE_CREWS.length;
-  const crew = endlessCrew(n);
+  const crew = scaleCrewForParty(endlessCrew(n), party);
   return {
     n, tier, crew, count: crew.length,
-    hp: 1.80 + extra * 0.10,
+    hp: (1.80 + extra * 0.10) * partyHpScale(party),
     dmg: 1.45 + extra * 0.06,
     speed: 1.0 + Math.min(0.18, extra * 0.02),
     note: 'they keep coming'
@@ -5690,7 +5570,7 @@ function activeBosses() {
 function refreshBossRef() {
   const bosses = activeBosses();
   game.boss = bosses[0] || null;
-  // once four feeds are live, stop splitting for the rest of this fight:
+  // once two feeds are live, stop splitting for the rest of this fight:
   // the player can then kill the remaining bosses one at a time.
   if (bosses.length >= BOSS_TWIN_CAP) game.bossSplitLocked = true;
   // entering or leaving a boss fight changes the render resolution cap
@@ -5700,7 +5580,9 @@ function createBoss(x, y, opts = {}) {
   const def = MONSTER_TYPES.algorithm;
   // sized so a focused fight lasts about half a minute at any level, and the
   // companions' chip damage is a garnish rather than the whole meal
-  const hp = opts.hp || (1100 + player.level * 95);
+  // scaled by the party: two brooms get a tougher Algorithm, solo keeps the
+  // tuned numbers
+  const hp = opts.hp || Math.round((1100 + player.level * 95) * partyHpScale(humanCount()));
   const scale = clamp(opts.scale || 1, 0.62, 1);
   const m = {
     id: 'boss', type: 'algorithm', isBoss: true, x, y, r: Math.round(64 * scale),
@@ -5719,8 +5601,8 @@ function createBoss(x, y, opts = {}) {
 function spawnBossTwin(parent) {
   if (!bossCanSplit(parent)) return null;
   if (activeBosses().length >= BOSS_TWIN_CAP) return null;
-  // The parent is consumed by the split: 1 boss becomes two smaller ones, and
-  // each of those can do the same once, producing the 1 → 2 → 4 ladder.
+  // The parent is consumed by the split: 1 boss becomes two smaller ones.
+  // Children cannot split again, so the ladder stops at two.
   parent.splits = (parent.splits || 0) + 1;
   parent.dead = true;
   parent.deathT = 0;
@@ -5962,7 +5844,7 @@ function checkProgress() {
   if (game.state !== 'playing') return;
   if (game.bossDefeated && !game.won && world.cleansePercent() >= WIN_CLARITY) winGame();
   else if (!game.bossSpawned && !game.bossDefeated && world.cleansePercent() >= BOSS_CLARITY && game.bossRollWave !== game.wave) {
-    // One boss per run, but each wave after the clarity milestone gets a 50%
+    // One boss per run, but each wave after the clarity milestone gets a 33%
     // roll. A failed roll tries again when the next wave starts.
     game.bossRollWave = game.wave;
     if (chance(BOSS_SPAWN_CHANCE)) spawnBoss();
@@ -6614,7 +6496,6 @@ document.addEventListener('webkitfullscreenchange', syncFullscreenUI);
 function applySettingsVisuals() {
   document.body.classList.toggle('scanlines', settings.scanlines);
   document.body.classList.toggle('reduce-motion', settings.reduceMotion);
-  document.body.classList.toggle('halloween', settings.halloween);
   ui.muteBtn.innerHTML = svg(settings.muted ? 'mute' : 'sound');
 }
 
@@ -6628,7 +6509,7 @@ const miniCtx = miniCanvas.getContext('2d');
 /* Cached gradients and offscreen layers. Re-creating full-screen gradients
    every frame is one of the most reliable ways to make a canvas game stutter
    on a phone, so they are built once per size and reused. */
-const renderCache = { waterH: 0, water: null, vignetteW: 0, vignetteH: 0, vignette: null, halloweenW: 0, halloweenH: 0, halloween: null, miniBase: null, miniBaseDirty: true };
+const renderCache = { waterH: 0, water: null, vignetteW: 0, vignetteH: 0, vignette: null, miniBase: null, miniBaseDirty: true };
 
 function rr(g, x, y, w, h, r) {
   r = Math.min(r, w / 2, h / 2);
@@ -6941,22 +6822,6 @@ function drawGroundDecor() {
       g.fillStyle = '#fff3df'; g.fillRect(-1.5, -4, 3, 5);
       g.fillStyle = '#ff9eb5'; g.beginPath(); g.ellipse(0, -5, 5, 3, 0, Math.PI, 0); g.fill();
       g.fillStyle = 'rgba(255,255,255,0.8)'; g.beginPath(); g.arc(-1.5, -5.5, 1, 0, TAU); g.fill();
-    } else if (d.kind === 'pumpkin') {
-      g.fillStyle = 'rgba(40,20,30,0.2)';
-      g.beginPath(); g.ellipse(0, 2, 9, 3, 0, 0, TAU); g.fill();
-      g.fillStyle = settings.halloween ? '#ff9a3c' : '#e8a04a';
-      g.strokeStyle = '#7a3a1e'; g.lineWidth = 1.2;
-      g.beginPath(); g.ellipse(0, -3, 8, 6, 0, 0, TAU); g.fill(); g.stroke();
-      g.strokeStyle = 'rgba(122,58,30,0.55)'; g.lineWidth = 0.8;
-      for (let i = -1; i <= 1; i++) { g.beginPath(); g.moveTo(i * 3, -8); g.quadraticCurveTo(i * 4, -3, i * 3, 2); g.stroke(); }
-      g.strokeStyle = '#5a6b3a'; g.lineWidth = 1.5;
-      g.beginPath(); g.moveTo(0, -8); g.lineTo(1.5, -12); g.stroke();
-      if (settings.halloween) {
-        g.fillStyle = '#3a1b22';
-        g.beginPath(); g.moveTo(-4, -4); g.lineTo(-2.5, -1.5); g.lineTo(-5.5, -1.5); g.closePath(); g.fill();
-        g.beginPath(); g.moveTo(4, -4); g.lineTo(5.5, -1.5); g.lineTo(2.5, -1.5); g.closePath(); g.fill();
-        g.beginPath(); g.moveTo(-5, 0); g.lineTo(-3, 2.5); g.lineTo(-1, 0); g.lineTo(1, 2.5); g.lineTo(3, 0); g.lineTo(5, 2.5); g.lineTo(5, 1); g.lineTo(-5, 1); g.closePath(); g.fill();
-      }
     }
     g.restore();
   }
@@ -8952,19 +8817,17 @@ function drawScreenFX(w, h) {
   g.fillStyle = '#8ad7e8';
   g.fillRect(0, 0, w, h);
   g.restore();
-  // vignette (Halloween already draws its own softer one)
-  if (!settings.halloween) {
-    if (!renderCache.vignette || renderCache.vignetteW !== w || renderCache.vignetteH !== h) {
-      const grd = g.createRadialGradient(w / 2, h / 2, Math.min(w, h) * 0.35, w / 2, h / 2, Math.max(w, h) * 0.78);
-      grd.addColorStop(0, 'rgba(60,52,83,0)');
-      grd.addColorStop(1, 'rgba(60,52,83,0.18)');
-      renderCache.vignette = grd;
-      renderCache.vignetteW = w;
-      renderCache.vignetteH = h;
-    }
-    g.fillStyle = renderCache.vignette;
-    g.fillRect(0, 0, w, h);
+  // vignette
+  if (!renderCache.vignette || renderCache.vignetteW !== w || renderCache.vignetteH !== h) {
+    const grd = g.createRadialGradient(w / 2, h / 2, Math.min(w, h) * 0.35, w / 2, h / 2, Math.max(w, h) * 0.78);
+    grd.addColorStop(0, 'rgba(60,52,83,0)');
+    grd.addColorStop(1, 'rgba(60,52,83,0.18)');
+    renderCache.vignette = grd;
+    renderCache.vignetteW = w;
+    renderCache.vignetteH = h;
   }
+  g.fillStyle = renderCache.vignette;
+  g.fillRect(0, 0, w, h);
   if (player.hurtFlash > 0) {
     g.save();
     g.globalAlpha = player.hurtFlash * 1.4;
@@ -9632,72 +9495,6 @@ function drawTurrets() {
   }
 }
 
-function drawBat(g, x, y, s, t) {
-  g.save();
-  g.translate(x, y);
-  const flap = Math.sin(t * 8 + x * 0.03) * 0.5;
-  g.fillStyle = 'rgba(35,18,46,0.72)';
-  g.beginPath();
-  g.moveTo(0, 0);
-  g.quadraticCurveTo(-s * 0.7, -s * (0.5 + flap), -s * 1.8, -s * 0.15);
-  g.quadraticCurveTo(-s * 0.9, s * 0.1, 0, s * 0.18);
-  g.quadraticCurveTo(s * 0.9, s * 0.1, s * 1.8, -s * 0.15);
-  g.quadraticCurveTo(s * 0.7, -s * (0.5 + flap), 0, 0);
-  g.fill();
-  g.restore();
-}
-function buildHalloweenLayer(w, h) {
-  const c = document.createElement('canvas');
-  c.width = Math.max(1, Math.round(w));
-  c.height = Math.max(1, Math.round(h));
-  const g = c.getContext('2d');
-  g.fillStyle = 'rgba(255,170,90,0.04)';
-  g.fillRect(0, 0, w, h);
-  const vg = g.createRadialGradient(w * 0.5, h * 0.45, Math.min(w, h) * 0.2, w * 0.5, h * 0.45, Math.max(w, h) * 0.8);
-  vg.addColorStop(0, 'rgba(0,0,0,0)');
-  vg.addColorStop(0.72, 'rgba(90,40,80,0.06)');
-  vg.addColorStop(1, 'rgba(58,34,51,0.2)');
-  g.fillStyle = vg;
-  g.fillRect(0, 0, w, h);
-  const mx = w * 0.70, my = h * 0.12, mr = Math.min(w, h) * 0.07;
-  const glow = g.createRadialGradient(mx, my, mr * 0.5, mx, my, mr * 3);
-  glow.addColorStop(0, 'rgba(255,178,74,0.24)');
-  glow.addColorStop(1, 'rgba(255,178,74,0)');
-  g.fillStyle = glow;
-  g.beginPath(); g.arc(mx, my, mr * 3, 0, TAU); g.fill();
-  g.fillStyle = '#ffd08a';
-  g.beginPath(); g.arc(mx, my, mr, 0, TAU); g.fill();
-  g.fillStyle = 'rgba(255,255,255,0.35)';
-  g.beginPath(); g.arc(mx - mr * 0.28, my - mr * 0.28, mr * 0.24, 0, TAU); g.fill();
-  return c;
-}
-function drawHalloweenOverlay(w, h) {
-  const g = ctx;
-  const t = game.worldTime;
-  if (!renderCache.halloween || renderCache.halloweenW !== w || renderCache.halloweenH !== h) {
-    renderCache.halloween = buildHalloweenLayer(w, h);
-    renderCache.halloweenW = w;
-    renderCache.halloweenH = h;
-  }
-  g.drawImage(renderCache.halloween, 0, 0, w, h);
-  // low fog bands (kept animated, but cheap and fewer on touch)
-  const fogCount = input.touch ? 3 : 4;
-  for (let i = 0; i < fogCount; i++) {
-    const fy = h * (0.42 + i * 0.11) + Math.sin(t * 0.18 + i) * 14;
-    g.fillStyle = 'rgba(255,235,215,' + (0.04 + i * 0.012) + ')';
-    g.beginPath();
-    g.ellipse(w * (0.18 + i * 0.23), fy, w * 0.5, 30 + i * 8, 0, 0, TAU);
-    g.fill();
-  }
-  // a handful of bats crossing the screen
-  const batCount = input.touch ? 5 : 7;
-  for (let i = 0; i < batCount; i++) {
-    const bx = ((i * 197 + t * (18 + i * 3)) % (w + 120)) - 60;
-    const by = h * (0.08 + hash2(i, 7) * 0.28) + Math.sin(t * 1.4 + i * 2) * 12;
-    drawBat(g, bx, by, 4 + hash2(i, 3) * 4, t);
-  }
-}
-
 function render() {
   const w = window.innerWidth, h = window.innerHeight;
   const dpr = game.dpr || 1;
@@ -9726,7 +9523,6 @@ function render() {
 
   ctx.restore();
 
-  if (settings.halloween) drawHalloweenOverlay(w, h);
   drawScreenFX(w, h);
   drawAimReticle();
   drawFloaters();

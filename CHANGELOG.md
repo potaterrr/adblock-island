@@ -4,9 +4,11 @@ All notable changes to AdBlock Island. The game is a single `index.html`, and th
 
 Format: [Semantic Versioning](https://semver.org/). Dates are YYYY-MM-DD. Every release since the first build is listed below, newest first.
 
+> **Online-beta branch.** This branch restarts the version count at **0.1.0** for the networked era and keeps its own patch notes. The game is still one page and one file. Entries from **0.9.8** down are the main branch's history and are kept here for context.
+
 ## Still pending
 
-This is a **beta**. The list below is deliberately not in the build yet. Some of it is a weekend of work; some of it needs a server, accounts and moderation, which a single static `index.html` on GitHub Pages cannot provide on its own. This section stays at the top of the patch notes until each line is either shipped or honestly dropped.
+This is a **beta**. The list below is deliberately not in the build yet. Some of it is a weekend of work; some of it needs a server, accounts and moderation, which a single static `index.html` on GitHub Pages cannot provide on its own — which is why the online build lives on this branch and deploys to Vercel. This section stays at the top of the patch notes until each line is either shipped or honestly dropped.
 
 ### Achievements
 
@@ -26,9 +28,9 @@ Waves currently hand out seven small things — Spare Broom, Wool Blanket, Spare
 - Items that change a run: one-use lures, placeable turrets, a kettle you can set down for the locals.
 - Trading and gifting between players. That needs accounts and a server first.
 
-### What an MMORPG still needs
+### What online co-op still needs
 
-The "MMO" in micro-MMO is currently a polite lie: the other players are bots, and co-op is two people on one keyboard. To be an actual MMORPG, the game still needs:
+The other players are still bots, and co-op is two people on one keyboard. To become the online RPG the branch is aiming for, the game still needs:
 
 - **Online multiplayer.** Authoritative servers, rooms or shards, lag compensation and state sync. GitHub Pages is static hosting, so this needs a backend — or a peer-to-peer/WebRTC experiment with all of its NAT headaches. The concrete next step is the **4-player room-code plan** in [v0.7.0](#planned-4-player-online-rooms): Vercel static + signaling, free Redis, host-authoritative WebRTC, no accounts or anti-cheat yet.
 - **Accounts and cross-device saves.** Sign-in, cloud saves and conflict handling. Today progress belongs to one browser's `localStorage`.
@@ -41,9 +43,38 @@ The "MMO" in micro-MMO is currently a polite lie: the other players are bots, an
 - **Accessibility and localisation.** Remapping, a screen-reader pass, reduced-motion parity, and translated copy.
 - **A content pipeline.** The island is one hand-written file; more classes, enemies and stories need tooling that does not exist yet.
 
-Until then, the honest description is: a single-player and local co-op cozy micro-MMO with bots, in beta.
+Until then, the honest description is: a single-player and local co-op cozy micro-RPG with bots, in beta.
 
 ---
+
+## v0.1.0 — Online beta, back to normal (2026-11-09)
+
+First release on the **online-beta** branch, and a reset of the version count for the networked era. The page and the file do not change shape: one `index.html`, one page, different notes.
+
+### Modes back to normal
+
+- **Halloween theme removed.** The Settings toggle, the `HALLOWEEN` title badge, the autumn-dusk palette, the pumpkin moon, fog, bats, jack-o'-lanterns, pumpkin ground decor and the cached Halloween overlay are all gone. The island draws its normal day palette, sky, clouds and vignette again; text goes back to the standard paper/ink colours.
+- **Four-boss Mania removed.** The `MANIA` title badge, its rules note and the Settings → Four-boss Mania toggle are gone.
+- **Split ladder stops at two.** At **75% HP** a boss still splits once into two smaller halves, and the halves cannot split again. The live cap is **two**.
+- **One boss, 33% per wave.** Once the island is **64%** clear, each wave has a **33%** chance to wake the Algorithm (down from 50%). A failed roll tries again on the next wave.
+- **Speed rule trimmed.** Two live bosses move and attack **25% faster**; the unreachable +50% three/four-boss tier is gone.
+
+### Death is normal again
+
+- **Dying no longer wipes the run.** You wake at the bench with full health, the same as the pre-Mania build.
+- **Endless keeps your progress.** Dying during an Endless fight restarts the current wave and keeps your Joy and upgrades. The old "Mania reset to wave 1" path and its toast are removed.
+
+### Balance for solo and co-op
+
+- **Waves scale with the party.** Each extra human adds up to **+6 ads** (30% of the crew, hard-capped at 22 in a wave) and **+55% monster health**. Solo numbers are unchanged.
+- **The Algorithm scales too.** Boss health gets the same **+55%** per extra hero.
+- **Wave 1 was fixed to include the partner.** The co-op partner used to spawn after wave 1 was planned, so wave 1 always used the solo recipe; the partner now arrives before the first wave.
+
+### Words and versions
+
+- **micro-MMO → micro-RPG** across the page title, description, social metadata, title card and help panel; the pending list now talks about online co-op rather than "MMORPG essentials".
+- **Version reset to 0.1.0** on the title card, the build tag, the README and the release zip. This branch's notes start here.
+- **Vercel-ready.** The page needs no build step and no environment variables yet; `/api/signaling` and the Upstash store arrive with room-code co-op.
 
 ## v0.9.8 — Fullscreen option (2026-11-04)
 
@@ -273,7 +304,7 @@ Five new medals join the gallery:
 
 ### Planned: 4-player online rooms
 
-Not shipped. The current build is still single-player and same-keyboard co-op. The plan for the next online step:
+Not shipped. The online-beta branch still ships single-player and same-keyboard co-op; v0.1.0 is the deployable base it builds on. The plan for the next online step:
 
 - **Vercel** hosts the static game plus a tiny signaling API. A free Redis store (Vercel Marketplace/Upstash) holds room codes and SDP/ICE.
 - **4 players per room**, joined by a short room code or link.
@@ -281,12 +312,12 @@ Not shipped. The current build is still single-player and same-keyboard co-op. T
 - **No accounts, no anti-cheat, no host migration.** If the host leaves, the room closes. Cross-device saves and moderated public chat remain later work.
 - Phases: deploy → room lobby/signaling → 2-player sync → 4-player polish (TURN, reconnect, chat).
 
-This is deliberately separate from the single-file build. The shipped file stays offline-capable.
+The networking lives behind a `NET` module that is a no-op offline, so the single file and the zips stay offline-capable.
 
 ### Distribution
 
-- `adblock-island-beta-v0.7.0.zip` is rebuilt from `index.html`, `README.md` and `CHANGELOG.md`.
-- The game is still one HTML file with no build step, no CDN, no fonts, no backend and no network calls.
+- `adblock-island-beta-v0.1.0.zip` is rebuilt from `index.html`, `README.md` and `CHANGELOG.md`.
+- The game is still one HTML file with no build step, no CDN, no fonts and no backend. v0.1.0 makes no network calls.
 
 ### Footnote — run-only progression (2026-11-04)
 
