@@ -28,6 +28,8 @@ const crypto = require('crypto');
 
 const BASE = process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL || '';
 const TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN || '';
+const BLOB_TOKEN = process.env.BLOB_READ_WRITE_TOKEN || '';
+const MODE = (BASE && TOKEN) ? 'redis' : (BLOB_TOKEN ? 'blob' : 'none');
 const ROOM_TTL = 7200;
 const STALE_MS = 30000;
 const MAX_PEERS = 4;
@@ -370,14 +372,26 @@ module.exports = async (req, res) => {
   if (action === 'ping') {
     res.status(200).json({
       ok: true,
-      storage: configured(),
+      storage: MODE !== 'none',
       service: 'room-desk',
-      env: { url: !!BASE, token: !!TOKEN }
+      mode: MODE,
+      env: { url: !!BASE, token: !!TOKEN, blob: !!BLOB_TOKEN }
     });
     return;
   }
-  if (!configured()) {
-    res.status(503).json({ ok: false, storage: false, error: 'Room codes are not switched on yet. In Vercel open Storage → Create → Upstash Redis, connect it to this project, and press try again. No redeploy is needed.' });
+  if (MODE === 'none') {
+    res.status(503).json({ ok: false, storage: false, error: 'Room codes are not switched on yet. In Vercel open Storage → Create → Upstash Redis or Blob, connect it to this project, and press try again. No redeploy is needed.' });
+    return;
+  }
+  if (MODE === 'blob') {
+    try {
+      const out = await require('./blob-rooms').handle(action, body);
+      const status = out && out.status ? out.status : out && out.ok === false ? 400 : 200;
+      res.status(status).json(out);
+    } catch (e) {
+      if (process.env.DEBUG_ACTIONS) console.error('blob room error:', e && (e.stack || e.message || e));
+      res.status(500).json({ ok: false, error: 'The room desk hit a snag. Try again in a moment.' });
+    }
     return;
   }
   const handlers = { create, join, poll, signal, leave, promote, backup, takeover, chat, mute };

@@ -3280,7 +3280,7 @@ async function netApi(action, extra = {}) {
   const res = await fetch('/api/signaling', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(Object.assign({ action, token: NET.token, code: NET.code || undefined }, extra))
+    body: JSON.stringify(Object.assign({ action, token: NET.token, code: NET.code || undefined, peerId: NET.peerId || undefined }, extra))
   });
   let data = null;
   try { data = await res.json(); } catch (e) {}

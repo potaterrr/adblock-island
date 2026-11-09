@@ -1,0 +1,9 @@
+{
+  "private": true,
+  "name": "adblock-island-web",
+  "version": "0.9.1",
+  "description": "Static game plus the Vercel room service. No build step for the game itself.",
+  "dependencies": {
+    "@vercel/blob": "^2.8.2"
+  }
+}
