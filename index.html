@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
 <meta name="theme-color" content="#bde8f2">
-<meta name="description" content="AdBlock Island — a wholesome micro-RPG in beta (v0.9.0). Nine classes and a south-shore dock. Clear the static and leave a kind note on the beach.">
+<meta name="description" content="AdBlock Island — a wholesome micro-RPG in beta (v0.9.1). Nine classes and a south-shore dock. Clear the static and leave a kind note on the beach.">
 <meta name="author" content="potaterrr">
 <meta name="application-name" content="AdBlock Island">
 <meta name="apple-mobile-web-app-title" content="AdBlock Island">
@@ -1342,7 +1342,7 @@ body.scanlines::after{
         <div class="logo-badges">
           <div class="logo-kicker">a wholesome micro-RPG</div>
           <div class="beta-pill" id="betaPill" title="This is a beta build. The patch notes list what is still pending.">
-            <span class="beta-dot"></span>beta · <b id="betaVersion">v0.9.0</b>
+            <span class="beta-dot"></span>beta · <b id="betaVersion">v0.9.1</b>
           </div>
         </div>
         <h1 class="logo">ADBLOCK<br><span>ISLAND</span></h1>
@@ -1508,7 +1508,7 @@ const ICONS = {
 };
 const svg = (name) => ICONS[name] || ICONS.spark;
 
-const VERSION = '0.9.0';
+const VERSION = '0.9.1';
 
 /* Endless mode tuning. Named on purpose: after a playtest, change these
    numbers instead of hunting through the wave and damage code. */
@@ -3296,7 +3296,7 @@ function netRender() {
 
 async function netCreateRoom() {
   if (NET.phase === 'busy') return;
-  NET.phase = 'busy'; NET.error = ''; netRender();
+  NET.phase = 'busy'; NET.error = ''; NET.lastAction = { kind: 'create' }; netRender();
   try {
     const data = await netApi('create', { name: netName(), cls: selectedClass });
     NET.role = 'host';
@@ -3316,7 +3316,7 @@ async function netJoinRoom() {
   if (NET.phase === 'busy') return;
   const code = (NET.draftCode || '').toUpperCase().replace(/[^A-Z2-9]/g, '').slice(0, 6);
   if (code.length !== 6) { toast('A room code is six letters and numbers.', 'warn', '!'); return; }
-  NET.phase = 'busy'; NET.error = ''; netRender();
+  NET.phase = 'busy'; NET.error = ''; NET.lastAction = { kind: 'join' }; netRender();
   try {
     const data = await netApi('join', { code, name: netName(), cls: selectedClass, mode: NET.joinAs === 'watch' ? 'watch' : 'play' });
     NET.role = 'guest';
@@ -3662,10 +3662,18 @@ function renderOnlinePanel() {
     NET.lastKey = 'error|' + NET.error;
     body.innerHTML = `
       <div class="help-block"><h4>The desk could not help</h4><p>${escapeHtml(NET.error || 'Something went wrong.')}</p></div>
-      <button class="btn" id="netBackBtn">back</button>
+      <div class="net-row">
+        <button class="btn" id="netBackBtn">back</button>
+        ${NET.lastAction ? '<button class="btn primary" id="netRetryBtn">try again</button>' : ''}
+      </div>
     `;
     const back = $('#netBackBtn', body);
     if (back) back.addEventListener('click', () => { NET.phase = 'idle'; NET.error = ''; renderOnlinePanel(); audio.sfx('ui'); });
+    const retry = $('#netRetryBtn', body);
+    if (retry) retry.addEventListener('click', () => {
+      if (NET.lastAction && NET.lastAction.kind === 'create') netCreateRoom();
+      else if (NET.lastAction && NET.lastAction.kind === 'join') { NET.phase = 'idle'; renderOnlinePanel(); netJoinRoom(); }
+    });
     return;
   }
   if (NET.lastKey === 'idle|' + NET.joinAs) return;

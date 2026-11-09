@@ -47,6 +47,14 @@ Until then, the honest description is: a single-player and local co-op cozy micr
 
 ---
 
+## v0.9.1 — Room setup diagnostics (2026-11-09)
+
+A small release to make the one deployment step obvious.
+
+- **`ping` reports which storage names are missing.** `POST /api/signaling {action:"ping"}` now returns `env: { url, token }` booleans beside `storage`, so a failed room setup can be diagnosed from the live URL.
+- **The lobby has a try-again button.** After a create/join error, retry the same action without retyping the code, so connecting the store does not require a reload.
+- **Clearer error copy.** It names the exact Vercel path (Storage → Create → Upstash Redis) and states that no redeploy is needed.
+
 ## v0.9.0 — Shared wall & guest banners (2026-11-09)
 
 The last section of the roadmap that did not need an account or a rewrite.

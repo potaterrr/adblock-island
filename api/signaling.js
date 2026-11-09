@@ -367,9 +367,17 @@ module.exports = async (req, res) => {
   let body = {};
   try { body = await readBody(req); } catch (e) { res.status(400).json({ ok: false, error: 'Bad request body.' }); return; }
   const action = clean(body.action, 12);
-  if (action === 'ping') { res.status(200).json({ ok: true, storage: configured(), service: 'room-desk' }); return; }
+  if (action === 'ping') {
+    res.status(200).json({
+      ok: true,
+      storage: configured(),
+      service: 'room-desk',
+      env: { url: !!BASE, token: !!TOKEN }
+    });
+    return;
+  }
   if (!configured()) {
-    res.status(503).json({ ok: false, storage: false, error: 'Room codes are not switched on yet. Add the free Upstash Redis store in the Vercel project, then try again.' });
+    res.status(503).json({ ok: false, storage: false, error: 'Room codes are not switched on yet. In Vercel open Storage → Create → Upstash Redis, connect it to this project, and press try again. No redeploy is needed.' });
     return;
   }
   const handlers = { create, join, poll, signal, leave, promote, backup, takeover, chat, mute };
