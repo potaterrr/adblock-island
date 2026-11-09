@@ -1,6 +1,6 @@
 # AdBlock Island
 
-**v0.6.0 · Host handover & spectators (phase 5)** · [Play on Vercel](https://adblock-island.vercel.app/) · [Play on GitHub Pages](https://potaterrr.github.io/adblock-island/) · [Patch notes](https://potaterrr.github.io/projects/adblock-island/#patch-notes)
+**v0.7.0 · Vercel room service (phase 6)** · [Play on Vercel](https://adblock-island.vercel.app/) · [Play on GitHub Pages](https://potaterrr.github.io/adblock-island/) · [Patch notes](https://potaterrr.github.io/projects/adblock-island/#patch-notes)
 
 A wholesome micro-RPG in a single HTML file, currently in **beta**. The ads took the beach, the locals kept the kettle on. Pick a class, sweep the static, bonk the ad-monsters, and leave a kind note for whoever washes ashore next.
 
@@ -12,7 +12,7 @@ index.html   ← the entire game (≈420 KB, markup + CSS + renderer + audio + l
 
 ## Status: beta
 
-**v0.6.0 is a beta**, the sixth release on the **online-beta** branch. The island is playable end to end — nine classes, two companions, the wave ladder, Endless mode with checkpoints, medals, items, the Algorithm, the south-shore dock, kindness notes and same-keyboard co-op. The Halloween theme and Four-boss Mania mode are gone, the theme is back to the plain island palette, and the Algorithm wakes on a **33%** roll per eligible wave and splits once into two. This branch restarts the version count at **0.1.0** for the networked era; its patch notes are separate from the main branch, but the game is still one page, one file.
+**v0.7.0 is a beta**, the seventh release on the **online-beta** branch. The island is playable end to end — nine classes, two companions, the wave ladder, Endless mode with checkpoints, medals, items, the Algorithm, the south-shore dock, kindness notes and same-keyboard co-op. The Halloween theme and Four-boss Mania mode are gone, the theme is back to the plain island palette, and the Algorithm wakes on a **33%** roll per eligible wave and splits once into two. This branch restarts the version count at **0.1.0** for the networked era; its patch notes are separate from the main branch, but the game is still one page, one file.
 
 Versions count from zero while the game is in beta, so every release is `0.x`; the title card's build tag and the top entry of the patch notes always agree.
 
@@ -26,7 +26,7 @@ Still pending, in short:
 
 The full, honest list lives in **[Still pending](CHANGELOG.md#still-pending)** at the top of the patch notes.
 
-## What's new in v0.6.0 — Host handover & spectators (phase 5)
+## What's new in v0.7.0 — Vercel room service (phase 6)
 
 A short version of the [patch notes](CHANGELOG.md):
 
@@ -46,13 +46,15 @@ A short version of the [patch notes](CHANGELOG.md):
 - **Preset chat.** <kbd>C</kbd> opens six preset lines — "nice bonk!", "behind me", "pop-ups!", "kettle break?", "thank you", "brb". Bubbles only, no free text, so there is nothing to moderate.
 - **Host handover (phase 5).** The host leaves, and the island does not close: the host keeps a state backup in Redis (every 10s, and once more on exit), names the next hero as successor, and that guest adopts the full simulation — heroes, monsters, projectiles, hazards, turrets, pickups, wave state and corruption — then re-offers connections to everyone else. Remaining guests wait for the new host instead of dropping out.
 - **Spectators.** Join a room as a **spectator** and watch from your own camera; `1`–`4` follows any hero. No hero is spawned for you, and your input never touches the island.
-- **Host-filtered free text.** `C` now has six presets plus one 140-character line. The host replaces links with `[link]`, masks a small blocked-word list, rate-limits each speaker to one line every 1.5s, and can mute anyone from the chat panel. Spectators talk through the room log.
-- **Still later work.** Real server-side moderation (this is host-side filtering, not a moderation process), ranked play and anti-cheat. The host remains the one authority while it lives; migration is a best-effort handover, not a dedicated server.
+- **Server-side free text (phase 6).** `C` keeps six presets and adds one 140-character line, but the filtering, rate limits and mutes now run in the Vercel room service, not on the host's tab. Links become `[link]`, a blocked-word list is masked server-side, each voice is limited to one line every 2 seconds, and host mutes are stored and enforced by the server. Spectators talk through the room log.
+- **Per-peer tokens.** Every room member gets a server-issued token; signaling, chat, handover and mute actions are rejected without it, so peer ids cannot be spoofed by another tab.
+- **Server rate limits.** Per-peer request limits (45/s), chat cooldowns and signal size caps keep one client from hammering the desk; rooms cap at four and codes are validated.
+- **Vercel, not a dedicated game server.** Vercel functions are HTTP request/response, so there is no persistent WebSocket simulation. The room service is the authority for membership, signaling, moderation, tokens and handover state; gameplay remains host-simulated. A true dedicated simulation server is still later work.
 - **Offline stays offline.** The lobby makes no calls until you open it; the single file still plays from `file://` and GitHub Pages with zero requests.
 
 ## Download
 
-**[Download v0.6.0](https://github.com/potaterrr/adblock-island/releases/tag/v0.6.0)** (`adblock-island-beta-v0.6.0.zip`, also at the repo root). It is rebuilt from `index.html`, `README.md` and `CHANGELOG.md`. Unzip it, open `index.html`, and it plays — online or offline.
+**[Download v0.7.0](https://github.com/potaterrr/adblock-island/releases/tag/v0.7.0)** (`adblock-island-beta-v0.7.0.zip`, also at the repo root). It is rebuilt from `index.html`, `README.md` and `CHANGELOG.md`. Unzip it, open `index.html`, and it plays — online or offline.
 
 One honest caveat: **online co-op is a beta inside a beta.** "Play with a friend" puts player two on the same keyboard (arrow keys) on the same screen. The online-beta branch is where room-code networking lands: Vercel static hosting plus a tiny signaling API, host-authoritative WebRTC, and the same single page. Until that ships, the zip stays a complete single-player/same-keyboard-co-op game.
 
@@ -283,7 +285,7 @@ adblock-island/
 ├── api/signaling.js                # room codes + WebRTC handshake (Vercel function)
 ├── CHANGELOG.md                    # version history and patch notes
 ├── README.md
-├── adblock-island-beta-v0.6.0.zip  # self-contained release build
+├── adblock-island-beta-v0.7.0.zip  # self-contained release build
 └── .nojekyll                       # keep GitHub Pages from running Jekyll
 ```
 
@@ -299,6 +301,7 @@ The full history lives in the **[live patch notes](https://potaterrr.github.io/p
 
 | Version | Date | Headline |
 | --- | --- | --- |
+| [0.7.0](CHANGELOG.md#070--vercel-room-service-phase-6-2026-11-09) | 2026-11-09 | Server-side chat moderation, peer tokens, rate limits |
 | [0.6.0](CHANGELOG.md#060--host-handover--spectators-phase-5-2026-11-09) | 2026-11-09 | Host migration, spectators, host-filtered free chat |
 | [0.5.0](CHANGELOG.md#050--guest-tree--quick-chat-phase-4-2026-11-09) | 2026-11-09 | Full guest upgrade tree, kettle break, preset chat |
 | [0.4.0](CHANGELOG.md#040--guest-skills--rejoin-phase-3-2026-11-09) | 2026-11-09 | Guest skills, dash, per-hero upgrades, auto-rejoin, TURN hook |

@@ -47,6 +47,31 @@ Until then, the honest description is: a single-player and local co-op cozy micr
 
 ---
 
+## v0.7.0 — Vercel room service (phase 6) (2026-11-09)
+
+Phase 6 hardens the room itself. Everything runs inside the existing Vercel function — no new infrastructure, no second deploy target.
+
+### The room desk is now the authority for the room
+
+- **Peer tokens.** `create` and `join` return a server-issued token. Polling, signaling, chat, handover and mute calls are rejected without it, so one tab cannot spoof another peer's id.
+- **Server-side moderation.** Free text goes to `POST /api/signaling` with `action: "chat"`. The server strips links to `[link]`, masks a blocked-word list, limits each voice to one line every **2 seconds**, and refuses chat for muted peers.
+- **Server-enforced mutes.** The host's mute button calls the server (`mute`), which records the flag on the peer and rejects that peer's chat. The client no longer has to trust the host tab for this.
+- **Rate limits and size caps.** Each peer is limited to **45 requests/second**, signals are capped at **64 KB**, bodies at **320 KB**, rooms at four peers, and codes are validated. Chat and system messages share the same inbox channel.
+- **System lines.** Joining, leaving, promoting and taking over now post a system line to the room log.
+
+### Handover, on the same service
+
+- The backup, `promote` and `takeover` actions now require tokens; only the current host can write a backup, and any token-holding peer can take over when one exists.
+- Guest recovery was corrected: a dropped guest now waits for a re-offer, rejoins as a guest while the host is alive, and only takes over when the host's presence has gone stale. The host keeps a dropped hero warm for 12 seconds so a reconnection resumes the same hero instead of spawning a new one.
+
+### Fixed
+
+- **The lobby no longer rebuilds on every poll.** It renders only when membership, connection state or join mode changes, so buttons no longer detach under a click.
+
+### Still honest
+
+- Vercel functions are HTTP request/response, so this is a room service, not a persistent game server. Gameplay is still host-simulated; a dedicated simulation server, full anti-cheat and a human moderation process remain later work.
+
 ## v0.6.0 — Host handover & spectators (phase 5) (2026-11-09)
 
 The room survives the host, watchers get a camera, and chat gets a voice with rules.

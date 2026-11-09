@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
 <meta name="theme-color" content="#bde8f2">
-<meta name="description" content="AdBlock Island — a wholesome micro-RPG in beta (v0.6.0). Nine classes and a south-shore dock. Clear the static and leave a kind note on the beach.">
+<meta name="description" content="AdBlock Island — a wholesome micro-RPG in beta (v0.7.0). Nine classes and a south-shore dock. Clear the static and leave a kind note on the beach.">
 <meta name="author" content="potaterrr">
 <meta name="application-name" content="AdBlock Island">
 <meta name="apple-mobile-web-app-title" content="AdBlock Island">
@@ -1342,7 +1342,7 @@ body.scanlines::after{
         <div class="logo-badges">
           <div class="logo-kicker">a wholesome micro-RPG</div>
           <div class="beta-pill" id="betaPill" title="This is a beta build. The patch notes list what is still pending.">
-            <span class="beta-dot"></span>beta · <b id="betaVersion">v0.6.0</b>
+            <span class="beta-dot"></span>beta · <b id="betaVersion">v0.7.0</b>
           </div>
         </div>
         <h1 class="logo">ADBLOCK<br><span>ISLAND</span></h1>
@@ -1508,7 +1508,7 @@ const ICONS = {
 };
 const svg = (name) => ICONS[name] || ICONS.spark;
 
-const VERSION = '0.6.0';
+const VERSION = '0.7.0';
 
 /* Endless mode tuning. Named on purpose: after a playtest, change these
    numbers instead of hunting through the wave and damage code. */
@@ -3260,9 +3260,7 @@ const NET = {
   ice: { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:stun1.l.google.com:19302' }] },
   reconnectTries: 0
 };
-/* Optional TURN relay: set window.ADBLOCK_TURN = { urls, username, credential }
-   before the game script runs (or inject it from the host page). Without it the
-   build is STUN-only and symmetric NATs cannot connect. */
+
 function netIceServers() {
   const turn = (typeof window !== 'undefined' && window.ADBLOCK_TURN) || null;
   const servers = NET.ice.iceServers.slice();
@@ -3279,11 +3277,12 @@ async function netApi(action, extra = {}) {
   const res = await fetch('/api/signaling', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(Object.assign({ action }, extra))
+    body: JSON.stringify(Object.assign({ action, token: NET.token }, extra))
   });
   let data = null;
   try { data = await res.json(); } catch (e) {}
   if (!data) throw new Error('The lobby desk is not answering. Try again in a moment.');
+  if (data.token) NET.token = data.token;
   if (!data.ok) throw new Error(data.error || 'The lobby desk said no.');
   return data;
 }
@@ -3340,7 +3339,7 @@ function netReset(message) {
   NET.seen.clear();
   NET.phase = message ? 'error' : 'idle';
   NET.error = message || '';
-  NET.role = null; NET.code = null; NET.peerId = null; NET.room = null;
+  NET.role = null; NET.code = null; NET.peerId = null; NET.room = null; NET.token = null;
   netRender();
 }
 
@@ -3350,7 +3349,7 @@ function netLeave() {
       fetch('/api/signaling', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'leave', code: NET.code, peerId: NET.peerId }),
+        body: JSON.stringify({ action: 'leave', code: NET.code, peerId: NET.peerId, token: NET.token }),
         keepalive: true
       }).catch(() => {});
     } catch (e) {}
@@ -3363,7 +3362,7 @@ function netApiQuiet(action, extra) {
     fetch('/api/signaling', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(Object.assign({ action }, extra))
+      body: JSON.stringify(Object.assign({ action, token: NET.token }, extra))
     }).catch(() => {});
   } catch (e) {}
 }
@@ -3379,10 +3378,21 @@ function netStartPolling() {
         if (!m || !m.id || NET.seen.has(m.id)) continue;
         NET.seen.add(m.id);
         if (NET.seen.size > 400) NET.seen.clear();
+        if (m.kind === 'chat') { netHandleServerChat(m); continue; }
+        if (m.kind === 'system') { chatAdd('', m.text || '', 'system'); continue; }
         netHandleSignal(m);
       }
       if (NET.role === 'host') netHostStayInTouch();
       netPrunePeers();
+      if (NET.role === 'guest' && NET.room && !netHostPeerAlive()) {
+        NET.hostStaleSince = NET.hostStaleSince || Date.now();
+        if (Date.now() - NET.hostStaleSince > 4000) {
+          NET.hostStaleSince = 0;
+          const hostId = NET.room.host ? NET.room.host.id : null;
+          const first = (NET.room.peers || []).filter((p) => p.id !== hostId && (p.mode || 'play') === 'play')[0];
+          if (first && first.id === NET.peerId) { if (netIsGuest() || !netSession()) netTryTakeover(); }
+        }
+      } else NET.hostStaleSince = 0;
       netRender();
     } catch (e) {
       if (/left the room|closed|No room|not found/i.test(e.message)) {
@@ -3468,8 +3478,22 @@ function netWire(id, rec, dc) {
   dc.onclose = () => {
     rec.connected = false;
     if (rec.pingT) { clearInterval(rec.pingT); rec.pingT = null; }
-    if (netIsHost()) netHostDropPeer(id);
-    else if (netIsGuest()) netHandleHostLoss();
+    if (netIsHost()) {
+      NET.peers.delete(id);
+      const warm = netBotForPeer(id);
+      if (warm) {
+        clearTimeout(warm.dropT);
+        warm.dropT = setTimeout(() => {
+          if (!netIsHost()) return;
+          const cur = NET.peers.get(id);
+          if (!cur || !cur.connected) netHostDropPeer(id);
+        }, 12000);
+      }
+    } else if (netIsGuest()) {
+      netDropPeer(rec);
+      NET.peers.delete(id);
+      netScheduleRecovery();
+    }
     netRender();
   };
   dc.onerror = () => { rec.connected = false; netRender(); };
@@ -3550,9 +3574,14 @@ function renderOnlinePanel() {
   const body = ui.modalBody;
   if (!body) return;
   const phase = NET.phase;
+  if (NET.lastPhase !== phase) { NET.lastPhase = phase; NET.lastKey = null; }
   if (phase === 'room') {
     const peers = (NET.room && NET.room.peers) ? NET.room.peers : [];
     const hostId = NET.room && NET.room.host ? NET.room.host.id : null;
+    // polling must not rebuild the button under the player's finger
+    const key = 'room|' + NET.code + '|' + peers.map((p) => [p.id, p.name, p.cls, p.mode, p.id === NET.peerId || (NET.peers.get(p.id) && NET.peers.get(p.id).connected) ? 1 : 0].join(',')).join('|');
+    if (NET.lastKey === key && body.querySelector('.room-code')) return;
+    NET.lastKey = key;
     const rows = peers
       .slice()
       .sort((a, b) => (a.id === hostId ? -1 : b.id === hostId ? 1 : 0))
@@ -3616,10 +3645,14 @@ function renderOnlinePanel() {
     return;
   }
   if (phase === 'busy') {
+    if (NET.lastKey === 'busy') return;
+    NET.lastKey = 'busy';
     body.innerHTML = `<p style="padding:14px 0;font-family:var(--ui);font-size:12px">Tuning the lobby desk…</p>`;
     return;
   }
   if (phase === 'error') {
+    if (NET.lastKey === 'error|' + NET.error) return;
+    NET.lastKey = 'error|' + NET.error;
     body.innerHTML = `
       <div class="help-block"><h4>The desk could not help</h4><p>${escapeHtml(NET.error || 'Something went wrong.')}</p></div>
       <button class="btn" id="netBackBtn">back</button>
@@ -3628,6 +3661,8 @@ function renderOnlinePanel() {
     if (back) back.addEventListener('click', () => { NET.phase = 'idle'; NET.error = ''; renderOnlinePanel(); audio.sfx('ui'); });
     return;
   }
+  if (NET.lastKey === 'idle|' + NET.joinAs) return;
+  NET.lastKey = 'idle|' + NET.joinAs;
   body.innerHTML = `
     <div class="help-block">
       <h4>Room-code co-op</h4>
@@ -3699,6 +3734,7 @@ function netBotForPeer(peerId) { return bots.find((b) => b.net && b.netId === pe
 function netSpawnGuestBot(peerId) {
   const existing = netBotForPeer(peerId);
   if (existing) {
+    clearTimeout(existing.dropT);
     netSendTo(peerId, { t: 'resume', seed: world.seed, corrupt: netPackCorrupt(), wave: game.wave });
     return existing;
   }
@@ -4227,7 +4263,7 @@ function buildChatPanel() {
   ui.modalBody.innerHTML = `
     <div class="help-block">
       <h4>Say something</h4>
-      <p>Preset lines or one short line of your own. The host filters links and blocked words, rates each voice, and can mute anyone — bubbles only, no chat log.</p>
+      <p>Preset lines or one short line of your own. The room service strips links, masks blocked words, rate-limits every voice and enforces host mutes. Bubbles only, no chat log.</p>
     </div>
     <div class="net-chat">
       ${NET_CHAT.map((c, i) => `<button class="btn" data-say="${i}">${escapeHtml(c.label)}</button>`).join('')}
@@ -4260,7 +4296,10 @@ function buildChatPanel() {
   if (chatInput) chatInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') send(); });
   $$('[data-mute]', ui.modalBody).forEach((btn) => btn.addEventListener('click', () => {
     NET.muted = NET.muted || {};
-    NET.muted[btn.dataset.mute] = !NET.muted[btn.dataset.mute];
+    const target = btn.dataset.mute;
+    const on = !NET.muted[target];
+    NET.muted[target] = on;
+    netApi('mute', { peerId: target, on }).catch(() => {});
     buildChatPanel();
     audio.sfx('ui');
   }));
@@ -4406,6 +4445,27 @@ async function netTryTakeover() {
     netGuestAbort('No island state was left behind.');
   }
 }
+function netHostPeerAlive() {
+  const hostId = NET.room && NET.room.host ? NET.room.host.id : null;
+  const hostPeer = ((NET.room && NET.room.peers) || []).find((p) => p.id === hostId);
+  return !!(hostPeer && hostPeer.lastSeen && Date.now() - hostPeer.lastSeen < 25000);
+}
+let netRecoveryT = null;
+function netScheduleRecovery() {
+  clearTimeout(netRecoveryT);
+  netRecoveryT = setTimeout(() => {
+    if (!netIsGuest()) return;
+    const rec = NET.peers.get(NET.room && NET.room.host ? NET.room.host.id : '');
+    if (rec && rec.connected) return;
+    if (NET.handoffTo) return;
+    if (netHostPeerAlive()) {
+      toast('Connection hiccup. Rejoining the island…', 'warn', '↻');
+      netGuestAbort('Rejoining…');
+    } else {
+      netHandleHostLoss();
+    }
+  }, 5000);
+}
 function netHandleHostLoss() {
   const S = netSession();
   if (!S || !S.guest) return;
@@ -4465,13 +4525,31 @@ function netHostChat(fromId, text) {
 function netSendChat(text) {
   const t = String(text || '').trim().slice(0, 140);
   if (!t) return;
-  if (netIsGuest()) {
+  if (netSession()) {
+    netApi('chat', { text: t }).catch(() => {
+      // the room service is down: fall back to host-relayed chat
+      if (netIsGuest()) netSendToHost({ t: 'chat', text: t });
+      else if (netIsHost()) netHostChat(NET.peerId, t);
+    });
+    player.bubble = t;
+    player.bubbleT = 4;
+  } else if (netIsGuest()) {
     netSendToHost({ t: 'chat', text: t });
     player.bubble = t; player.bubbleT = 4;
   } else if (netIsHost()) {
     netHostChat(NET.peerId, t);
   }
   audio.sfx('ui');
+}
+function netHandleServerChat(msg) {
+  if (!msg || msg.from === NET.peerId) return;
+  const line = (msg.name || 'someone') + ': ' + (msg.text || '');
+  chatAdd('', line, 'system');
+  toast(line, '', '✎');
+  if (netIsHost()) {
+    const b = netBotForPeer(msg.from);
+    if (b) { b.bubble = msg.text; b.bubbleT = 4; }
+  }
 }
 
 function netGuestStart(msg) {
@@ -4640,7 +4718,7 @@ function netGuestAbort(reason) {
         fetch('/api/signaling', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ action: 'leave', code: NET.code, peerId: deadPeer }),
+          body: JSON.stringify({ action: 'leave', code: NET.code, peerId: deadPeer, token: NET.token }),
           keepalive: true
         }).catch(() => {});
       } catch (e) {}
@@ -4809,7 +4887,7 @@ const PANEL_META = {
   dock: { title: 'Mira’s dock shop', sub: 'A quiet counter at the end of the pier. Stock is still arriving.', icon: 'coin' },
   online: { title: 'Play online', sub: 'A short room code, a WebRTC handshake, and up to four heroes.', icon: 'spark' },
   netshop: { title: 'Your broom, your call', sub: 'Spend your own Joy on your own hero. The host applies it on the island.', icon: 'spark' },
-  chat: { title: 'Quick chat', sub: 'Six preset lines. Bubbles only, nothing to moderate.', icon: 'note' },
+  chat: { title: 'Quick chat', sub: 'Presets plus one short line, filtered and rate-limited by the room service.', icon: 'note' },
   victory: { title: 'Island restored', sub: 'You did a good thing. Look at all this green.', icon: 'sun' }
 };
 
@@ -5128,7 +5206,7 @@ function buildHelpPanel() {
       <div class="help-block">
         <h4>Play with a friend</h4>
         <p>Turn on <b>play with a friend</b> on the title screen for same-keyboard co-op. You keep <kbd>WASD</kbd>, <kbd>J</kbd>, <kbd>Q</kbd>, <kbd>E</kbd>; your friend moves with the <kbd>arrow keys</kbd> and auto-swings at whatever they face. The camera holds you both, so stay within a screen of each other.</p>
-        <p>For separate keyboards, press <b>play online</b> on the title screen. Open a room, share the six-character code or the invite link, and up to four heroes can join over WebRTC — or join as a <b>spectator</b> and watch any hero with <kbd>1</kbd>–<kbd>4</kbd>. The host runs the island; guests move with <kbd>WASD</kbd>, aim with the mouse, hold <kbd>J</kbd> to attack, use <kbd>Q</kbd> <kbd>E</kbd> and <kbd>Space</kbd> (the host executes guest skills and dashes), and press <kbd>R</kbd> for one kettle-break heal per wave. Pop-ups reach everyone and damage is host-authoritative. Guests spend their own Joy in their own full upgrade tree (<kbd>U</kbd>), and <kbd>C</kbd> opens preset lines plus one host-filtered line. If the host leaves, the island hands over to the next hero and the room keeps playing. A dropped guest tries to rejoin on its own.</p>
+        <p>For separate keyboards, press <b>play online</b> on the title screen. Open a room, share the six-character code or the invite link, and up to four heroes can join over WebRTC — or join as a <b>spectator</b> and watch any hero with <kbd>1</kbd>–<kbd>4</kbd>. The host runs the island; guests move with <kbd>WASD</kbd>, aim with the mouse, hold <kbd>J</kbd> to attack, use <kbd>Q</kbd> <kbd>E</kbd> and <kbd>Space</kbd> (the host executes guest skills and dashes), and press <kbd>R</kbd> for one kettle-break heal per wave. Pop-ups reach everyone and damage is host-authoritative. Guests spend their own Joy in their own full upgrade tree (<kbd>U</kbd>), and <kbd>C</kbd> opens preset lines plus one line filtered, rate-limited and mutes enforced by the room service. If the host leaves, the island hands over to the next hero and the room keeps playing. A dropped guest tries to rejoin on its own.</p>
       </div>
       <div class="help-block">
         <h4>This build</h4>
