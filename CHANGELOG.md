@@ -47,6 +47,28 @@ Until then, the honest description is: a single-player and local co-op cozy micr
 
 ---
 
+## v0.5.0 — Guest tree & quick chat (phase 4) (2026-11-09)
+
+Co-op gets its own economy, its own drinks and a way to talk without a chat log.
+
+### The guest tree
+
+- **Your Joy, your upgrades.** Kills credit the hero who landed them, and guests now spend that Joy in the same six-upgrade tree as the host: **Clarity Lens** (+10% damage), **Deep Breaths** (+15 max HP), **Barefoot Speed** (+5% move), **Wide Broom** (+18% cleanse), **Cool Head** (-7% cooldowns) and **Joy Magnet** (+20% Joy).
+- **The host validates every purchase.** A guest sends a buy request; the host checks rank, cost and wallet, deducts the Joy, applies the stat to that hero and acknowledges the new rank. Ranks and wallet ride back in snapshots.
+- **Its own panel.** <kbd>U</kbd> opens the guest tree at any time, and the host opens it automatically after a cleared wave. The host's tree stays the host's.
+- **Kettle break.** <kbd>R</kbd> heals a guest for 30% of max HP once per wave; the allowance resets on the next clear.
+
+### Preset chat
+
+- **Six lines, bubbles only.** <kbd>C</kbd> opens *nice bonk!*, *behind me*, *pop-ups!*, *kettle break?*, *thank you* and *brb*. The hero says it in a bubble that every client sees through the snapshot.
+- **No free text.** Presets are validated on the host, so there is no unmoderated channel to run.
+- Hosts and guests both get the panel in an online session; the solo chat log is untouched.
+
+### Still not shipped
+
+- Host migration (the host leaving still closes the room), moderated free-text chat and spectators remain phase-5 work.
+- The guest tree is applied host-side; there is no client-side prediction of a purchase before the host confirms.
+
 ## v0.4.0 — Guest skills & rejoin (phase 3) (2026-11-09)
 
 Online co-op gains the abilities, choices and recovery a shared run needs.

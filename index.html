@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
 <meta name="theme-color" content="#bde8f2">
-<meta name="description" content="AdBlock Island — a wholesome micro-RPG in beta (v0.4.0). Nine classes and a south-shore dock. Clear the static and leave a kind note on the beach.">
+<meta name="description" content="AdBlock Island — a wholesome micro-RPG in beta (v0.5.0). Nine classes and a south-shore dock. Clear the static and leave a kind note on the beach.">
 <meta name="author" content="potaterrr">
 <meta name="application-name" content="AdBlock Island">
 <meta name="apple-mobile-web-app-title" content="AdBlock Island">
@@ -243,6 +243,8 @@ button{cursor:pointer;border:0;background:none}
 .net-shop{display:grid;gap:8px;margin-top:6px}
 .net-shop .big-btn{display:flex;align-items:center;justify-content:space-between;gap:10px;text-align:left}
 .net-shop .big-btn small{font-family:var(--body,var(--ui));font-weight:600;font-size:10px;letter-spacing:0;text-transform:none;opacity:.72}
+.net-chat{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.net-chat .btn{width:100%;justify-content:center}
 @keyframes betaPop{0%,100%{transform:rotate(1.5deg) scale(1)}50%{transform:rotate(1.5deg) scale(1.04)}}
 h1.logo{
   margin:0;font-family:var(--ui);font-weight:900;line-height:.92;
@@ -1340,7 +1342,7 @@ body.scanlines::after{
         <div class="logo-badges">
           <div class="logo-kicker">a wholesome micro-RPG</div>
           <div class="beta-pill" id="betaPill" title="This is a beta build. The patch notes list what is still pending.">
-            <span class="beta-dot"></span>beta · <b id="betaVersion">v0.4.0</b>
+            <span class="beta-dot"></span>beta · <b id="betaVersion">v0.5.0</b>
           </div>
         </div>
         <h1 class="logo">ADBLOCK<br><span>ISLAND</span></h1>
@@ -1506,7 +1508,7 @@ const ICONS = {
 };
 const svg = (name) => ICONS[name] || ICONS.spark;
 
-const VERSION = '0.4.0';
+const VERSION = '0.5.0';
 
 /* Endless mode tuning. Named on purpose: after a playtest, change these
    numbers instead of hunting through the wave and damage code. */
@@ -2806,12 +2808,13 @@ function bindUI() {
     if (k === 'q') { if (netIsGuest()) netGuestRequestSkill(1); else useSkill(1); }
     if (k === 'e') { if (netIsGuest()) netGuestRequestSkill(2); else useSkill(2); }
     if (k === ' ' || k === 'spacebar') { if (netIsGuest()) netGuestRequestDash(); else doDash(); }
+    if (k === 'r') { if (netIsGuest()) netGuestRequestKettle(); }
     if (k === 'f') interactBench();
-    if (k === 'u') openPanel('upgrades');
+    if (k === 'u') { if (netIsGuest()) { if (netSession()) openPanel('netshop'); } else openPanel('upgrades'); }
     if (k === 'h') openPanel('help');
     if (k === 'n' && game.waveState === 'cleared') openPanel(game.checkpointPending ? 'checkpoint' : 'wave');
     if (k === 'm') ui.muteBtn.click();
-    if (k === 'c') { if (input.touch) ui.chatPanel.classList.add('open'); ui.chatInput.focus(); }
+    if (k === 'c') { if (netSession()) openPanel('chat'); else if (input.touch) ui.chatPanel.classList.add('open'); if (!netSession()) ui.chatInput.focus(); }
   });
   document.addEventListener('keyup', (e) => {
     const k = e.key.toLowerCase();
@@ -3688,6 +3691,7 @@ function netSpawnGuestBot(peerId) {
     name: info.name || 'friend', cls: info.cls || 'blocker',
     x, y, homeX: x, homeY: y, r: 14, hp: 130, maxHp: 130,
     level: 1, xp: 0, joy: 0, xpNext: 50,
+    upg: {}, dmgMult: 1, joyMult: 1, cleanseMult: 1, cdMult: 1,
     facing: player.facing, vx: 0, vy: 0, speed: 196, state: 'human', stateT: 999,
     target: null, chatCd: 999, bubble: '', bubbleT: 0, bob: rand(TAU),
     cosmetic: 'none', sit: false, atkAnim: 0, atkCd: 0, helpCd: 999,
@@ -3745,7 +3749,9 @@ function netPackPlayer(p, id) {
     down: !!p.down, human: !!p.human, net: !!p.net,
     cosmetic: p.cosmetic || 'none', level: p.level || 1,
     joy: Math.round(p.joy || 0), xp: Math.round(p.xp || 0),
-    shield: Math.round(p.shield || 0), sit: !!p.sit
+    shield: Math.round(p.shield || 0), sit: !!p.sit,
+    bubble: p.bubble || '', bubbleT: Math.round((p.bubbleT || 0) * 10) / 10,
+    upg: p.upg || null
   };
 }
 function netPackMonster(m) {
@@ -3800,7 +3806,9 @@ function netHostOnData(peerId, msg) {
   if (msg.t === 'who') { netSpawnGuestBot(peerId); return; }
   if (msg.t === 'skill') { const b = netBotForPeer(peerId); if (b) netGuestSkill(b, msg.which); return; }
   if (msg.t === 'dash') { const b = netBotForPeer(peerId); if (b) netGuestDash(b); return; }
-  if (msg.t === 'upg') { const b = netBotForPeer(peerId); if (b) netGuestUpgrade(b, msg.pick); return; }
+  if (msg.t === 'buy') { const b = netBotForPeer(peerId); if (b) netGuestBuy(b, msg.id); return; }
+  if (msg.t === 'kettle') { const b = netBotForPeer(peerId); if (b) netGuestKettle(b); return; }
+  if (msg.t === 'say') { netHostSay(peerId, msg.i); return; }
   if (msg.t === 'in') {
     const b = netBotForPeer(peerId);
     if (!b) return;
@@ -3879,7 +3887,7 @@ function netGuestSkill(b, which) {
   const now = game.time;
   const key = which === 1 ? 'skill1Cd' : 'skill2Cd';
   const def = which === 1 ? cls.q : cls.e;
-  const cd = (def && def.cd) || 6;
+  const cd = ((def && def.cd) || 6) * (b.cdMult || 1);
   if ((b[key] || 0) > now) return;
   b[key] = now + cd;
   const c = cls;
@@ -4045,12 +4053,24 @@ function netGuestDash(b) {
   burst(b.x, b.y, '#dff6ff', 9, { speed: 70, life: 0.45, size: 3.5, gravity: 0 });
   audio.sfx('dash');
 }
-function netGuestUpgrade(b, pick) {
-  if (pick === 'dmg') b.dmgMult = (b.dmgMult || 1) * 1.12;
-  else if (pick === 'hp') { b.maxHp = Math.round(b.maxHp * 1.15); b.hp = b.maxHp; }
-  else if (pick === 'spd') b.speed = Math.round(b.speed * 1.06);
-  netSendTo(b.netId, { t: 'upgd', pick });
-  toast(b.name + ' tuned their broom (' + pick + ').', 'good', '✧');
+function netGuestBuy(b, id) {
+  const u = UPGRADES.find((x) => x.id === id);
+  if (!u) return;
+  b.upg = b.upg || {};
+  const rank = b.upg[id] || 0;
+  const cost = rank >= u.max ? null : u.costs[rank];
+  if (cost == null) { netSendTo(b.netId, { t: 'deny', id, reason: 'maxed' }); return; }
+  if ((b.joy || 0) < cost) { netSendTo(b.netId, { t: 'deny', id, reason: 'joy' }); return; }
+  b.joy -= cost;
+  b.upg[id] = rank + 1;
+  if (id === 'damage') b.dmgMult = 1 + 0.10 * (rank + 1);
+  else if (id === 'vitality') { b.maxHp = Math.round(b.maxHp + 15); b.hp = Math.min(b.maxHp, b.hp + 15); }
+  else if (id === 'speed') b.speed = Math.round(b.speed * 1.05);
+  else if (id === 'cleanse') b.cleanseMult = 1 + 0.18 * (rank + 1);
+  else if (id === 'cooldown') b.cdMult = 1 - 0.07 * (rank + 1);
+  else if (id === 'joy') b.joyMult = 1 + 0.20 * (rank + 1);
+  netSendTo(b.netId, { t: 'bought', id, rank: rank + 1, cost, joy: b.joy });
+  toast(b.name + ' bought ' + u.name + ' ' + (rank + 1) + '/' + u.max + '.', 'good', '✿');
 }
 
 /* --- guest-side requests and shop ---------------------------------------- */
@@ -4066,6 +4086,26 @@ function netGuestRequestSkill(which) {
   netSendToHost({ t: 'skill', which });
   audio.sfx('ui');
 }
+function netGuestKettle(b) {
+  if (b.kettleWave === game.wave) return;
+  b.kettleWave = game.wave;
+  const heal = Math.round(b.maxHp * 0.3);
+  b.hp = Math.min(b.maxHp, b.hp + heal);
+  b.bubble = 'kettle break ☕';
+  b.bubbleT = 2.5;
+  burst(b.x, b.y, [PAL.mint, '#fff'], 14, { speed: 90, life: 0.9, size: 3, gravity: -12 });
+  floatingText(b.x, b.y - 42, '+' + heal + ' hp', '#2f9468', 13, 1);
+  toast(b.name + ' took a kettle break.', 'good', '☕');
+  netSendTo(b.netId, { t: 'kettled', heal });
+}
+function netGuestRequestKettle() {
+  const S = netSession();
+  if (!S || !S.guest) return;
+  if (S.kettleWave === game.wave) { toast('The kettle is empty this wave.', 'warn', '☕'); return; }
+  S.kettleWave = game.wave;
+  netSendToHost({ t: 'kettle' });
+  audio.sfx('heal');
+}
 function netGuestRequestDash() {
   const S = netSession();
   if (!S || !S.guest) return;
@@ -4075,6 +4115,35 @@ function netGuestRequestDash() {
   netSendToHost({ t: 'dash' });
   audio.sfx('dash');
 }
+const NET_CHAT = [
+  { label: 'nice bonk!', text: 'nice bonk!' },
+  { label: 'behind me', text: 'behind me!' },
+  { label: 'pop-ups!', text: 'pop-ups! pop-ups!' },
+  { label: 'kettle break', text: 'kettle break?' },
+  { label: 'thank you', text: 'thank you ♥' },
+  { label: 'brb', text: 'brb, staring at the sea' }
+];
+function netSayLocal(hero, i) {
+  const line = NET_CHAT[i];
+  if (!line) return;
+  hero.bubble = line.text;
+  hero.bubbleT = 3;
+}
+function netHostSay(peerId, i) {
+  const line = NET_CHAT[i];
+  if (!line) return;
+  const b = netBotForPeer(peerId);
+  if (b) { b.bubble = line.text; b.bubbleT = 3; }
+}
+function netSendSay(i) {
+  if (!NET_CHAT[i]) return;
+  if (netIsGuest()) {
+    netSayLocal(player, i);
+    netSendToHost({ t: 'say', i });
+  } else if (netIsHost()) {
+    netSayLocal(player, i);
+  }
+}
 function netGuestShopOpen() {
   if (game.state === 'title') return;
   if (game.modalType === 'netshop') { renderNetshop(); return; }
@@ -4083,24 +4152,64 @@ function netGuestShopOpen() {
 function renderNetshop() {
   const body = ui.modalBody;
   if (!body) return;
+  const S = netSession();
+  const joy = (S && S.myJoy) || 0;
+  const upg = (S && S.myUpg) || {};
   body.innerHTML = `
-    <div class="help-block">
-      <h4>Your broom, your call</h4>
-      <p>The host's wave is cleared. Pick one small upgrade for your own hero; it applies on the host's island right away.</p>
+    <div class="kind-row">
+      <span class="chip on">✿ <b id="netJoyChip">${Math.floor(joy)}</b> Joy</span>
+      <span class="chip">Level ${player.level}</span>
+      <span class="chip">your hero, your broom</span>
     </div>
-    <div class="net-shop">
-      <button class="big-btn" data-upg="dmg">sharper → <small>+12% damage</small></button>
-      <button class="big-btn" data-upg="hp">steadier → <small>+15% max HP, fully healed</small></button>
-      <button class="big-btn" data-upg="spd">quicker → <small>+6% move speed</small></button>
+    <p class="net-hint">Kills pay your own Joy. Spend it on your own hero; the host applies every rank on the island.</p>
+    <div class="upgrade-grid">
+      ${UPGRADES.map((u) => {
+        const rank = upg[u.id] || 0;
+        const cost = rank >= u.max ? null : u.costs[rank];
+        return `<div class="upgrade-row ${rank >= u.max ? 'maxed' : ''}">
+          <div class="ur-top">
+            <span class="ur-ico">${svg(u.icon)}</span>
+            <h4>${u.name}</h4>
+            <span class="ur-rank">${rank}/${u.max}</span>
+          </div>
+          <p>${u.desc}</p>
+          <div class="ur-buy">
+            <span class="pips">${Array.from({ length: u.max }, (_, i) => `<i class="${i < rank ? 'on' : ''}"></i>`).join('')}</span>
+            ${cost == null ? '<span class="ur-cost">maxed ♥</span>' : `<button class="small-btn" data-netbuy="${u.id}" ${joy < cost ? 'disabled' : ''}>✿ ${cost}</button>`}
+          </div>
+        </div>`;
+      }).join('')}
     </div>
+    <p class="net-hint">The host's own Joy shop is theirs; this one is yours alone.</p>
   `;
-  $$('[data-upg]', body).forEach((btn) => btn.addEventListener('click', () => {
-    netSendToHost({ t: 'upg', pick: btn.dataset.upg });
+  $$('[data-netbuy]', body).forEach((btn) => btn.addEventListener('click', () => {
+    netSendToHost({ t: 'buy', id: btn.dataset.netbuy });
     audio.sfx('select');
-    closePanel();
   }));
 }
-function buildNetshopPanel() { renderNetshop(); panelFoot([{ label: 'Later', action: 'close' }]); }
+function netShopWallet() {
+  const chip = $('#netJoyChip', ui.modalBody);
+  if (chip) chip.textContent = String(Math.floor((netSession() || {}).myJoy || 0));
+}
+function buildNetshopPanel() { renderNetshop(); panelFoot([{ label: 'Back to the island', action: 'close', kind: 'primary' }]); }
+
+function buildChatPanel() {
+  ui.modalBody.innerHTML = `
+    <div class="help-block">
+      <h4>Quick chat</h4>
+      <p>Preset lines only — no free text, so there is nothing to moderate. Your hero says it in a bubble and the whole room sees it.</p>
+    </div>
+    <div class="net-chat">
+      ${NET_CHAT.map((c, i) => `<button class="btn" data-say="${i}">${escapeHtml(c.label)}</button>`).join('')}
+    </div>
+  `;
+  $$('[data-say]', ui.modalBody).forEach((btn) => btn.addEventListener('click', () => {
+    netSendSay(Number(btn.dataset.say));
+    audio.sfx('ui');
+    closePanel();
+  }));
+  panelFoot([{ label: 'Close', action: 'close' }]);
+}
 
 /* --- rejoin after a dropped channel -------------------------------------- */
 async function netGuestRejoin() {
@@ -4164,6 +4273,8 @@ function netGuestApplySnapshot(snap) {
     player.hp = mine.hp; player.maxHp = mine.maxHp;
     player.level = mine.level; player.xp = mine.xp; player.joy = mine.joy;
     player.shield = mine.shield || 0;
+    S.myJoy = mine.joy; S.myUpg = mine.upg || {}; S.myLevel = mine.level;
+    if (game.modalType === 'netshop') netShopWallet();
     player.moving = mine.moving; player.facing = mine.facing;
     player.atkAnim = mine.atkAnim; player.bob = mine.bob;
     player.dead = false;
@@ -4183,7 +4294,8 @@ function netGuestApplySnapshot(snap) {
     Object.assign(g, {
       id: p.id, name: p.name, cls: p.cls, hp: p.hp, maxHp: p.maxHp,
       facing: p.facing, moving: p.moving, down: p.down, human: p.human,
-      cosmetic: p.cosmetic, level: p.level, net: p.net, netId: p.net, _temp: true
+      cosmetic: p.cosmetic, level: p.level, net: p.net, netId: p.net, _temp: true,
+      bubble: p.bubble || '', bubbleT: p.bubbleT || 0
     });
     g._tx = p.x; g._ty = p.y;
   }
@@ -4229,11 +4341,25 @@ function netGuestOnData(msg) {
   else if (msg.t === 'popclose') {
     const p = (NET.guestPopups || []).find((x) => x.id === msg.id);
     if (p) netCloseGuestPopup(p, msg.gentle ? 'expired' : 'closed');
+  } else if (msg.t === 'kettled') {
+    toast('Kettle break: +' + msg.heal + ' hp.', 'good', '☕');
   } else if (msg.t === 'shop') {
+    const S = netSession();
+    if (S) S.kettleWave = -1;
     netGuestShopOpen();
-  } else if (msg.t === 'upgd') {
-    toast('Upgrade applied on the host. Good pick.', 'good', '✧');
-    if (game.modalType === 'netshop') closePanel();
+  } else if (msg.t === 'bought') {
+    const S = netSession();
+    if (S) {
+      S.myJoy = msg.joy;
+      S.myUpg = S.myUpg || {};
+      S.myUpg[msg.id] = msg.rank;
+    }
+    const u = UPGRADES.find((x) => x.id === msg.id);
+    toast((u ? u.name : 'Upgrade') + ' ' + msg.rank + (u ? '/' + u.max : '') + ' applied on the host.', 'good', '✿');
+    if (game.modalType === 'netshop') renderNetshop();
+  } else if (msg.t === 'deny') {
+    toast(msg.reason === 'maxed' ? 'That one is already maxed.' : 'Not quite enough Joy yet.', 'warn', '✿');
+    if (game.modalType === 'netshop') renderNetshop();
   } else if (msg.t === 'end') {
     netGuestAbort('The host closed the room.');
   }
@@ -4406,7 +4532,8 @@ const PANEL_META = {
   checkpoint: { title: 'Endless checkpoint', sub: 'The island pauses. Spend a little Joy, then climb again.', icon: 'spark' },
   dock: { title: 'Mira’s dock shop', sub: 'A quiet counter at the end of the pier. Stock is still arriving.', icon: 'coin' },
   online: { title: 'Play online', sub: 'A short room code, a WebRTC handshake, and up to four heroes.', icon: 'spark' },
-  netshop: { title: 'Your broom, your call', sub: 'The wave is cleared. Pick one small upgrade for your own hero.', icon: 'spark' },
+  netshop: { title: 'Your broom, your call', sub: 'Spend your own Joy on your own hero. The host applies it on the island.', icon: 'spark' },
+  chat: { title: 'Quick chat', sub: 'Six preset lines. Bubbles only, nothing to moderate.', icon: 'note' },
   victory: { title: 'Island restored', sub: 'You did a good thing. Look at all this green.', icon: 'sun' }
 };
 
@@ -4502,6 +4629,7 @@ function buildPanel(type) {
   else if (type === 'dock') buildDockPanel();
   else if (type === 'online') buildOnlinePanel();
   else if (type === 'netshop') buildNetshopPanel();
+  else if (type === 'chat') buildChatPanel();
   else if (type === 'victory') buildVictoryPanel();
 }
 
@@ -4724,7 +4852,7 @@ function buildHelpPanel() {
       <div class="help-block">
         <h4>Play with a friend</h4>
         <p>Turn on <b>play with a friend</b> on the title screen for same-keyboard co-op. You keep <kbd>WASD</kbd>, <kbd>J</kbd>, <kbd>Q</kbd>, <kbd>E</kbd>; your friend moves with the <kbd>arrow keys</kbd> and auto-swings at whatever they face. The camera holds you both, so stay within a screen of each other.</p>
-        <p>For separate keyboards, press <b>play online</b> on the title screen. Open a room, share the six-character code or the invite link, and up to four heroes can join over WebRTC. The host runs the island; guests move with <kbd>WASD</kbd>, aim with the mouse, hold <kbd>J</kbd> to attack, and use <kbd>Q</kbd> <kbd>E</kbd> and <kbd>Space</kbd> — the host executes guest skills and dashes for them. Pop-ups reach everyone, damage is host-authoritative, and each guest picks their own small upgrade after a cleared wave. A dropped guest tries to rejoin the room on its own.</p>
+        <p>For separate keyboards, press <b>play online</b> on the title screen. Open a room, share the six-character code or the invite link, and up to four heroes can join over WebRTC. The host runs the island; guests move with <kbd>WASD</kbd>, aim with the mouse, hold <kbd>J</kbd> to attack, use <kbd>Q</kbd> <kbd>E</kbd> and <kbd>Space</kbd> (the host executes guest skills and dashes), and press <kbd>R</kbd> for one kettle-break heal per wave. Pop-ups reach everyone and damage is host-authoritative. Guests spend their own Joy in their own full upgrade tree (<kbd>U</kbd>, or it opens after a cleared wave), and <kbd>C</kbd> opens six preset chat lines — bubbles only, nothing to moderate. A dropped guest tries to rejoin the room on its own.</p>
       </div>
       <div class="help-block">
         <h4>This build</h4>
@@ -5829,7 +5957,7 @@ function killMonster(m) {
   const isBoss = m.isBoss;
   const credited = m.lastHitBy && m.lastHitBy.net ? m.lastHitBy : null;
   if (credited && !isBoss) {
-    credited.joy = (credited.joy || 0) + Math.round((m.joy || 5) * stats.joyMult());
+    credited.joy = (credited.joy || 0) + Math.round((m.joy || 5) * (credited.joyMult || stats.joyMult()));
     credited.xp = (credited.xp || 0) + Math.round(m.xp || 8);
     credited.xpNext = credited.xpNext || 50;
     while (credited.xp >= credited.xpNext) {
