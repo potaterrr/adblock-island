@@ -207,24 +207,42 @@ async function join(body) {
   return { ok: true, peerId, token, role: 'guest', room: await readRoom(code) };
 }
 
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
 async function poll(body) {
   const code = clean(body.code, 6).toUpperCase();
   const { room, peer } = await resolvePeer(code, body.token);
   if (!room) return { ok: false, status: 404, error: 'The room closed.' };
   if (!peer) return { ok: false, status: 410, error: 'You left the room.' };
   if (await tooFast(peer.id)) return { ok: false, status: 429, error: 'Slow down a little.' };
+  const wait = Math.min(8000, Math.max(0, Number(body.wait) || 0));
+  const started = Date.now();
+  let msgs = [];
+  // long-poll: hold the request open and check the inbox, so chat feels
+  // immediate without polling every second from every client
+  if (wait > 0) {
+    while (Date.now() - started < wait) {
+      const [box] = await pipeline([['lrange', inboxKey(code, peer.id), 0, -1]]);
+      if (Array.isArray(box) && box.length) { msgs = box; break; }
+      await sleep(Math.min(900, Math.max(120, wait - (Date.now() - started))));
+    }
+    if (!msgs.length) {
+      const [box] = await pipeline([['lrange', inboxKey(code, peer.id), 0, -1]]);
+      msgs = Array.isArray(box) ? box : [];
+    }
+  } else {
+    const [box] = await pipeline([['lrange', inboxKey(code, peer.id), 0, -1]]);
+    msgs = Array.isArray(box) ? box : [];
+  }
   const now = Date.now();
   const ids = room.peers.map((p) => p.id);
   if (!ids.includes(peer.id)) return { ok: false, status: 410, error: 'You left the room.' };
   const updated = JSON.stringify(Object.assign({}, peer, { lastSeen: now }));
-  const [, msgs] = await pipeline([
-    ['set', peerKey(code, peer.id), updated, 'EX', ROOM_TTL],
-    ['lrange', inboxKey(code, peer.id), 0, -1],
-  ]);
-  if (msgs && msgs.length) await redis('del', inboxKey(code, peer.id));
+  await pipeline([['set', peerKey(code, peer.id), updated, 'EX', ROOM_TTL]]);
+  if (msgs.length) await redis('del', inboxKey(code, peer.id));
   await pipeline([['expire', metaKey(code), ROOM_TTL], ['expire', peersKey(code), ROOM_TTL]]);
-  const messages = (msgs || []).map(parse).filter(Boolean);
-  return { ok: true, room: await readRoom(code), messages };
+  const messages = msgs.map(parse).filter(Boolean);
+  return { ok: true, room: await readRoom(code), messages, waited: wait > 0, elapsed: Date.now() - started };
 }
 
 async function signal(body) {
@@ -362,6 +380,7 @@ module.exports = async (req, res) => {
     const status = out && out.status ? out.status : out && out.ok === false ? 400 : 200;
     res.status(status).json(out);
   } catch (e) {
+    if (process.env.DEBUG_ACTIONS) console.error('room desk error:', e && (e.stack || e.message || e));
     res.status(500).json({ ok: false, error: 'The room desk hit a snag. Try again in a moment.' });
   }
 };

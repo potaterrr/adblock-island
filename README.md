@@ -1,6 +1,6 @@
 # AdBlock Island
 
-**v0.7.0 · Vercel room service (phase 6)** · [Play on Vercel](https://adblock-island.vercel.app/) · [Play on GitHub Pages](https://potaterrr.github.io/adblock-island/) · [Patch notes](https://potaterrr.github.io/projects/adblock-island/#patch-notes)
+**v0.8.0 · Co-op polish & long-poll** · [Play on Vercel](https://adblock-island.vercel.app/) · [Play on GitHub Pages](https://potaterrr.github.io/adblock-island/) · [Patch notes](https://potaterrr.github.io/projects/adblock-island/#patch-notes)
 
 A wholesome micro-RPG in a single HTML file, currently in **beta**. The ads took the beach, the locals kept the kettle on. Pick a class, sweep the static, bonk the ad-monsters, and leave a kind note for whoever washes ashore next.
 
@@ -12,7 +12,7 @@ index.html   ← the entire game (≈420 KB, markup + CSS + renderer + audio + l
 
 ## Status: beta
 
-**v0.7.0 is a beta**, the seventh release on the **online-beta** branch. The island is playable end to end — nine classes, two companions, the wave ladder, Endless mode with checkpoints, medals, items, the Algorithm, the south-shore dock, kindness notes and same-keyboard co-op. The Halloween theme and Four-boss Mania mode are gone, the theme is back to the plain island palette, and the Algorithm wakes on a **33%** roll per eligible wave and splits once into two. This branch restarts the version count at **0.1.0** for the networked era; its patch notes are separate from the main branch, but the game is still one page, one file.
+**v0.8.0 is a beta**, the eighth release on the **online-beta** branch. The island is playable end to end — nine classes, two companions, the wave ladder, Endless mode with checkpoints, medals, items, the Algorithm, the south-shore dock, kindness notes and same-keyboard co-op. The Halloween theme and Four-boss Mania mode are gone, the theme is back to the plain island palette, and the Algorithm wakes on a **33%** roll per eligible wave and splits once into two. This branch restarts the version count at **0.1.0** for the networked era; its patch notes are separate from the main branch, but the game is still one page, one file.
 
 Versions count from zero while the game is in beta, so every release is `0.x`; the title card's build tag and the top entry of the patch notes always agree.
 
@@ -26,7 +26,7 @@ Still pending, in short:
 
 The full, honest list lives in **[Still pending](CHANGELOG.md#still-pending)** at the top of the patch notes.
 
-## What's new in v0.7.0 — Vercel room service (phase 6)
+## What's new in v0.8.0 — Co-op polish & long-poll
 
 A short version of the [patch notes](CHANGELOG.md):
 
@@ -50,19 +50,26 @@ A short version of the [patch notes](CHANGELOG.md):
 - **Per-peer tokens.** Every room member gets a server-issued token; signaling, chat, handover and mute actions are rejected without it, so peer ids cannot be spoofed by another tab.
 - **Server rate limits.** Per-peer request limits (45/s), chat cooldowns and signal size caps keep one client from hammering the desk; rooms cap at four and codes are validated.
 - **Vercel, not a dedicated game server.** Vercel functions are HTTP request/response, so there is no persistent WebSocket simulation. The room service is the authority for membership, signaling, moderation, tokens and handover state; gameplay remains host-simulated. A true dedicated simulation server is still later work.
+- **Long-poll room desk (phase 7 polish).** The function holds a poll open for up to 8 seconds and checks the inbox, so chat and signaling land in about a second while using far fewer requests than a tight poll. Snapshot cadence drops to 160ms on touch devices.
+- **Guest quality of life.** Guest action buttons show the host's cooldowns, the pause panel has a real **leave the island** action, the personal shop opens with the wave number, tier and reward, and three online achievements exist (Room Crew, Handover Hero, Front Row).
+- **A test harness in the repo.** `tests/` runs Playwright against a local fake Redis: a solo smoke test, a two-browser co-op test, and a three-browser handover test.
 - **Offline stays offline.** The lobby makes no calls until you open it; the single file still plays from `file://` and GitHub Pages with zero requests.
 
 ## Download
 
-**[Download v0.7.0](https://github.com/potaterrr/adblock-island/releases/tag/v0.7.0)** (`adblock-island-beta-v0.7.0.zip`, also at the repo root). It is rebuilt from `index.html`, `README.md` and `CHANGELOG.md`. Unzip it, open `index.html`, and it plays — online or offline.
+**[Download v0.8.0](https://github.com/potaterrr/adblock-island/releases/tag/v0.8.0)** (`adblock-island-beta-v0.8.0.zip`, also at the repo root). It is rebuilt from `index.html`, `README.md` and `CHANGELOG.md`. Unzip it, open `index.html`, and it plays — online or offline.
 
 One honest caveat: **online co-op is a beta inside a beta.** "Play with a friend" puts player two on the same keyboard (arrow keys) on the same screen. The online-beta branch is where room-code networking lands: Vercel static hosting plus a tiny signaling API, host-authoritative WebRTC, and the same single page. Until that ships, the zip stays a complete single-player/same-keyboard-co-op game.
 
 ## Screenshots
 
-| The title screen | A wave cleared |
+| The title screen | A room lobby |
 | --- | --- |
-| ![AdBlock Island title screen with the beta badge](screenshots/title.png) | ![The wave-cleared card showing an achievement and the next wave preview](screenshots/wave-card.png) |
+| ![AdBlock Island title screen with the online button](screenshots/title.png) | ![A room lobby with two heroes and a six-character code](screenshots/room.png) |
+
+| A guest on a shared island |
+| --- |
+| ![A guest hero playing on the host's island with the room log](screenshots/island.png) |
 
 <p align="center">
   <img src="screenshots/phone.png" width="280" alt="AdBlock Island's title screen on a phone">
@@ -285,7 +292,7 @@ adblock-island/
 ├── api/signaling.js                # room codes + WebRTC handshake (Vercel function)
 ├── CHANGELOG.md                    # version history and patch notes
 ├── README.md
-├── adblock-island-beta-v0.7.0.zip  # self-contained release build
+├── adblock-island-beta-v0.8.0.zip  # self-contained release build
 └── .nojekyll                       # keep GitHub Pages from running Jekyll
 ```
 
@@ -301,6 +308,7 @@ The full history lives in the **[live patch notes](https://potaterrr.github.io/p
 
 | Version | Date | Headline |
 | --- | --- | --- |
+| [0.8.0](CHANGELOG.md#080--co-op-polish--long-poll-2026-11-09) | 2026-11-09 | Guest cooldowns, leave action, wave cards, online medals, long-poll, test harness |
 | [0.7.0](CHANGELOG.md#070--vercel-room-service-phase-6-2026-11-09) | 2026-11-09 | Server-side chat moderation, peer tokens, rate limits |
 | [0.6.0](CHANGELOG.md#060--host-handover--spectators-phase-5-2026-11-09) | 2026-11-09 | Host migration, spectators, host-filtered free chat |
 | [0.5.0](CHANGELOG.md#050--guest-tree--quick-chat-phase-4-2026-11-09) | 2026-11-09 | Full guest upgrade tree, kettle break, preset chat |

@@ -47,6 +47,34 @@ Until then, the honest description is: a single-player and local co-op cozy micr
 
 ---
 
+## v0.8.0 — Co-op polish & long-poll (2026-11-09)
+
+A pass over the three bugs the phase-6 build exposed, plus the quality-of-life gaps around them.
+
+### The room desk got faster and cheaper
+
+- **Long-polling.** `poll` now holds the request for up to 8 seconds, checking the inbox as it waits. Chat and signaling land in about a second, and each client uses a handful of requests per minute instead of a request every 1.2 seconds. Clients send `wait: 8000` and re-poll immediately after a long poll returns.
+- **Snapshot cadence adapts.** Desktop stays at 10 snapshots/second; touch devices drop to roughly 6/second.
+- **Guests see their own cooldowns.** The host sends remaining skill and dash cooldowns in each snapshot; the guest action bar and touch buttons show the same rings as solo play.
+- **Guest pause and wave cards.** The pause panel gains a real **leave the island** action, and each guest's personal shop opens with the wave number, tier and reward that just landed.
+
+### Online achievements
+
+- **Room Crew** — clear a wave with an online hero.
+- **Handover Hero** — take over as the new host.
+- **Front Row** — join a room as a spectator.
+
+### Fixes
+
+- **Chat and mute calls now carry the room code.** Without it the server rejected them; long-polling exposed the missing field.
+- **Poll scheduling no longer dies on a stale scope error**, and a poll that resolves after leaving a room cannot schedule another.
+- **The lobby stops rebuilding under a click** when membership has not changed.
+
+### Tests and assets
+
+- **A committed Playwright harness.** `tests/` includes a fake Redis, a solo smoke test (including "zero API calls offline"), a two-browser co-op test (movement, server-side chat filtering), and a three-browser handover test. `bash tests/run.sh` runs all three.
+- **Fresh screenshots** captured from the real build: title, room lobby, a guest island, and the phone title.
+
 ## v0.7.0 — Vercel room service (phase 6) (2026-11-09)
 
 Phase 6 hardens the room itself. Everything runs inside the existing Vercel function — no new infrastructure, no second deploy target.

@@ -1,0 +1,17 @@
+{
+  "name": "adblock-island-tests",
+  "private": true,
+  "version": "0.8.0",
+  "type": "module",
+  "description": "Playwright smoke tests for AdBlock Island. Run `npm install` here once, then `node fake-redis.cjs` in one terminal and the test scripts in another.",
+  "scripts": {
+    "serve": "node fake-redis.cjs",
+    "smoke": "node smoke.mjs",
+    "coop": "node co-op.mjs",
+    "handover": "node handover.mjs",
+    "test": "bash run.sh"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.64.0"
+  }
+}

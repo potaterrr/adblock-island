@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
 <meta name="theme-color" content="#bde8f2">
-<meta name="description" content="AdBlock Island — a wholesome micro-RPG in beta (v0.7.0). Nine classes and a south-shore dock. Clear the static and leave a kind note on the beach.">
+<meta name="description" content="AdBlock Island — a wholesome micro-RPG in beta (v0.8.0). Nine classes and a south-shore dock. Clear the static and leave a kind note on the beach.">
 <meta name="author" content="potaterrr">
 <meta name="application-name" content="AdBlock Island">
 <meta name="apple-mobile-web-app-title" content="AdBlock Island">
@@ -1342,7 +1342,7 @@ body.scanlines::after{
         <div class="logo-badges">
           <div class="logo-kicker">a wholesome micro-RPG</div>
           <div class="beta-pill" id="betaPill" title="This is a beta build. The patch notes list what is still pending.">
-            <span class="beta-dot"></span>beta · <b id="betaVersion">v0.7.0</b>
+            <span class="beta-dot"></span>beta · <b id="betaVersion">v0.8.0</b>
           </div>
         </div>
         <h1 class="logo">ADBLOCK<br><span>ISLAND</span></h1>
@@ -1508,7 +1508,7 @@ const ICONS = {
 };
 const svg = (name) => ICONS[name] || ICONS.spark;
 
-const VERSION = '0.7.0';
+const VERSION = '0.8.0';
 
 /* Endless mode tuning. Named on purpose: after a playtest, change these
    numbers instead of hunting through the wave and damage code. */
@@ -2998,8 +2998,9 @@ function buildActionBar() {
       e.preventDefault(); e.stopPropagation();
       if (game.state !== 'playing') return;
       const act = btn.dataset.act;
-      if (act === 'attack') { input.attackHeld = true; doAttack(); }
-      else if (act === 'dash') doDash();
+      if (act === 'attack') { input.attackHeld = true; if (!netIsGuest()) doAttack(); }
+      else if (act === 'dash') { if (netIsGuest()) netGuestRequestDash(); else doDash(); }
+      else if (netIsGuest()) netGuestRequestSkill(Number(act));
       else useSkill(Number(act));
     });
     btn.addEventListener('pointerup', () => { if (btn.dataset.act === 'attack') input.attackHeld = false; });
@@ -3277,7 +3278,7 @@ async function netApi(action, extra = {}) {
   const res = await fetch('/api/signaling', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(Object.assign({ action, token: NET.token }, extra))
+    body: JSON.stringify(Object.assign({ action, token: NET.token, code: NET.code || undefined }, extra))
   });
   let data = null;
   try { data = await res.json(); } catch (e) {}
@@ -3371,8 +3372,11 @@ function netStartPolling() {
   clearTimeout(NET.pollT);
   const tick = async () => {
     if (NET.phase !== 'room' || !NET.code) return;
+    let waited = false;
     try {
-      const data = await netApi('poll', { code: NET.code, peerId: NET.peerId });
+      const data = await netApi('poll', { code: NET.code, peerId: NET.peerId, wait: 8000 });
+      if (NET.phase !== 'room' || !NET.code) return;
+      waited = !!(data && data.waited);
       NET.room = data.room;
       for (const m of (data.messages || [])) {
         if (!m || !m.id || NET.seen.has(m.id)) continue;
@@ -3400,7 +3404,8 @@ function netStartPolling() {
         return;
       }
     }
-    NET.pollT = setTimeout(tick, 1200);
+    const pause = waited ? 60 : (netSession() ? 2600 : 1200);
+    NET.pollT = setTimeout(tick, pause);
   };
   tick();
 }
@@ -3780,7 +3785,7 @@ function netHostStart() {
   netForceClosePanel();
   startGame();
   for (const [id] of guests) netSpawnGuestBot(id);
-  NET.session.snapT = setInterval(netHostTick, 100);
+  NET.session.snapT = setInterval(netHostTick, input.touch ? 160 : 100);
   netStartBackup();
   toast('Co-op is live. Everyone is on the island.', 'good', '✦');
 }
@@ -3812,7 +3817,10 @@ function netPackPlayer(p, id) {
     joy: Math.round(p.joy || 0), xp: Math.round(p.xp || 0),
     shield: Math.round(p.shield || 0), sit: !!p.sit,
     bubble: p.bubble || '', bubbleT: Math.round((p.bubbleT || 0) * 10) / 10,
-    upg: p.upg || null
+    upg: p.upg || null,
+    cd1: Math.max(0, Math.round(((p.skill1Cd || 0) - game.time) * 10) / 10),
+    cd2: Math.max(0, Math.round(((p.skill2Cd || 0) - game.time) * 10) / 10),
+    dcd: Math.max(0, Math.round(((p.dashCd || 0) - game.time) * 10) / 10)
   };
 }
 function netPackMonster(m) {
@@ -4145,6 +4153,7 @@ function netGuestRequestSkill(which) {
   const cd = ((def && def.cd) || 6) * 1000;
   if (S[key] && now - S[key] < cd * 0.9) return;
   S[key] = now;
+  player[which === 1 ? 'skill1Cd' : 'skill2Cd'] = cd / 1000;
   netSendToHost({ t: 'skill', which });
   audio.sfx('ui');
 }
@@ -4174,6 +4183,7 @@ function netGuestRequestDash() {
   const now = Date.now();
   if (S.dashAt && now - S.dashAt < 1500) return;
   S.dashAt = now;
+  player.dashCd = 1.8;
   netSendToHost({ t: 'dash' });
   audio.sfx('dash');
 }
@@ -4217,7 +4227,9 @@ function renderNetshop() {
   const S = netSession();
   const joy = (S && S.myJoy) || 0;
   const upg = (S && S.myUpg) || {};
+  const shopWave = S && S.shopWave ? `<div class="help-block"><h4>Wave ${S.shopWave} cleared${S.shopTier ? ' · ' + escapeHtml(S.shopTier) : ''}</h4><p>${S.shopReward ? 'Reward: <b>' + escapeHtml(S.shopReward) + '</b>. ' : ''}Spend your own Joy before the host starts the next wave.</p></div>` : '';
   body.innerHTML = `
+    ${shopWave}
     <div class="kind-row">
       <span class="chip on">✿ <b id="netJoyChip">${Math.floor(joy)}</b> Joy</span>
       <span class="chip">Level ${player.level}</span>
@@ -4428,11 +4440,12 @@ function netBecomeHost(state) {
     if (p.id === NET.peerId || p.id === oldHost) continue;
     netOfferTo(p.id);
   }
-  NET.session.snapT = setInterval(netHostTick, 100);
+  NET.session.snapT = setInterval(netHostTick, input.touch ? 160 : 100);
   netStartBackup();
   netStartPolling();
   updateHUD(true);
   updatePlayerCard();
+  grantAchievement('handover_hero');
   toast('You are the host now. The island carries on.', 'good', '✦');
 }
 async function netTryTakeover() {
@@ -4559,6 +4572,7 @@ function netGuestStart(msg) {
   NET.session = {
     startedAt: Date.now(),
     active: true, host: false, guest: true, spectator: !!msg.spectator,
+    hostName: msg.hostName || 'the host',
     myId: NET.peerId, hostId: NET.room && NET.room.host ? NET.room.host.id : null,
     ghosts: { players: new Map(), monsters: new Map() },
     lastSnap: 0, lastInput: 0, lastHud: 0
@@ -4570,6 +4584,7 @@ function netGuestStart(msg) {
   generateWorld();
   netApplyCorrupt(msg.corrupt);
   NET.session.ghosts = { players: new Map(), monsters: new Map() };
+  if (msg.spectator) grantAchievement('front_row');
   toast('Connected to ' + (msg.hostName || 'the host') + '. The island is theirs to run.', 'good', '✦');
 }
 
@@ -4595,6 +4610,9 @@ function netGuestApplySnapshot(snap) {
     player.level = mine.level; player.xp = mine.xp; player.joy = mine.joy;
     player.shield = mine.shield || 0;
     S.myJoy = mine.joy; S.myUpg = mine.upg || {}; S.myLevel = mine.level;
+    if (mine.cd1 != null) player.skill1Cd = mine.cd1;
+    if (mine.cd2 != null) player.skill2Cd = mine.cd2;
+    if (mine.dcd != null) player.dashCd = mine.dcd;
     if (game.modalType === 'netshop') netShopWallet();
     player.moving = mine.moving; player.facing = mine.facing;
     player.atkAnim = mine.atkAnim; player.bob = mine.bob;
@@ -4666,7 +4684,12 @@ function netGuestOnData(msg) {
     toast('Kettle break: +' + msg.heal + ' hp.', 'good', '☕');
   } else if (msg.t === 'shop') {
     const S = netSession();
-    if (S) S.kettleWave = -1;
+    if (S) {
+      S.kettleWave = -1;
+      S.shopWave = msg.wave;
+      S.shopTier = msg.tier || '';
+      S.shopReward = msg.reward || null;
+    }
     netGuestShopOpen();
   } else if (msg.t === 'bought') {
     const S = netSession();
@@ -4832,6 +4855,10 @@ function netLerpGhosts(dt) {
 function updateGuestView(dt) {
   game.dt = dt;
   game.time += dt;
+  player.atkCd = Math.max(0, (player.atkCd || 0) - dt);
+  player.skill1Cd = Math.max(0, (player.skill1Cd || 0) - dt);
+  player.skill2Cd = Math.max(0, (player.skill2Cd || 0) - dt);
+  player.dashCd = Math.max(0, (player.dashCd || 0) - dt);
   game.elapsed += dt;
   game.worldTime += dt;
   netLerpGhosts(dt);
@@ -4968,6 +4995,7 @@ function panelFoot(buttons) {
       if (act === 'checkpoint') openPanel('checkpoint');
       if (act === 'continueendless') continueEndless();
       if (act === 'closecheckpoint') closeCheckpoint();
+      if (act === 'leaveonline') { netLeave(); toast('Leaving the island…', '', '↤'); setTimeout(() => location.reload(), 500); }
     });
   });
 }
@@ -5291,6 +5319,26 @@ function buildSettingsPanel() {
   panelFoot([{ label: 'Back', action: 'close', kind: 'primary' }]);
 }
 function buildPausePanel() {
+  if (netIsGuest()) {
+    const S = netSession() || {};
+    ui.modalBody.innerHTML = `
+      <div class="kind-row">
+        <span class="chip on">Level ${player.level}</span>
+        <span class="chip">✿ ${Math.floor(player.joy)} Joy</span>
+        <span class="chip">${Math.round(world.cleansePercent() * 100)}% clarity</span>
+        <span class="chip">${S.spectator ? 'watching' : 'guest'}</span>
+      </div>
+      <div class="help-block"><h4>On ${escapeHtml((S.hostName || 'the host')) + '’s island'}</h4>
+      <p>${S.spectator ? 'You are watching this room. Use 1–4 to follow a hero; C to talk.' : 'Your hero is simulated by the host. Closing this panel keeps you in the room; leaving ends your visit.'}</p></div>
+      <div class="help-block"><h4>Small pause</h4><p>Nothing is chasing you right now. The host may keep the wave moving, so stretch while the kettle is on.</p></div>
+    `;
+    panelFoot([
+      { label: 'Keep playing', action: 'resume', kind: 'primary' },
+      { label: 'Settings', action: 'settings' },
+      { label: 'Leave the island', action: 'leaveonline' }
+    ]);
+    return;
+  }
   ui.modalBody.innerHTML = `
     <div class="kind-row">
       <span class="chip on">Level ${player.level}</span>
@@ -6585,6 +6633,9 @@ const EXTRA_ACHIEVEMENTS = [
   { id: 'tea_break', name: 'Tea Break', desc: 'Reach your first Endless checkpoint.', icon: 'spark' },
   { id: 'kettle_on', name: 'Kettle On', desc: 'Reach five Endless checkpoints.', icon: 'sun' },
   { id: 'better_together', name: 'Better Together', desc: 'Clear a wave in co-op.', icon: 'heart' },
+  { id: 'room_crew', name: 'Room Crew', desc: 'Clear a wave with an online hero.', icon: 'star' },
+  { id: 'handover_hero', name: 'Handover Hero', desc: 'Take over the island as the new host.', icon: 'spark' },
+  { id: 'front_row', name: 'Front Row', desc: 'Join a room as a spectator.', icon: 'sun' },
   { id: 'big_spender', name: 'Big Spender', desc: 'Spend 500 Joy on upgrades.', icon: 'coin' },
   { id: 'spotless', name: 'Spotless', desc: 'Clear every tile of static on the island.', icon: 'leaf' }
 ];
@@ -6873,7 +6924,8 @@ function waveCleared(n) {
   save.totalJoy = (save.totalJoy || 0) + bonus;
   gainXp(5 + n * 2);
   save.stats.waves = (save.stats.waves || 0) + 1;
-  for (const b of bots) if (b.net) netSendTo(b.netId, { t: 'shop', wave: n });
+  if (bots.some((b) => b.net)) grantAchievement('room_crew');
+  for (const b of bots) if (b.net) netSendTo(b.netId, { t: 'shop', wave: n, tier: waveTier(n).label, reward: game.waveReward ? game.waveReward.name : null });
   if (n >= 5) {
     if (player.cls === 'blocker') grantAchievement('shield_wall');
     if (player.cls === 'checker') grantAchievement('sharpshooter');
