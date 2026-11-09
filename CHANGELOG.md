@@ -47,6 +47,27 @@ Until then, the honest description is: a single-player and local co-op cozy micr
 
 ---
 
+## v0.10.0 — Blob room fallback (2026-11-09)
+
+Rooms no longer wait for an Upstash account. When the Redis environment is absent, the same room desk runs on the Vercel Blob store that is already connected to this project.
+
+### How it works
+
+- **Ping reports the mode.** `POST /api/signaling {action:"ping"}` returns `mode: "redis" | "blob" | "none"` and booleans for each credential family. Redis is always preferred when present.
+- **Per-writer files, no shared documents.** Presence lives in each peer's own `p/{id}.json`; every signal or chat line is its own immutable message blob under the recipient's inbox; the host owns `host.json`, `mutes.json` and `backup.json`. Paths are HMAC'd with a server salt, so the public store cannot be enumerated by room code alone.
+- **Same contract.** Create, join, poll, signal, leave, promote, backup, takeover, chat and mute behave identically: tokens, four-peer rooms, server-side chat filtering, 1.5s chat rate limit, host mutes and handover state. Delivery is best-effort polling rather than atomic Redis lists, and chat lands in about a second.
+- **No long-poll in Blob mode.** The desk returns immediately; clients default to ~1.2s polling.
+
+### Verified live
+
+Against `https://adblock-island.vercel.app` in Blob mode:
+
+- **Co-op**: create/join over the public URL, guest spawned on the island, movement mirrored (`1652 → 1681`), chat filtered server-side (`hi … [link]`).
+- **Wall + banner + relay**: a guest pinned a note to the host's wall, the guest saw the next wave banner, the relay panel opened.
+- **Handover**: three browsers, host left, successor adopted the island, third guest stayed connected under the promoted host.
+
+All four committed suites pass locally; the co-op, wall and handover suites also pass against production.
+
 ## v0.9.1 — Room setup diagnostics (2026-11-09)
 
 A small release to make the one deployment step obvious.

@@ -1,6 +1,6 @@
 # AdBlock Island
 
-**v0.9.0 · Shared wall & guest banners** · [Play on Vercel](https://adblock-island.vercel.app/) · [Play on GitHub Pages](https://potaterrr.github.io/adblock-island/) · [Patch notes](https://potaterrr.github.io/projects/adblock-island/#patch-notes)
+**v0.10.0 · Blob room fallback** · [Play on Vercel](https://adblock-island.vercel.app/) · [Play on GitHub Pages](https://potaterrr.github.io/adblock-island/) · [Patch notes](https://potaterrr.github.io/projects/adblock-island/#patch-notes)
 
 A wholesome micro-RPG in a single HTML file, currently in **beta**. The ads took the beach, the locals kept the kettle on. Pick a class, sweep the static, bonk the ad-monsters, and leave a kind note for whoever washes ashore next.
 
@@ -12,7 +12,7 @@ index.html   ← the entire game (≈420 KB, markup + CSS + renderer + audio + l
 
 ## Status: beta
 
-**v0.9.0 is a beta**, the ninth release on the **online-beta** branch. The island is playable end to end — nine classes, two companions, the wave ladder, Endless mode with checkpoints, medals, items, the Algorithm, the south-shore dock, kindness notes and same-keyboard co-op. The Halloween theme and Four-boss Mania mode are gone, the theme is back to the plain island palette, and the Algorithm wakes on a **33%** roll per eligible wave and splits once into two. This branch restarts the version count at **0.1.0** for the networked era; its patch notes are separate from the main branch, but the game is still one page, one file.
+**v0.10.0 is a beta**, the tenth release on the **online-beta** branch. The island is playable end to end — nine classes, two companions, the wave ladder, Endless mode with checkpoints, medals, items, the Algorithm, the south-shore dock, kindness notes and same-keyboard co-op. The Halloween theme and Four-boss Mania mode are gone, the theme is back to the plain island palette, and the Algorithm wakes on a **33%** roll per eligible wave and splits once into two. This branch restarts the version count at **0.1.0** for the networked era; its patch notes are separate from the main branch, but the game is still one page, one file.
 
 Versions count from zero while the game is in beta, so every release is `0.x`; the title card's build tag and the top entry of the patch notes always agree.
 
@@ -26,7 +26,7 @@ Still pending, in short:
 
 The full, honest list lives in **[Still pending](CHANGELOG.md#still-pending)** at the top of the patch notes.
 
-## What's new in v0.9.0 — Shared wall & guest banners
+## What's new in v0.10.0 — Blob room fallback
 
 A short version of the [patch notes](CHANGELOG.md):
 
@@ -56,12 +56,14 @@ A short version of the [patch notes](CHANGELOG.md):
 - **The bench wall is shared (phase 8).** Guests sit at the host's bench, read the host's wall, and pin a note that lands on the host's island and stays there. Hearts stay local to the host.
 - **Guest wave banners.** The host broadcasts each wave start, so guests see the same tier, crew note and incoming count on their own screen.
 - **TURN relay settings.** Settings now has a relay panel: paste a TURN URL, username and credential and it is stored in this browser, then used by new WebRTC connections. STUN remains the default.
+- **Rooms work without Upstash (v0.10.0).** When Redis is not configured, the same room service runs on a connected Vercel Blob store: each peer writes its own presence file, every signal/message is its own blob, and the host owns the mute list and handover backup. The public store is connected to this project, so the live URL opens rooms today. Redis, if connected later, takes over automatically.
+- **Blob-mode trade-offs.** Reads are public Blob URLs under HMAC'd paths, delivery is best-effort with polling (not atomic Redis lists), and chat lands in about a second. The room contract, tokens, filtering and handover behaviour are identical.
 - **Spectator chip.** Watchers get a "spectating · 1–4 follows" chip in their HUD.
 - **Offline stays offline.** The lobby makes no calls until you open it; the single file still plays from `file://` and GitHub Pages with zero requests.
 
 ## Download
 
-**[Download v0.9.0](https://github.com/potaterrr/adblock-island/releases/tag/v0.9.0)** (`adblock-island-beta-v0.9.0.zip`, also at the repo root). It is rebuilt from `index.html`, `README.md` and `CHANGELOG.md`. Unzip it, open `index.html`, and it plays — online or offline.
+**[Download v0.10.0](https://github.com/potaterrr/adblock-island/releases/tag/v0.10.0)** (`adblock-island-beta-v0.10.0.zip`, also at the repo root). It is rebuilt from `index.html`, `README.md` and `CHANGELOG.md`. Unzip it, open `index.html`, and it plays — online or offline.
 
 One honest caveat: **online co-op is a beta inside a beta.** "Play with a friend" puts player two on the same keyboard (arrow keys) on the same screen. The online-beta branch is where room-code networking lands: Vercel static hosting plus a tiny signaling API, host-authoritative WebRTC, and the same single page. Until that ships, the zip stays a complete single-player/same-keyboard-co-op game.
 
@@ -296,7 +298,7 @@ adblock-island/
 ├── api/signaling.js                # room codes + WebRTC handshake (Vercel function)
 ├── CHANGELOG.md                    # version history and patch notes
 ├── README.md
-├── adblock-island-beta-v0.9.0.zip  # self-contained release build
+├── adblock-island-beta-v0.10.0.zip # self-contained release build
 └── .nojekyll                       # keep GitHub Pages from running Jekyll
 ```
 
@@ -312,6 +314,8 @@ The full history lives in the **[live patch notes](https://potaterrr.github.io/p
 
 | Version | Date | Headline |
 | --- | --- | --- |
+| [0.10.0](CHANGELOG.md#0100--blob-room-fallback-2026-11-09) | 2026-11-09 | Blob-backed room service fallback; live rooms with no Upstash |
+| [0.9.1](CHANGELOG.md#091--room-setup-diagnostics-2026-11-09) | 2026-11-09 | Room setup diagnostics, retry button |
 | [0.9.0](CHANGELOG.md#090--shared-wall--guest-banners-2026-11-09) | 2026-11-09 | Shared bench wall, guest wave banners, TURN relay settings, spectator chip |
 | [0.8.0](CHANGELOG.md#080--co-op-polish--long-poll-2026-11-09) | 2026-11-09 | Guest cooldowns, leave action, wave cards, online medals, long-poll, test harness |
 | [0.7.0](CHANGELOG.md#070--vercel-room-service-phase-6-2026-11-09) | 2026-11-09 | Server-side chat moderation, peer tokens, rate limits |
