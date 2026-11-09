@@ -47,6 +47,32 @@ Until then, the honest description is: a single-player and local co-op cozy micr
 
 ---
 
+## v0.4.0 — Guest skills & rejoin (phase 3) (2026-11-09)
+
+Online co-op gains the abilities, choices and recovery a shared run needs.
+
+### Guest abilities
+
+- **Q and E work for guests.** The keys send a skill request; the host executes that class's skill on the guest's hero using the same monsters, beams, rings and particles as the solo kit. All damage is still credited to that hero and stays host-authoritative.
+- **Dash works for guests.** Space requests a short dash along their aim; the host moves the hero with terrain checks and knocks ads aside.
+- **Guest shields count.** Host-side contact damage now spends a guest hero's shield before HP, and shield timers tick per hero.
+
+### Guest upgrades
+
+- **A personal choice after each clear.** When the host clears a wave, every guest gets a small shop card: **sharper** (+12% damage), **steadier** (+15% max HP and a full heal) or **quicker** (+6% speed). The pick applies to that hero on the host and is acknowledged back.
+- **Host upgrades stay the host's.** The main Joy shop still belongs to the host's hero; guests get their own lane without sharing the host's currency.
+
+### Recovery and reachability
+
+- **Automatic rejoin.** If a guest's data channel drops, the guest retires its dead peer, rejoins the same room up to three times and waits for the host to spawn it back in. The host drops the vanished hero and accepts the new one.
+- **Stale-peer cleanup.** A guest that leaves on purpose removes its peer record immediately instead of waiting out the 30-second sweep.
+- **TURN hook.** `window.ADBLOCK_TURN = { urls, username, credential }` adds a TURN relay to the WebRTC config for symmetric NATs. No credentials ship by default, so a plain deployment is still STUN-only.
+- **Late joiners and host-leave** keep working as in phase 2.
+
+### Limits
+
+- Guest skills are a faithful-but-approximate port of each class kit, not the exact solo code path. Potions, the full upgrade tree for guests, host migration and moderated chat remain later work.
+
 ## v0.3.0 — Online co-op (phase 2) (2026-11-09)
 
 The room is now a run. One host runs the island; up to three guests join it from their own keyboards.

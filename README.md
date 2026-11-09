@@ -1,6 +1,6 @@
 # AdBlock Island
 
-**v0.3.0 · Online co-op (phase 2)** · [Play on Vercel](https://adblock-island.vercel.app/) · [Play on GitHub Pages](https://potaterrr.github.io/adblock-island/) · [Patch notes](https://potaterrr.github.io/projects/adblock-island/#patch-notes)
+**v0.4.0 · Guest skills & rejoin (phase 3)** · [Play on Vercel](https://adblock-island.vercel.app/) · [Play on GitHub Pages](https://potaterrr.github.io/adblock-island/) · [Patch notes](https://potaterrr.github.io/projects/adblock-island/#patch-notes)
 
 A wholesome micro-RPG in a single HTML file, currently in **beta**. The ads took the beach, the locals kept the kettle on. Pick a class, sweep the static, bonk the ad-monsters, and leave a kind note for whoever washes ashore next.
 
@@ -12,7 +12,7 @@ index.html   ← the entire game (≈420 KB, markup + CSS + renderer + audio + l
 
 ## Status: beta
 
-**v0.3.0 is a beta**, the third release on the **online-beta** branch. The island is playable end to end — nine classes, two companions, the wave ladder, Endless mode with checkpoints, medals, items, the Algorithm, the south-shore dock, kindness notes and same-keyboard co-op. The Halloween theme and Four-boss Mania mode are gone, the theme is back to the plain island palette, and the Algorithm wakes on a **33%** roll per eligible wave and splits once into two. This branch restarts the version count at **0.1.0** for the networked era; its patch notes are separate from the main branch, but the game is still one page, one file.
+**v0.4.0 is a beta**, the fourth release on the **online-beta** branch. The island is playable end to end — nine classes, two companions, the wave ladder, Endless mode with checkpoints, medals, items, the Algorithm, the south-shore dock, kindness notes and same-keyboard co-op. The Halloween theme and Four-boss Mania mode are gone, the theme is back to the plain island palette, and the Algorithm wakes on a **33%** roll per eligible wave and splits once into two. This branch restarts the version count at **0.1.0** for the networked era; its patch notes are separate from the main branch, but the game is still one page, one file.
 
 Versions count from zero while the game is in beta, so every release is `0.x`; the title card's build tag and the top entry of the patch notes always agree.
 
@@ -26,7 +26,7 @@ Still pending, in short:
 
 The full, honest list lives in **[Still pending](CHANGELOG.md#still-pending)** at the top of the patch notes.
 
-## What's new in v0.3.0 — Online co-op (phase 2)
+## What's new in v0.4.0 — Guest skills & rejoin (phase 3)
 
 A short version of the [patch notes](CHANGELOG.md):
 
@@ -39,12 +39,14 @@ A short version of the [patch notes](CHANGELOG.md):
 - **micro-RPG, not MMO.** Wording across the page, help panel and docs now calls it a co-op RPG.
 - **Room codes (phase 1).** A **play online** button sits under **wash ashore** in the same style. It opens a lobby: create a room, get a six-character code, share it or the `?room=CODE` invite link, and up to four heroes join. A tiny `api/signaling.js` function stores the room in Upstash Redis and the browsers shake hands over WebRTC; the lobby shows who is connected and live ping.
 - **One island (phase 2).** The host presses **start co-op** and runs the real simulation; guests send input frames 20×/s and receive snapshots 10×/s. Guests move, aim, attack, take host-authoritative damage, see the host's monsters, projectiles, beams, hazards and pop-ups, and get their own camera. Kills credit the hero who landed them, and guest Joy and level ride back in the snapshot.
-- **Still phase-3 work.** Guest class skills and dash, guest upgrade choices, potions, reconnect and TURN. The host remains the one authority; if the host leaves, the room closes.
+- **Guest skills, dash and upgrades (phase 3).** Guests now use <kbd>Q</kbd>, <kbd>E</kbd> and <kbd>Space</kbd>: the host executes their class skills and dash on their hero (approximate class kit, host-authoritative damage). After a cleared wave each guest picks one personal upgrade — damage, max HP or speed — applied to their hero on the host.
+- **Automatic rejoin.** If a guest's data channel drops, the guest leaves its dead peer, rejoins the room up to three times and waits for the host to drop it back in. A TURN relay hook (`window.ADBLOCK_TURN`) is wired for symmetric NATs but no credentials ship by default.
+- **Still phase-4 work.** Potions, guest-facing wave shop with the full upgrade tree, host migration and moderated chat. The host remains the one authority; if the host leaves, the room closes.
 - **Offline stays offline.** The lobby makes no calls until you open it; the single file still plays from `file://` and GitHub Pages with zero requests.
 
 ## Download
 
-**[Download v0.3.0](https://github.com/potaterrr/adblock-island/releases/tag/v0.3.0)** (`adblock-island-beta-v0.3.0.zip`, also at the repo root). It is rebuilt from `index.html`, `README.md` and `CHANGELOG.md`. Unzip it, open `index.html`, and it plays — online or offline.
+**[Download v0.4.0](https://github.com/potaterrr/adblock-island/releases/tag/v0.4.0)** (`adblock-island-beta-v0.4.0.zip`, also at the repo root). It is rebuilt from `index.html`, `README.md` and `CHANGELOG.md`. Unzip it, open `index.html`, and it plays — online or offline.
 
 One honest caveat: **online co-op is a beta inside a beta.** "Play with a friend" puts player two on the same keyboard (arrow keys) on the same screen. The online-beta branch is where room-code networking lands: Vercel static hosting plus a tiny signaling API, host-authoritative WebRTC, and the same single page. Until that ships, the zip stays a complete single-player/same-keyboard-co-op game.
 
@@ -275,7 +277,7 @@ adblock-island/
 ├── api/signaling.js                # room codes + WebRTC handshake (Vercel function)
 ├── CHANGELOG.md                    # version history and patch notes
 ├── README.md
-├── adblock-island-beta-v0.3.0.zip  # self-contained release build
+├── adblock-island-beta-v0.4.0.zip  # self-contained release build
 └── .nojekyll                       # keep GitHub Pages from running Jekyll
 ```
 
@@ -291,6 +293,7 @@ The full history lives in the **[live patch notes](https://potaterrr.github.io/p
 
 | Version | Date | Headline |
 | --- | --- | --- |
+| [0.4.0](CHANGELOG.md#040--guest-skills--rejoin-phase-3-2026-11-09) | 2026-11-09 | Guest skills, dash, per-hero upgrades, auto-rejoin, TURN hook |
 | [0.3.0](CHANGELOG.md#030--online-co-op-phase-2-2026-11-09) | 2026-11-09 | Host-authoritative co-op: guest input, snapshots, pop-ups, kill credit |
 | [0.2.0](CHANGELOG.md#020--room-codes-phase-1-2026-11-09) | 2026-11-09 | Room-code lobby, WebRTC handshake, signaling API, online button |
 | [0.1.0](CHANGELOG.md#010--online-beta-back-to-normal-2026-11-09) | 2026-11-09 | Online-beta restart: Halloween and Mania removed, 33% bosses, normal death, co-op scaling |
