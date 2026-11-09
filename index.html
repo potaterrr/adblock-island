@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
 <meta name="theme-color" content="#bde8f2">
-<meta name="description" content="AdBlock Island — a wholesome micro-RPG in beta (v0.2.0). Nine classes and a south-shore dock. Clear the static and leave a kind note on the beach.">
+<meta name="description" content="AdBlock Island — a wholesome micro-RPG in beta (v0.3.0). Nine classes and a south-shore dock. Clear the static and leave a kind note on the beach.">
 <meta name="author" content="potaterrr">
 <meta name="application-name" content="AdBlock Island">
 <meta name="apple-mobile-web-app-title" content="AdBlock Island">
@@ -1337,7 +1337,7 @@ body.scanlines::after{
         <div class="logo-badges">
           <div class="logo-kicker">a wholesome micro-RPG</div>
           <div class="beta-pill" id="betaPill" title="This is a beta build. The patch notes list what is still pending.">
-            <span class="beta-dot"></span>beta · <b id="betaVersion">v0.2.0</b>
+            <span class="beta-dot"></span>beta · <b id="betaVersion">v0.3.0</b>
           </div>
         </div>
         <h1 class="logo">ADBLOCK<br><span>ISLAND</span></h1>
@@ -1503,7 +1503,7 @@ const ICONS = {
 };
 const svg = (name) => ICONS[name] || ICONS.spark;
 
-const VERSION = '0.2.0';
+const VERSION = '0.3.0';
 
 /* Endless mode tuning. Named on purpose: after a playtest, change these
    numbers instead of hunting through the wave and damage code. */
@@ -2799,10 +2799,10 @@ function bindUI() {
     if (k === 's') input.keys.down = true;
     if (k === 'a') input.keys.left = true;
     if (k === 'd') input.keys.right = true;
-    if (k === 'j') { input.attackHeld = true; doAttack(); }
-    if (k === 'q') useSkill(1);
-    if (k === 'e') useSkill(2);
-    if (k === ' ' || k === 'spacebar') doDash();
+    if (k === 'j') { input.attackHeld = true; if (!netIsGuest()) doAttack(); }
+    if (k === 'q') { if (!netIsGuest()) useSkill(1); }
+    if (k === 'e') { if (!netIsGuest()) useSkill(2); }
+    if (k === ' ' || k === 'spacebar') { if (!netIsGuest()) doDash(); }
     if (k === 'f') interactBench();
     if (k === 'u') openPanel('upgrades');
     if (k === 'h') openPanel('help');
@@ -2888,7 +2888,7 @@ function setupPointerInput() {
       input.mouse.lastMove = game.realElapsed;
     }
     input.attackHeld = true;
-    doAttack();
+    if (!netIsGuest()) doAttack();
     if (e.pointerType === 'mouse') input.mouse.down = true;
   });
   window.addEventListener('pointerup', (e) => {
@@ -2952,7 +2952,7 @@ function buildTouchButtons() {
     if (act === 'attack') {
       btn.addEventListener('pointerdown', (e) => {
         e.preventDefault(); if (game.state !== 'playing') return;
-        input.attackHeld = true; doAttack(); btn.classList.add('pressed');
+        input.attackHeld = true; if (!netIsGuest()) doAttack(); btn.classList.add('pressed');
       });
       const up = () => { input.attackHeld = false; btn.classList.remove('pressed'); };
       btn.addEventListener('pointerup', up);
@@ -2962,7 +2962,7 @@ function buildTouchButtons() {
       btn.addEventListener('pointerdown', (e) => {
         e.preventDefault(); if (game.state !== 'playing') return;
         btn.classList.add('pressed');
-        if (act === 'dash') doDash(); else useSkill(Number(act));
+        if (!netIsGuest()) { if (act === 'dash') doDash(); else useSkill(Number(act)); }
         setTimeout(() => btn.classList.remove('pressed'), 120);
       });
     }
@@ -3309,6 +3309,9 @@ async function netJoinRoom() {
 }
 
 function netReset(message) {
+  const wasGuest = netIsGuest();
+  netEndSession(message || 'The room closed.');
+  if (wasGuest) { netGuestAbort(message || 'The room closed.'); return; }
   clearTimeout(NET.pollT); NET.pollT = null;
   for (const rec of NET.peers.values()) netDropPeer(rec);
   NET.peers.clear();
@@ -3415,6 +3418,10 @@ function netWire(id, rec, dc) {
   rec.dc = dc;
   dc.onopen = () => {
     rec.connected = true;
+    if (netIsHost()) netSpawnGuestBot(id);
+    // a guest asks again in case the host's first hello went out before this
+    // channel had its listener attached
+    if (!netIsHost() && NET.role === 'guest') netSendTo(id, { t: 'who' });
     if (rec.pingT) clearInterval(rec.pingT);
     rec.pingT = setInterval(() => {
       try { if (dc.readyState === 'open') dc.send(JSON.stringify({ t: 'ping', at: Date.now() })); } catch (e) {}
@@ -3430,9 +3437,19 @@ function netWire(id, rec, dc) {
     } else if (msg.t === 'pong') {
       rec.latency = Math.max(0, Date.now() - (msg.at || Date.now()));
       netRender();
+    } else if (msg.t && netIsHost()) {
+      netHostOnData(id, msg);
+    } else if (msg.t && (netIsGuest() || msg.t === 'hello')) {
+      netGuestOnData(msg);
     }
   };
-  dc.onclose = () => { rec.connected = false; if (rec.pingT) { clearInterval(rec.pingT); rec.pingT = null; } netRender(); };
+  dc.onclose = () => {
+    rec.connected = false;
+    if (rec.pingT) { clearInterval(rec.pingT); rec.pingT = null; }
+    if (netIsHost()) netHostDropPeer(id);
+    else if (netIsGuest()) netGuestAbort('The host closed the room.');
+    netRender();
+  };
   dc.onerror = () => { rec.connected = false; netRender(); };
 }
 
@@ -3546,7 +3563,11 @@ function renderOnlinePanel() {
         <h4>Heroes (${connectedCount}/${peers.length})</h4>
         ${rows || '<p>Nobody else yet. The code is waiting.</p>'}
       </div>
-      <p class="net-hint">Phase 1 connects the room over WebRTC. Spawning every hero into the same island is the next build.</p>
+      <p class="net-hint">Phase 2: the host runs the island and every hero is spawned into it. Guests send input and see the host's world.</p>
+      ${NET.role === 'host'
+        ? `<div class="net-row"><button class="big-btn" id="netStartBtn" ${connectedCount < 2 ? 'disabled' : ''}>start co-op →</button></div>
+           <p class="net-hint">${connectedCount < 2 ? 'Waiting for one more hero to connect.' : 'Everyone here will wash ashore with you.'}</p>`
+        : `<p class="net-hint">Waiting for the host to start the island.</p>`}
       <div class="net-row">
         <button class="btn danger" id="netLeaveBtn">leave the room</button>
       </div>
@@ -3568,6 +3589,8 @@ function renderOnlinePanel() {
     });
     const leaveBtn = $('#netLeaveBtn', body);
     if (leaveBtn) leaveBtn.addEventListener('click', () => { netLeave(); audio.sfx('ui'); });
+    const startBtn = $('#netStartBtn', body);
+    if (startBtn) startBtn.addEventListener('click', () => { netHostStart(); audio.sfx('select'); });
     return;
   }
   if (phase === 'busy') {
@@ -3604,6 +3627,473 @@ function renderOnlinePanel() {
   }
   const join = $('#netJoinBtn', body);
   if (join) join.addEventListener('click', () => { netJoinRoom(); audio.sfx('ui'); });
+}
+
+
+/* ============================================================================
+   ONLINE SESSION (phase 2)
+   One host runs the real simulation. Guests send input frames and receive
+   snapshots, then render the same island from the host's point of view. The
+   host stays authoritative for damage, waves, the boss and every pop-up.
+   ============================================================================ */
+function netForceClosePanel() {
+  game.modalType = null;
+  ui.modalLayer.classList.remove('show');
+  ui.modalLayer.classList.add('hidden');
+}
+function netSession() { return NET.session && NET.session.active ? NET.session : null; }
+function netIsHost() { const s = netSession(); return !!(s && s.host); }
+function netIsGuest() { const s = netSession(); return !!(s && s.guest); }
+
+function netBroadcastRaw(json) {
+  for (const [, rec] of NET.peers) {
+    if (!rec.connected || !rec.dc || rec.dc.readyState !== 'open') continue;
+    try { rec.dc.send(json); } catch (e) {}
+  }
+}
+function netSendTo(peerId, msg) {
+  const rec = NET.peers.get(peerId);
+  if (!rec || !rec.dc || rec.dc.readyState !== 'open') return false;
+  try { rec.dc.send(JSON.stringify(msg)); return true; } catch (e) { return false; }
+}
+function netSendToHost(msg) {
+  const room = NET.room;
+  const hostId = room && room.host ? room.host.id : null;
+  if (hostId) netSendTo(hostId, msg);
+}
+
+function netBotForPeer(peerId) { return bots.find((b) => b.net && b.netId === peerId) || null; }
+
+function netSpawnGuestBot(peerId) {
+  if (netBotForPeer(peerId)) return netBotForPeer(peerId);
+  const info = (NET.room && NET.room.peers || []).find((x) => x.id === peerId) || {};
+  let x = player.x + 52, y = player.y + 18;
+  if (!world.canWalk(x, y, 16)) { x = player.x - 52; y = player.y; }
+  const b = {
+    id: 'n' + peerId, net: true, netId: peerId, human: true,
+    name: info.name || 'friend', cls: info.cls || 'blocker',
+    x, y, homeX: x, homeY: y, r: 14, hp: 130, maxHp: 130,
+    level: 1, xp: 0, joy: 0, xpNext: 50,
+    facing: player.facing, vx: 0, vy: 0, speed: 196, state: 'human', stateT: 999,
+    target: null, chatCd: 999, bubble: '', bubbleT: 0, bob: rand(TAU),
+    cosmetic: 'none', sit: false, atkAnim: 0, atkCd: 0, helpCd: 999,
+    moving: false, netInput: null, netLast: 0
+  };
+  bots.push(b);
+  netSendTo(peerId, {
+    t: 'hello',
+    seed: world.seed,
+    hostName: player.name,
+    wave: game.wave,
+    corrupt: netPackCorrupt()
+  });
+  return b;
+}
+
+function netHostStart() {
+  if (NET.role !== 'host' || NET.phase !== 'room') return;
+  const guests = [...NET.peers.entries()].filter(([, r]) => r.connected);
+  if (!guests.length) { toast('Wait for a hero to connect first.', 'warn', '!'); return; }
+  NET.session = {
+    active: true, host: true, guest: false,
+    snapT: null, inT: null, lastCorrupt: 0, popups: new Map(), seq: 0
+  };
+  coopEnabled = false;
+  netForceClosePanel();
+  startGame();
+  for (const [id] of guests) netSpawnGuestBot(id);
+  NET.session.snapT = setInterval(netHostTick, 100);
+  toast('Co-op is live. Everyone is on the island.', 'good', '✦');
+}
+
+function netPackCorrupt() {
+  const bytes = new Uint8Array(world.corrupt.length);
+  for (let i = 0; i < world.corrupt.length; i++) bytes[i] = Math.max(0, Math.min(255, Math.round(world.corrupt[i] * 254)));
+  let bin = '';
+  for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+  return btoa(bin);
+}
+function netApplyCorrupt(b64) {
+  if (!b64) return;
+  let bin = '';
+  try { bin = atob(b64); } catch (e) { return; }
+  const n = Math.min(bin.length, world.corrupt.length);
+  for (let i = 0; i < n; i++) world.corrupt[i] = bin.charCodeAt(i) / 254;
+  world.clarityDirty = true;
+}
+
+function netPackPlayer(p, id) {
+  return {
+    id, name: p.name, cls: p.cls, x: Math.round(p.x * 10) / 10, y: Math.round(p.y * 10) / 10,
+    r: p.r, hp: Math.round(p.hp), maxHp: Math.round(p.maxHp),
+    facing: Math.round(p.facing * 100) / 100, bob: Math.round((p.bob || 0) * 10) / 10,
+    atkAnim: Math.round((p.atkAnim || 0) * 100) / 100, moving: !!p.moving,
+    down: !!p.down, human: !!p.human, net: !!p.net,
+    cosmetic: p.cosmetic || 'none', level: p.level || 1,
+    joy: Math.round(p.joy || 0), xp: Math.round(p.xp || 0),
+    shield: Math.round(p.shield || 0), sit: !!p.sit
+  };
+}
+function netPackMonster(m) {
+  return {
+    id: m.id, type: m.type, x: Math.round(m.x * 10) / 10, y: Math.round(m.y * 10) / 10,
+    r: m.r, hp: Math.round(m.hp), maxHp: Math.round(m.maxHp),
+    name: m.name, color: m.color, dark: m.dark,
+    spawnT: Math.round(m.spawnT * 100) / 100, facing: Math.round(m.facing * 100) / 100,
+    bob: Math.round((m.bob || 0) * 10) / 10, phase: m.phase,
+    isBoss: !!m.isBoss, adBreak: m.adBreak || 0, marked: m.marked || 0,
+    stun: m.stun || 0, flash: m.flash || 0, hidden: !!m.hidden,
+    scale: m.scale || 1, generation: m.generation || 0
+  };
+}
+function netPackProjectile(p) {
+  return {
+    x: Math.round(p.x * 10) / 10, y: Math.round(p.y * 10) / 10,
+    vx: Math.round(p.vx), vy: Math.round(p.vy), r: p.r, life: Math.round(p.life * 100) / 100,
+    kind: p.kind, color: p.color, angle: p.angle, friendly: !!p.friendly, pierce: p.pierce || 0
+  };
+}
+function netPackBeam(b) {
+  return { x: b.x, y: b.y, angle: b.angle, length: b.length, width: b.width, color: b.color, life: b.life, maxLife: b.maxLife, kind: b.kind };
+}
+function netPackHazard(h) {
+  return { x: h.x, y: h.y, angle: h.angle, length: h.length, width: h.width, color: h.color, t: h.t, windup: h.windup, fired: h.fired, damage: h.damage };
+}
+
+function netHostTick() {
+  const S = netSession();
+  if (!S || !S.host) return;
+  netExpireGuestPopups();
+  const now = Date.now();
+  const snap = {
+    t: 'snap', at: now,
+    wave: game.wave, ws: game.waveState, endless: !!game.endless,
+    clarity: Math.round(world.cleansePercent() * 1000) / 1000,
+    bossSpawned: !!game.bossSpawned, bossDefeated: !!game.bossDefeated, won: !!game.won,
+    p: [netPackPlayer(player, 'p1')].concat(bots.map((b) => netPackPlayer(b, b.net ? b.netId : b.id))),
+    m: monsters.filter((m) => !m.dead).map(netPackMonster),
+    pr: projectiles.filter((p) => !p.dead).map(netPackProjectile),
+    bm: beams.map(netPackBeam),
+    hz: hazards.map(netPackHazard),
+    tu: (game.turrets || []).map((t) => ({ x: t.x, y: t.y, t: t.t, cd: t.cd, color: t.color }))
+  };
+  if (now - S.lastCorrupt > 1000) { S.lastCorrupt = now; snap.corrupt = netPackCorrupt(); }
+  netBroadcastRaw(JSON.stringify(snap));
+}
+
+function netHostOnData(peerId, msg) {
+  if (!msg) return;
+  if (msg.t === 'who') { netSpawnGuestBot(peerId); return; }
+  if (msg.t === 'in') {
+    const b = netBotForPeer(peerId);
+    if (!b) return;
+    const x = Math.max(-1, Math.min(1, Number(msg.x) || 0));
+    const y = Math.max(-1, Math.min(1, Number(msg.y) || 0));
+    b.netInput = { x, y, aim: Number(msg.aim), atk: !!msg.atk };
+    b.netLast = game.time;
+    const l = Math.hypot(x, y); if (l > 1.001) { b.netInput.x = x / l; b.netInput.y = y / l; }
+  } else if (msg.t === 'pop') {
+    netGuestPopupAction(peerId, msg.id, msg.a);
+  } else if (msg.t === 'bye') {
+    netHostDropPeer(peerId);
+  }
+}
+
+function netHostDropPeer(peerId) {
+  const b = netBotForPeer(peerId);
+  if (b) {
+    const i = bots.indexOf(b);
+    if (i >= 0) bots.splice(i, 1);
+  }
+  if (NET.session && NET.session.host) toast('A hero left the island.', 'warn', '↤');
+}
+
+function netPopupFor(m, owner) {
+  const S = netSession();
+  if (!S || !S.host) return;
+  const id = 'g' + (++S.seq);
+  const fx = rand(0.58, 0.12), fy = rand(0.6, 0.18);
+  const ttl = 6.5;
+  S.popups.set(id, { id, m, owner, until: Date.now() + ttl * 1000 });
+  netSendTo(owner.netId, { t: 'pop', id, fx, fy, ttl, title: pick(AD_TITLES), sub: pick(AD_SUBS) });
+}
+
+function netExpireGuestPopups() {
+  const S = netSession();
+  if (!S || !S.host) return;
+  const now = Date.now();
+  for (const [id, rec] of S.popups) {
+    if (rec.until > now) continue;
+    S.popups.delete(id);
+    netSendTo(rec.owner.netId, { t: 'popclose', id, gentle: true });
+  }
+}
+
+function netGuestPopupAction(peerId, id, action) {
+  const S = netSession();
+  if (!S || !S.host) return;
+  const rec = S.popups.get(id);
+  if (!rec) return;
+  S.popups.delete(id);
+  const owner = rec.owner;
+  if (action === 'x') {
+    owner.joy = (owner.joy || 0) + 3;
+    if (rec.m && !rec.m.dead) {
+      damageMonster(rec.m, 16, { player: false, by: owner });
+      rec.m.invuln = 0;
+      if (rec.m.phase === 'hidden') rec.m.phase = 'skip';
+    }
+  } else {
+    const cut = Math.max(1, Math.round(owner.hp * rand(0.75, 0.25)));
+    owner.hp = Math.max(1, owner.hp - cut);
+    owner.marked = 3;
+  }
+  netSendTo(peerId, { t: 'popclose', id, gentle: false });
+}
+
+function netGuestStart(msg) {
+  NET.session = {
+    active: true, host: false, guest: true,
+    myId: NET.peerId, hostId: NET.room && NET.room.host ? NET.room.host.id : null,
+    ghosts: { players: new Map(), monsters: new Map() },
+    lastSnap: 0, lastInput: 0, lastHud: 0
+  };
+  coopEnabled = false;
+  netForceClosePanel();
+  startGame();
+  world.seed = msg.seed || world.seed;
+  generateWorld();
+  netApplyCorrupt(msg.corrupt);
+  NET.session.ghosts = { players: new Map(), monsters: new Map() };
+  toast('Connected to ' + (msg.hostName || 'the host') + '. The island is theirs to run.', 'good', '✦');
+}
+
+function netGuestApplySnapshot(snap) {
+  const S = netSession();
+  if (!S || !S.guest) return;
+  S.lastSnap = Date.now();
+  game.wave = snap.wave;
+  game.waveState = snap.ws;
+  game.endless = !!snap.endless;
+  game.bossSpawned = !!snap.bossSpawned;
+  game.bossDefeated = !!snap.bossDefeated;
+  game.won = !!snap.won;
+  if (snap.corrupt) netApplyCorrupt(snap.corrupt);
+
+  // my own avatar comes from the host's simulation
+  const mine = (snap.p || []).find((p) => p.id === S.myId);
+  if (mine) {
+    if (S.lastSnap && !S.hadSnap) { player.x = mine.x; player.y = mine.y; }
+    S.hadSnap = true;
+    player._tx = mine.x; player._ty = mine.y;
+    player.hp = mine.hp; player.maxHp = mine.maxHp;
+    player.level = mine.level; player.xp = mine.xp; player.joy = mine.joy;
+    player.shield = mine.shield || 0;
+    player.moving = mine.moving; player.facing = mine.facing;
+    player.atkAnim = mine.atkAnim; player.bob = mine.bob;
+    player.dead = false;
+    if (game.bossSpawned !== false) {}
+  }
+
+  // everyone else renders as a ghost bot
+  const seenP = new Set();
+  for (const p of snap.p || []) {
+    if (p.id === S.myId) continue;
+    seenP.add(p.id);
+    let g = S.ghosts.players.get(p.id);
+    if (!g) {
+      g = { x: p.x, y: p.y, r: p.r, bob: 0, atkAnim: 0, bubbleT: 0, cosmetic: 'none', state: 'human' };
+      S.ghosts.players.set(p.id, g);
+    }
+    Object.assign(g, {
+      id: p.id, name: p.name, cls: p.cls, hp: p.hp, maxHp: p.maxHp,
+      facing: p.facing, moving: p.moving, down: p.down, human: p.human,
+      cosmetic: p.cosmetic, level: p.level, net: p.net, netId: p.net, _temp: true
+    });
+    g._tx = p.x; g._ty = p.y;
+  }
+  for (const id of [...S.ghosts.players.keys()]) if (!seenP.has(id)) S.ghosts.players.delete(id);
+  bots.length = 0;
+  for (const g of S.ghosts.players.values()) bots.push(g);
+
+  // monsters
+  const seenM = new Set();
+  for (const m of snap.m || []) {
+    seenM.add(m.id);
+    let g = S.ghosts.monsters.get(m.id);
+    if (!g) {
+      g = { x: m.x, y: m.y, deathT: 0, dead: false, bomb: 0, state: 'idle', atkAnim: 0, moveAnim: 0 };
+      S.ghosts.monsters.set(m.id, g);
+    }
+    Object.assign(g, m);
+    g._tx = m.x; g._ty = m.y;
+  }
+  for (const id of [...S.ghosts.monsters.keys()]) if (!seenM.has(id)) S.ghosts.monsters.delete(id);
+  monsters.length = 0;
+  for (const g of S.ghosts.monsters.values()) monsters.push(g);
+
+  game.boss = monsters.find((m) => m.isBoss && !m.dead) || null;
+
+  // straight-line objects are cheap to rebuild every snapshot
+  projectiles.length = 0;
+  for (const p of snap.pr || []) projectiles.push(Object.assign({}, p));
+  beams.length = 0;
+  for (const b of snap.bm || []) beams.push(Object.assign({}, b));
+  hazards.length = 0;
+  for (const h of snap.hz || []) hazards.push(Object.assign({}, h));
+  game.turrets = game.turrets || [];
+  game.turrets.length = 0;
+  for (const t of snap.tu || []) game.turrets.push(Object.assign({}, t));
+}
+
+function netGuestOnData(msg) {
+  if (!msg) return;
+  if (msg.t === 'hello') netGuestStart(msg);
+  else if (msg.t === 'snap') netGuestApplySnapshot(msg);
+  else if (msg.t === 'pop') netOpenGuestPopup(msg);
+  else if (msg.t === 'popclose') {
+    const p = (NET.guestPopups || []).find((x) => x.id === msg.id);
+    if (p) netCloseGuestPopup(p, msg.gentle ? 'expired' : 'closed');
+  } else if (msg.t === 'end') {
+    netGuestAbort('The host closed the room.');
+  }
+}
+
+function netGuestAbort(reason) {
+  if (!NET.session) return;
+  NET.session = null;
+  if (NET.guestPopups) {
+    for (const p of NET.guestPopups) if (p.el && p.el.parentNode) p.el.remove();
+    NET.guestPopups = [];
+  }
+  toast(reason || 'The room closed.', 'warn', '!');
+  setTimeout(() => { location.reload(); }, 900);
+}
+
+function netOpenGuestPopup(msg) {
+  NET.guestPopups = NET.guestPopups || [];
+  const vw = window.innerWidth, vh = window.innerHeight;
+  const x = Math.round(Math.min(Math.max(8, msg.fx * vw), vw - 240));
+  const y = Math.round(Math.min(Math.max(8, msg.fy * vh), vh - 200));
+  const el = document.createElement('div');
+  el.className = 'ad-popup';
+  el.style.left = x + 'px';
+  el.style.top = y + 'px';
+  el.style.transform = 'rotate(' + rand(2.4, -2.4).toFixed(1) + 'deg)';
+  el.innerHTML = `
+    <div class="ad-bar"><span>SPONSORED · AD</span><span class="ad-time">6s</span></div>
+    <div class="ad-body">
+      <p class="ad-title">${escapeHtml(msg.title || 'A word from our sponsor')}</p>
+      <p class="ad-sub">${escapeHtml(msg.sub || 'You will not believe this one.')}</p>
+      <button type="button" class="ad-cta">CLICK HERE →</button>
+    </div>
+    <button class="ad-x" aria-label="Close pop-up ad">✕</button>
+  `;
+  ui.popupLayer.appendChild(el);
+  const p = { id: msg.id, el, life: Number(msg.ttl) || 6.5, timeEl: $('.ad-time', el) };
+  NET.guestPopups.push(p);
+  const send = (a) => { netSendToHost({ t: 'pop', id: msg.id, a }); netCloseGuestPopup(p, a); };
+  $('.ad-x', el).addEventListener('pointerdown', (e) => { e.stopPropagation(); e.preventDefault(); send('x'); });
+  $('.ad-x', el).addEventListener('click', (e) => { e.stopPropagation(); e.preventDefault(); });
+  $('.ad-cta', el).addEventListener('pointerdown', (e) => { e.stopPropagation(); e.preventDefault(); send('cta'); });
+  $('.ad-cta', el).addEventListener('click', (e) => { e.stopPropagation(); e.preventDefault(); });
+  el.addEventListener('pointerdown', (e) => e.stopPropagation());
+  audio.sfx('ui');
+}
+function netCloseGuestPopup(p, why) {
+  if (!p || p.dead) return;
+  p.dead = true;
+  if (p.el && p.el.parentNode) {
+    p.el.classList.add('leaving');
+    setTimeout(() => p.el.remove(), 200);
+  }
+  NET.guestPopups = (NET.guestPopups || []).filter((x) => x !== p);
+  if (why === 'x') audio.sfx('pop');
+}
+function netGuestPopupTick(dt) {
+  const list = NET.guestPopups || [];
+  for (const p of list.slice()) {
+    p.life -= dt;
+    if (p.timeEl) p.timeEl.textContent = Math.max(0, Math.ceil(p.life)) + 's';
+    if (p.life <= 0) netCloseGuestPopup(p, 'expired');
+  }
+}
+
+function netGuestSendInput() {
+  const S = netSession();
+  if (!S || !S.guest) return;
+  const k = input.keys;
+  let x = 0, y = 0;
+  if (k.up) y -= 1;
+  if (k.down) y += 1;
+  if (k.left) x -= 1;
+  if (k.right) x += 1;
+  const l = Math.hypot(x, y);
+  if (l > 1) { x /= l; y /= l; }
+  let aim = player.facing;
+  if (input.pointer === 'mouse') {
+    const w = screenToWorld(input.mouse.x, input.mouse.y);
+    aim = angleTo(player.x, player.y, w.x, w.y);
+  } else if (l > 0.1) {
+    aim = Math.atan2(y, x);
+  }
+  netSendToHost({ t: 'in', x: Math.round(x * 100) / 100, y: Math.round(y * 100) / 100, aim: Math.round(aim * 100) / 100, atk: !!input.attackHeld });
+}
+
+function netLerpGhosts(dt) {
+  const S = netSession();
+  if (!S || !S.guest) return;
+  const k = Math.min(1, dt * 14);
+  if (player._tx != null) {
+    player.x += (player._tx - player.x) * k;
+    player.y += (player._ty - player.y) * k;
+  }
+  for (const g of S.ghosts.players.values()) {
+    g.x += ((g._tx != null ? g._tx : g.x) - g.x) * k;
+    g.y += ((g._ty != null ? g._ty : g.y) - g.y) * k;
+  }
+  for (const g of S.ghosts.monsters.values()) {
+    g.x += ((g._tx != null ? g._tx : g.x) - g.x) * k;
+    g.y += ((g._ty != null ? g._ty : g.y) - g.y) * k;
+  }
+}
+
+function updateGuestView(dt) {
+  game.dt = dt;
+  game.time += dt;
+  game.elapsed += dt;
+  game.worldTime += dt;
+  netLerpGhosts(dt);
+  netGuestPopupTick(dt);
+  for (let i = projectiles.length - 1; i >= 0; i--) {
+    const p = projectiles[i];
+    p.x += (p.vx || 0) * dt; p.y += (p.vy || 0) * dt;
+    p.life -= dt;
+    if (p.life <= 0) projectiles.splice(i, 1);
+  }
+  for (let i = beams.length - 1; i >= 0; i--) { beams[i].life -= dt; if (beams[i].life <= 0) beams.splice(i, 1); }
+  for (let i = hazards.length - 1; i >= 0; i--) { hazards[i].t += dt; if (hazards[i].t > hazards[i].windup + 0.5) hazards.splice(i, 1); }
+  const ts = game.turrets || []; for (let i = ts.length - 1; i >= 0; i--) { ts[i].t -= dt; if (ts[i].t <= 0) ts.splice(i, 1); }
+  updateEffects(dt);
+  updateCamera(dt);
+  game.hudT = (game.hudT || 0) - dt;
+  if (game.hudT <= 0) { game.hudT = 0.14; updateHUD(); }
+  const S = netSession();
+  if (S && game.time - S.lastInput > 0.05) { S.lastInput = game.time; netGuestSendInput(); }
+}
+
+function netEndSession(reason) {
+  const S = netSession();
+  if (!S) return;
+  if (S.host) {
+    for (const [id] of NET.peers) netSendTo(id, { t: 'end', reason: reason || 'The host left.' });
+    if (S.snapT) clearInterval(S.snapT);
+  }
+  if (NET.guestPopups) {
+    for (const p of NET.guestPopups) if (p.el && p.el.parentNode) p.el.remove();
+    NET.guestPopups = [];
+  }
+  NET.session = null;
 }
 
 const PANEL_META = {
@@ -3655,7 +4145,7 @@ function closePanel() {
     openPanel('checkpoint');
     return;
   }
-  if (game.modalType === 'online' && NET.phase === 'room') netLeave();
+  if (game.modalType === 'online' && NET.phase === 'room' && !netSession()) netLeave();
   ui.modalLayer.classList.remove('show');
   const wasType = game.modalType;
   game.modalType = null;
@@ -3932,7 +4422,7 @@ function buildHelpPanel() {
       <div class="help-block">
         <h4>Play with a friend</h4>
         <p>Turn on <b>play with a friend</b> on the title screen for same-keyboard co-op. You keep <kbd>WASD</kbd>, <kbd>J</kbd>, <kbd>Q</kbd>, <kbd>E</kbd>; your friend moves with the <kbd>arrow keys</kbd> and auto-swings at whatever they face. The camera holds you both, so stay within a screen of each other.</p>
-        <p>For separate keyboards, press <b>play online</b> on the title screen. Open a room, share the six-character code or the invite link, and up to four heroes can join the lobby over WebRTC. This build connects the room; spawning everyone into the same island is the next build.</p>
+        <p>For separate keyboards, press <b>play online</b> on the title screen. Open a room, share the six-character code or the invite link, and up to four heroes can join over WebRTC. The host runs the island; guests move with <kbd>WASD</kbd>, aim with the mouse and hold <kbd>J</kbd> to attack. Pop-ups reach everyone, damage is host-authoritative, and upgrades are the host's choice this build. Class skills and dash for guests are next.</p>
       </div>
       <div class="help-block">
         <h4>This build</h4>
@@ -4932,6 +5422,7 @@ function damageMonster(m, amount, opts = {}) {
   m.hp -= dmg;
   m.flash = 0.16;
   m.aggro = true;
+  m.lastHitBy = opts.by || (opts.player ? player : null);
   if (opts.knock) {
     const a = angleTo(player.x, player.y, m.x, m.y);
     m.knockX = (m.knockX || 0) + Math.cos(a) * opts.knock;
@@ -5034,6 +5525,18 @@ function killMonster(m) {
   m.dead = true;
   m.deathT = 0.3;
   const isBoss = m.isBoss;
+  const credited = m.lastHitBy && m.lastHitBy.net ? m.lastHitBy : null;
+  if (credited && !isBoss) {
+    credited.joy = (credited.joy || 0) + Math.round((m.joy || 5) * stats.joyMult());
+    credited.xp = (credited.xp || 0) + Math.round(m.xp || 8);
+    credited.xpNext = credited.xpNext || 50;
+    while (credited.xp >= credited.xpNext) {
+      credited.xp -= credited.xpNext;
+      credited.level = (credited.level || 1) + 1;
+      credited.xpNext = Math.round(credited.xpNext * 1.35);
+      credited.maxHp = Math.round(credited.maxHp * 1.08);
+    }
+  }
   if (!isBoss) {
     // companions are your party: a kill is a kill, whoever lands the last hit
     const joy = Math.round((m.joy || 5) * stats.joyMult());
@@ -5850,10 +6353,16 @@ function updateMonsters(dt) {
       if (td > desired + 30) moveWithCollision(m, Math.cos(ang) * m.speed * dt, Math.sin(ang) * m.speed * dt);
       else if (td < desired - 45) moveWithCollision(m, -Math.cos(ang) * m.speed * 0.7 * dt, -Math.sin(ang) * m.speed * 0.7 * dt);
       m.popupCd -= dt;
-      if (m.popupCd <= 0 && popups.length < 3 && t === player && !player.dead && td < 640 && game.state === 'playing') {
-        m.popupCd = rand(9, 6);
-        spawnAdPopup(m);
-        floatingText(m.x, m.y - m.r - 22, 'pop!', PAL.rose, 12, 0.8);
+      if (m.popupCd <= 0 && t && !t.dead && td < 640 && game.state === 'playing') {
+        if (t === player && popups.length < 3) {
+          m.popupCd = rand(9, 6);
+          spawnAdPopup(m);
+          floatingText(m.x, m.y - m.r - 22, 'pop!', PAL.rose, 12, 0.8);
+        } else if (t.net && netSession() && netSession().host && netSession().popups.size < 3) {
+          m.popupCd = rand(9, 6);
+          netPopupFor(m, t);
+          floatingText(m.x, m.y - m.r - 22, 'pop!', PAL.rose, 12, 0.8);
+        }
       }
       if (td < m.r + t.r + 6) contactAttack(m, t, dt);
     } else if (m.type === 'behemoth') {
@@ -6351,24 +6860,31 @@ const PARTNER_LEASH = 560;
 function updatePartner(b, dt) {
   const k = input.p2;
   let dx = 0, dy = 0;
-  if (k.left) dx -= 1;
-  if (k.right) dx += 1;
-  if (k.up) dy -= 1;
-  if (k.down) dy += 1;
+  let netAim = null, netAtk = null;
+  if (b.net) {
+    const ni = b.netInput;
+    if (ni) { dx = ni.x || 0; dy = ni.y || 0; netAim = ni.aim; netAtk = !!ni.atk; }
+  } else {
+    if (k.left) dx -= 1;
+    if (k.right) dx += 1;
+    if (k.up) dy -= 1;
+    if (k.down) dy += 1;
+  }
   const l = Math.hypot(dx, dy);
   if (l > 1) { dx /= l; dy /= l; }
   b.moving = l > 0.05;
   if (b.moving) {
-    b.facing = Math.atan2(dy, dx);
+    if (!b.net) b.facing = Math.atan2(dy, dx);
     moveWithCollision(b, dx * b.speed * dt, dy * b.speed * dt);
     b.bob += dt * 7;
   } else {
     b.bob += dt * 2.4;
   }
+  if (b.net && typeof netAim === 'number' && isFinite(netAim)) b.facing = netAim;
 
-  // keep both heroes on one screen
-  const d = dist(b.x, b.y, player.x, player.y);
-  if (d > PARTNER_LEASH) {
+  // keep both heroes on one screen (the keyboard partner only)
+  const d = b.net ? 0 : dist(b.x, b.y, player.x, player.y);
+  if (!b.net && d > PARTNER_LEASH) {
     const a = angleTo(b.x, b.y, player.x, player.y);
     const pull = Math.min(1, dt * 5);
     moveWithCollision(b, Math.cos(a) * (d - PARTNER_LEASH) * pull, Math.sin(a) * (d - PARTNER_LEASH) * pull);
@@ -6380,14 +6896,15 @@ function updatePartner(b, dt) {
 
   b.hp = Math.min(b.maxHp, b.hp + dt * 2.4);
   if (b.atkCd > 0) return; // already ticked down in updateBots
+  if (b.net && !netAtk) return;
   const reach = b.cls === 'blocker' ? 82 : 230;
   const target = nearestTargetInCone(b.x, b.y, b.facing, reach, 1.05);
   if (!target) return;
   b.atkCd = 0.68;
   b.atkAnim = 0.2;
   b.facing = angleTo(b.x, b.y, target.x, target.y);
-  const dmg = (b.cls === 'blocker' ? 15 : 12) * (1 + (player.level - 1) * 0.04);
-  damageMonster(target, dmg, { player: false, knock: 0 });
+  const dmg = (b.cls === 'blocker' ? 15 : 12) * (1 + ((b.level || player.level) - 1) * 0.04);
+  damageMonster(target, dmg, { player: false, knock: 0, by: b });
   if (b.cls === 'checker') target.marked = Math.max(target.marked, 1.4);
   beamFx(b.x, b.y, b.facing, Math.min(reach, dist(b.x, b.y, target.x, target.y) + 16), 7, CLASSES[b.cls].color2, 0.13);
   audio.sfx('swing');
@@ -6781,6 +7298,7 @@ function updateEffects(dt) {
   cleanupEffects();
 }
 function update(dt) {
+  if (NET.session && NET.session.active && NET.session.guest) { updateGuestView(dt); return; }
   game.dt = dt;
   game.time += dt;
   if (game.state === 'playing') {

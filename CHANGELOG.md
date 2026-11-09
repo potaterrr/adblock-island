@@ -47,6 +47,22 @@ Until then, the honest description is: a single-player and local co-op cozy micr
 
 ---
 
+## v0.3.0 — Online co-op (phase 2) (2026-11-09)
+
+The room is now a run. One host runs the island; up to three guests join it from their own keyboards.
+
+### One island
+
+- **Host starts the run.** The lobby's **start co-op** button (host only) begins a normal run and spawns every connected guest as a real hero on the host's simulation.
+- **Guest input.** Guests send a frame 20×/s: movement vector, world-space aim angle and whether attack is held. The host moves each guest through the same partner update path, class-flavoured auto-attack included.
+- **Snapshots.** The host broadcasts 10×/s: every hero (host, companions, guests), monsters, projectiles, beams, hazards, game turrets, wave state, island clarity, boss flags, and the corruption grid once a second.
+- **Own camera.** Guests render the host's world and their own avatar from snapshots, with a follow camera and local interpolation, so each player watches their own hero instead of the host's screen.
+- **Host authority.** Guests never simulate damage, spawning or cleansing locally; their local attacks, skills and dash are suppressed so the host stays the only truth. Guest HP, level, Joy and shield come back in snapshots.
+- **Kill credit.** The hero who lands the last hit earns the monster's Joy and XP; guest XP rolls over into levels (and a little max HP) on the host, and both ride back in the snapshot.
+- **Pop-ups reach everyone.** Pop-Up Imps can target a remote hero. The host opens the pop-up on that guest's screen over the data channel; **✕** pays 3 Joy to that hero and damages the imp, **CLICK HERE** takes the usual random 25–75% health cut from that hero.
+- **Late joiners.** A guest who connects after the run starts gets a hero and a `hello` snapshot. If a guest leaves, their hero is removed. If the host leaves, guests get a notice and return to the lobby.
+- **Phase 2 limits, stated plainly.** Guest class skills, dash, potions and upgrade choices are not wired yet; upgrades are the host's call this build. No TURN, no reconnect, no host migration.
+
 ## v0.2.0 — Room codes (phase 1) (2026-11-09)
 
 The first online build. The island itself is untouched; this release connects players before it puts them on the same beach.
