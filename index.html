@@ -3365,7 +3365,7 @@ function netApiQuiet(action, extra) {
     fetch('/api/signaling', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(Object.assign({ action, token: NET.token }, extra))
+      body: JSON.stringify(Object.assign({ action, token: NET.token, code: NET.code || undefined, peerId: NET.peerId || undefined }, extra))
     }).catch(() => {});
   } catch (e) {}
 }
