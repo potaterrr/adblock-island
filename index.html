@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
 <meta name="theme-color" content="#bde8f2">
-<meta name="description" content="AdBlock Island — a wholesome micro-RPG in beta (v0.5.0). Nine classes and a south-shore dock. Clear the static and leave a kind note on the beach.">
+<meta name="description" content="AdBlock Island — a wholesome micro-RPG in beta (v0.6.0). Nine classes and a south-shore dock. Clear the static and leave a kind note on the beach.">
 <meta name="author" content="potaterrr">
 <meta name="application-name" content="AdBlock Island">
 <meta name="apple-mobile-web-app-title" content="AdBlock Island">
@@ -1342,7 +1342,7 @@ body.scanlines::after{
         <div class="logo-badges">
           <div class="logo-kicker">a wholesome micro-RPG</div>
           <div class="beta-pill" id="betaPill" title="This is a beta build. The patch notes list what is still pending.">
-            <span class="beta-dot"></span>beta · <b id="betaVersion">v0.5.0</b>
+            <span class="beta-dot"></span>beta · <b id="betaVersion">v0.6.0</b>
           </div>
         </div>
         <h1 class="logo">ADBLOCK<br><span>ISLAND</span></h1>
@@ -1508,7 +1508,7 @@ const ICONS = {
 };
 const svg = (name) => ICONS[name] || ICONS.spark;
 
-const VERSION = '0.5.0';
+const VERSION = '0.6.0';
 
 /* Endless mode tuning. Named on purpose: after a playtest, change these
    numbers instead of hunting through the wave and damage code. */
@@ -2809,6 +2809,10 @@ function bindUI() {
     if (k === 'e') { if (netIsGuest()) netGuestRequestSkill(2); else useSkill(2); }
     if (k === ' ' || k === 'spacebar') { if (netIsGuest()) netGuestRequestDash(); else doDash(); }
     if (k === 'r') { if (netIsGuest()) netGuestRequestKettle(); }
+    if (['1','2','3','4'].includes(k) && netIsGuest() && netSession() && netSession().spectator) {
+      netSession().spectatorIdx = Number(k) - 1;
+      toast('Following hero ' + k + '.', '', '◉');
+    }
     if (k === 'f') interactBench();
     if (k === 'u') { if (netIsGuest()) { if (netSession()) openPanel('netshop'); } else openPanel('upgrades'); }
     if (k === 'h') openPanel('help');
@@ -3252,6 +3256,7 @@ const NET = {
   pollT: null,
   peers: new Map(),       // peerId -> { pc, dc, connected, latency, pendingIce, pingT }
   seen: new Set(),
+  joinAs: 'play',
   ice: { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:stun1.l.google.com:19302' }] },
   reconnectTries: 0
 };
@@ -3311,7 +3316,7 @@ async function netJoinRoom() {
   if (code.length !== 6) { toast('A room code is six letters and numbers.', 'warn', '!'); return; }
   NET.phase = 'busy'; NET.error = ''; netRender();
   try {
-    const data = await netApi('join', { code, name: netName(), cls: selectedClass });
+    const data = await netApi('join', { code, name: netName(), cls: selectedClass, mode: NET.joinAs === 'watch' ? 'watch' : 'play' });
     NET.role = 'guest';
     NET.code = code;
     NET.peerId = data.peerId;
@@ -3464,7 +3469,7 @@ function netWire(id, rec, dc) {
     rec.connected = false;
     if (rec.pingT) { clearInterval(rec.pingT); rec.pingT = null; }
     if (netIsHost()) netHostDropPeer(id);
-    else if (netIsGuest()) netGuestAbort('The host closed the room.');
+    else if (netIsGuest()) netHandleHostLoss();
     netRender();
   };
   dc.onerror = () => { rec.connected = false; netRender(); };
@@ -3560,7 +3565,7 @@ function renderOnlinePanel() {
         return `<div class="net-line">
           <span class="net-dot ${connected ? 'on' : 'wait'}"></span>
           <b>${escapeHtml(p.name)}</b>
-          <span>${escapeHtml((CLASSES[p.cls] && CLASSES[p.cls].name) || 'AdBlocker')}</span>
+          <span>${escapeHtml((CLASSES[p.cls] && CLASSES[p.cls].name) || 'AdBlocker')}${p.mode === 'watch' ? ' · watching' : ''}</span>
           <span style="margin-left:auto;color:var(--ink-faint)">${tag}${you}${latency}</span>
         </div>`;
       })
@@ -3633,7 +3638,12 @@ function renderOnlinePanel() {
       <input class="net-input" id="netCodeInput" maxlength="6" placeholder="ROOM CODE" autocomplete="off" spellcheck="false" value="${escapeHtml(NET.draftCode || '')}">
       <button class="btn" id="netJoinBtn">join</button>
     </div>
-    <p class="net-hint">This build connects the room over WebRTC. Spawning every hero into the same island is the next build.</p>
+    <div class="net-row">
+      <span style="font-family:var(--ui);font-size:10px;color:var(--ink-faint)">join as</span>
+      <button class="btn" id="netModeBtn">${NET.joinAs === 'watch' ? 'spectator' : 'hero'}</button>
+      <span class="net-hint" style="margin:0">${NET.joinAs === 'watch' ? 'watch the island, no hero' : 'play on the island'}</span>
+    </div>
+    <p class="net-hint">The host runs the island; every hero joins over WebRTC. Spectators get their own camera and can follow any of the four heroes.</p>
   `;
   const create = $('#netCreateBtn', body);
   if (create) create.addEventListener('click', () => { netCreateRoom(); audio.sfx('select'); });
@@ -3644,6 +3654,11 @@ function renderOnlinePanel() {
   }
   const join = $('#netJoinBtn', body);
   if (join) join.addEventListener('click', () => { netJoinRoom(); audio.sfx('ui'); });
+  const modeBtn = $('#netModeBtn', body);
+  if (modeBtn) modeBtn.addEventListener('click', () => {
+    NET.joinAs = NET.joinAs === 'watch' ? 'play' : 'watch';
+    renderOnlinePanel(); audio.sfx('ui');
+  });
 }
 
 
@@ -3682,8 +3697,16 @@ function netSendToHost(msg) {
 function netBotForPeer(peerId) { return bots.find((b) => b.net && b.netId === peerId) || null; }
 
 function netSpawnGuestBot(peerId) {
-  if (netBotForPeer(peerId)) return netBotForPeer(peerId);
+  const existing = netBotForPeer(peerId);
+  if (existing) {
+    netSendTo(peerId, { t: 'resume', seed: world.seed, corrupt: netPackCorrupt(), wave: game.wave });
+    return existing;
+  }
   const info = (NET.room && NET.room.peers || []).find((x) => x.id === peerId) || {};
+  if (info.mode === 'watch') {
+    netSendTo(peerId, { t: 'hello', seed: world.seed, corrupt: netPackCorrupt(), hostName: player.name, wave: game.wave, spectator: true });
+    return null;
+  }
   let x = player.x + 52, y = player.y + 18;
   if (!world.canWalk(x, y, 16)) { x = player.x - 52; y = player.y; }
   const b = {
@@ -3703,7 +3726,8 @@ function netSpawnGuestBot(peerId) {
     seed: world.seed,
     hostName: player.name,
     wave: game.wave,
-    corrupt: netPackCorrupt()
+    corrupt: netPackCorrupt(),
+    spectator: false
   });
   return b;
 }
@@ -3721,6 +3745,7 @@ function netHostStart() {
   startGame();
   for (const [id] of guests) netSpawnGuestBot(id);
   NET.session.snapT = setInterval(netHostTick, 100);
+  netStartBackup();
   toast('Co-op is live. Everyone is on the island.', 'good', '✦');
 }
 
@@ -3809,6 +3834,7 @@ function netHostOnData(peerId, msg) {
   if (msg.t === 'buy') { const b = netBotForPeer(peerId); if (b) netGuestBuy(b, msg.id); return; }
   if (msg.t === 'kettle') { const b = netBotForPeer(peerId); if (b) netGuestKettle(b); return; }
   if (msg.t === 'say') { netHostSay(peerId, msg.i); return; }
+  if (msg.t === 'chat') { netHostChat(peerId, msg.text); return; }
   if (msg.t === 'in') {
     const b = netBotForPeer(peerId);
     if (!b) return;
@@ -4194,19 +4220,49 @@ function netShopWallet() {
 function buildNetshopPanel() { renderNetshop(); panelFoot([{ label: 'Back to the island', action: 'close', kind: 'primary' }]); }
 
 function buildChatPanel() {
+  const muted = NET.muted || {};
+  const watchList = netIsHost()
+    ? ((NET.room && NET.room.peers) || []).filter((p) => p.id !== NET.peerId)
+    : [];
   ui.modalBody.innerHTML = `
     <div class="help-block">
-      <h4>Quick chat</h4>
-      <p>Preset lines only — no free text, so there is nothing to moderate. Your hero says it in a bubble and the whole room sees it.</p>
+      <h4>Say something</h4>
+      <p>Preset lines or one short line of your own. The host filters links and blocked words, rates each voice, and can mute anyone — bubbles only, no chat log.</p>
     </div>
     <div class="net-chat">
       ${NET_CHAT.map((c, i) => `<button class="btn" data-say="${i}">${escapeHtml(c.label)}</button>`).join('')}
     </div>
+    <div class="net-row" style="margin-top:12px">
+      <input class="net-input" id="netChatInput" maxlength="140" placeholder="say something kind">
+      <button class="btn" id="netChatSend">send</button>
+    </div>
+    <p class="net-hint">140 characters · links become [link] · one line every 1.5s</p>
+    ${watchList.length ? `<div class="section-title">Mute in this room</div>
+      ${watchList.map((p) => `<div class="net-line">
+        <b>${escapeHtml(p.name)}</b>
+        <button class="btn" data-mute="${p.id}" style="margin-left:auto">${muted[p.id] ? 'unmute' : 'mute'}</button>
+      </div>`).join('')}` : ''}
   `;
   $$('[data-say]', ui.modalBody).forEach((btn) => btn.addEventListener('click', () => {
     netSendSay(Number(btn.dataset.say));
     audio.sfx('ui');
     closePanel();
+  }));
+  const send = () => {
+    const input = $('#netChatInput', ui.modalBody);
+    if (!input) return;
+    netSendChat(input.value);
+    input.value = '';
+  };
+  const sendBtn = $('#netChatSend', ui.modalBody);
+  if (sendBtn) sendBtn.addEventListener('click', send);
+  const chatInput = $('#netChatInput', ui.modalBody);
+  if (chatInput) chatInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') send(); });
+  $$('[data-mute]', ui.modalBody).forEach((btn) => btn.addEventListener('click', () => {
+    NET.muted = NET.muted || {};
+    NET.muted[btn.dataset.mute] = !NET.muted[btn.dataset.mute];
+    buildChatPanel();
+    audio.sfx('ui');
   }));
   panelFoot([{ label: 'Close', action: 'close' }]);
 }
@@ -4234,10 +4290,197 @@ async function netGuestRejoin() {
   }
 }
 
+
+/* --- phase 5: state transfer and host migration -------------------------- */
+const NET_HERO_FIELDS = ['id','name','cls','x','y','r','hp','maxHp','level','xp','xpNext','joy','speed','facing','bob','moving','state','stateT','down','downT','human','net','netId','cosmetic','upg','dmgMult','joyMult','cleanseMult','cdMult','atkCd','atkAnim','shield','shieldT','kettleWave','homeX','homeY','bubble','bubbleT','sit','dead','invuln','lastHurt','healGlow','hurtFlash'];
+const NET_MONSTER_FIELDS = ['id','type','isBoss','x','y','r','hp','maxHp','speed','dmg','xp','joy','color','dark','name','spawnT','facing','bob','vx','vy','knockX','knockY','flash','marked','stun','dead','deathT','atkCd','aggro','phase','phaseT','adBreak','attackT','beamT','summonStage','targetT','splits','scale','generation','invuln','hidden','popupCd','shootCd','cleanseT'];
+const NET_PROJECTILE_FIELDS = ['x','y','vx','vy','r','life','dmg','friendly','kind','color','dead','angle','pierce','markedHit','trail','knock','markOnHit','stunOnHit','healOnHit'];
+const NET_HAZARD_FIELDS = ['x','y','angle','length','width','color','damage','t','windup','fired'];
+const NET_BEAM_FIELDS = ['x','y','angle','length','width','color','life','maxLife','kind'];
+const NET_PICKUP_FIELDS = ['x','y','amount','t','vx','vy','life','kind'];
+
+function netPick(obj, fields) {
+  const out = {};
+  for (const f of fields) if (obj[f] !== undefined && typeof obj[f] !== 'function') out[f] = obj[f];
+  return out;
+}
+function netPackState() {
+  return {
+    v: 1,
+    seed: world.seed,
+    game: netPick(game, ['wave','waveState','waveT','waveTotal','endless','checkpointPending','checkpointAway','checkpointIndex','checkpointJoy','checkpointUpgradesBought','checkpointOpenT','waveUpgradesBought','bossSpawned','bossDefeated','bossRollWave','bossSplitLocked','won','pendingVictory','waveRestartPending']),
+    player: netPick(player, NET_HERO_FIELDS),
+    bots: bots.map((b) => netPick(b, NET_HERO_FIELDS)),
+    monsters: monsters.map((m) => netPick(m, NET_MONSTER_FIELDS)),
+    projectiles: projectiles.filter((p) => !p.dead).map((p) => netPick(p, NET_PROJECTILE_FIELDS)),
+    hazards: hazards.map((h) => netPick(h, NET_HAZARD_FIELDS)),
+    beams: beams.map((b) => netPick(b, NET_BEAM_FIELDS)),
+    turrets: (game.turrets || []).map((t) => netPick(t, ['x','y','t','cd','color'])),
+    pickups: pickups.map((p) => netPick(p, NET_PICKUP_FIELDS)),
+    corrupt: netPackCorrupt()
+  };
+}
+function netAdoptState(state) {
+  if (!state || typeof state !== 'object') return false;
+  world.seed = state.seed || world.seed;
+  generateWorld();
+  netApplyCorrupt(state.corrupt);
+  Object.assign(game, state.game || {});
+  game.state = 'playing';
+  game.boss = null;
+  const mine = (state.bots || []).find((b) => b.netId === NET.peerId) || state.player;
+  if (mine) {
+    Object.assign(player, mine);
+    player.net = false; player.netId = null; player.human = false;
+    player.down = false; player.dead = false; player.id = 'p1';
+  }
+  bots.length = 0;
+  if (state.player) {
+    const hb = Object.assign({}, netPick(state.player, NET_HERO_FIELDS), { id: 'oldhost', human: false, net: false, state: 'human', stateT: 999, down: false, netId: null, bubble: '', bubbleT: 0 });
+    bots.push(hb);
+  }
+  for (const b of state.bots || []) {
+    if (b.netId === NET.peerId) continue;
+    const nb = Object.assign({}, netPick(b, NET_HERO_FIELDS));
+    nb.human = !!b.net;
+    bots.push(nb);
+  }
+  monsters.length = 0;
+  for (const m of state.monsters || []) monsters.push(Object.assign({}, m));
+  projectiles.length = 0;
+  for (const p of state.projectiles || []) projectiles.push(Object.assign({}, p));
+  hazards.length = 0;
+  for (const h of state.hazards || []) hazards.push(Object.assign({}, h));
+  beams.length = 0;
+  for (const b of state.beams || []) beams.push(Object.assign({}, b));
+  pickups.length = 0;
+  for (const p of state.pickups || []) pickups.push(Object.assign({}, p));
+  game.turrets = [];
+  for (const t of state.turrets || []) game.turrets.push(Object.assign({}, t));
+  game.boss = monsters.find((m) => m.isBoss && !m.dead) || null;
+  return true;
+}
+function netStartBackup() {
+  const S = netSession();
+  if (!S || !S.host) return;
+  clearInterval(S.backupT);
+  const push = () => {
+    if (!netIsHost()) return;
+    netApiQuiet('backup', { code: NET.code, peerId: NET.peerId, state: JSON.stringify(netPackState()) });
+  };
+  push();
+  S.backupT = setInterval(push, 10000);
+}
+function netBecomeHost(state) {
+  const oldHost = NET.room && NET.room.host ? NET.room.host.id : null;
+  const peers = (NET.room && NET.room.peers) || [];
+  clearTimeout(NET.pollT); NET.pollT = null;
+  if (!netAdoptState(state)) { netGuestAbort('The handover failed.'); return; }
+  for (const rec of NET.peers.values()) netDropPeer(rec);
+  NET.peers.clear();
+  NET.seen.clear();
+  NET.session = { active: true, host: true, guest: false, snapT: null, popups: new Map(), seq: 0, lastCorrupt: 0, backupT: null };
+  NET.role = 'host'; NET.phase = 'room'; NET.handoffTo = null; NET.reconnectTries = 0;
+  netForceClosePanel();
+  ui.titleScreen.classList.add('hidden');
+  ui.hud.classList.remove('hidden');
+  netApiQuiet('promote', { code: NET.code, peerId: NET.peerId });
+  for (const p of peers) {
+    if (p.id === NET.peerId || p.id === oldHost) continue;
+    netOfferTo(p.id);
+  }
+  NET.session.snapT = setInterval(netHostTick, 100);
+  netStartBackup();
+  netStartPolling();
+  updateHUD(true);
+  updatePlayerCard();
+  toast('You are the host now. The island carries on.', 'good', '✦');
+}
+async function netTryTakeover() {
+  if (!netIsGuest()) return;
+  try {
+    const data = await netApi('takeover', { code: NET.code, peerId: NET.peerId });
+    const state = typeof data.state === 'string' ? JSON.parse(data.state) : data.state;
+    netBecomeHost(state);
+  } catch (e) {
+    netGuestAbort('No island state was left behind.');
+  }
+}
+function netHandleHostLoss() {
+  const S = netSession();
+  if (!S || !S.guest) return;
+  if (NET.handoffTo) {
+    toast('The host stepped away. Waiting for the handover…', 'warn', '↻');
+    setTimeout(() => { if (netIsGuest() && !netSession().host) netGuestAbort('The handover did not arrive.'); }, 16000);
+    return;
+  }
+  const hostId = NET.room && NET.room.host ? NET.room.host.id : null;
+  const remaining = ((NET.room && NET.room.peers) || []).filter((p) => p.id !== hostId && (p.mode || 'play') === 'play');
+  const first = remaining[0];
+  if (first && first.id === NET.peerId) {
+    toast('Host lost. Taking the island over…', 'warn', '↻');
+    setTimeout(() => netTryTakeover(), 2600);
+  } else {
+    toast('Host lost. Waiting for a new host…', 'warn', '↻');
+    setTimeout(() => { if (netIsGuest()) netGuestAbort('No host took over.'); }, 16000);
+  }
+}
+
+/* --- phase 5: chat with host-side filtering ------------------------------ */
+const NET_CHAT_BLOCK = ['fuck', 'shit', 'bitch', 'cunt', 'nigger', 'faggot', 'retard', 'asshole'];
+function netFilterChat(text) {
+  let t = String(text || '').slice(0, 140).replace(/\s+/g, ' ').trim();
+  t = t.replace(/https?:\/\/\S+|www\.\S+/gi, '[link]');
+  let hit = false;
+  for (const w of NET_CHAT_BLOCK) {
+    const re = new RegExp(w, 'gi');
+    if (re.test(t)) { hit = true; t = t.replace(re, '…'); }
+  }
+  return { text: t, hit };
+}
+function netHostChat(fromId, text) {
+  if (!netIsHost()) return;
+  NET.chatRate = NET.chatRate || {};
+  const now = Date.now();
+  if (NET.chatRate[fromId] && now - NET.chatRate[fromId] < 1500) return;
+  NET.chatRate[fromId] = now;
+  if (NET.muted && NET.muted[fromId]) return;
+  const f = netFilterChat(text);
+  if (!f.text) return;
+  if (fromId === NET.peerId) {
+    player.bubble = f.text; player.bubbleT = 4;
+  } else {
+    const b = netBotForPeer(fromId);
+    if (b) { b.bubble = f.text; b.bubbleT = 4; }
+    else {
+      // spectators have no hero: put their line in the room log and toast it
+      const info = ((NET.room && NET.room.peers) || []).find((p) => p.id === fromId) || {};
+      const who = info.name || 'someone';
+      chatAdd('', who + ': ' + f.text, 'system');
+      toast(who + ': ' + f.text, '', '✎');
+      netBroadcastRaw(JSON.stringify({ t: 'saytext', name: who, text: f.text }));
+    }
+  }
+}
+function netSendChat(text) {
+  const t = String(text || '').trim().slice(0, 140);
+  if (!t) return;
+  if (netIsGuest()) {
+    netSendToHost({ t: 'chat', text: t });
+    player.bubble = t; player.bubbleT = 4;
+  } else if (netIsHost()) {
+    netHostChat(NET.peerId, t);
+  }
+  audio.sfx('ui');
+}
+
 function netGuestStart(msg) {
+  // a duplicate hello (spawn + channel-open) must not restart the run
+  if (netIsGuest() && Date.now() - (NET.session.startedAt || 0) < 3000) return;
   NET.reconnectTries = 0;
   NET.session = {
-    active: true, host: false, guest: true,
+    startedAt: Date.now(),
+    active: true, host: false, guest: true, spectator: !!msg.spectator,
     myId: NET.peerId, hostId: NET.room && NET.room.host ? NET.room.host.id : null,
     ghosts: { players: new Map(), monsters: new Map() },
     lastSnap: 0, lastInput: 0, lastHud: 0
@@ -4360,6 +4603,20 @@ function netGuestOnData(msg) {
   } else if (msg.t === 'deny') {
     toast(msg.reason === 'maxed' ? 'That one is already maxed.' : 'Not quite enough Joy yet.', 'warn', '✿');
     if (game.modalType === 'netshop') renderNetshop();
+  } else if (msg.t === 'takeover') {
+    setTimeout(() => netTryTakeover(), 900);
+  } else if (msg.t === 'handoff') {
+    NET.handoffTo = msg.to;
+    toast('The host is handing the island over. Hold on.', 'warn', '↻');
+  } else if (msg.t === 'saytext') {
+    toast(msg.name + ': ' + msg.text, '', '✎');
+  } else if (msg.t === 'resume') {
+    const S = netSession();
+    if (!S || !S.guest) return;
+    world.seed = msg.seed || world.seed;
+    generateWorld();
+    netApplyCorrupt(msg.corrupt);
+    toast('Back in the island. The new host has it.', 'good', '✦');
   } else if (msg.t === 'end') {
     netGuestAbort('The host closed the room.');
   }
@@ -4447,7 +4704,7 @@ function netGuestPopupTick(dt) {
 
 function netGuestSendInput() {
   const S = netSession();
-  if (!S || !S.guest) return;
+  if (!S || !S.guest || S.spectator) return;
   const k = input.keys;
   let x = 0, y = 0;
   if (k.up) y -= 1;
@@ -4469,6 +4726,16 @@ function netGuestSendInput() {
 function netLerpGhosts(dt) {
   const S = netSession();
   if (!S || !S.guest) return;
+  if (S.spectator) {
+    const list = [...S.ghosts.players.values()];
+    const target = list[(S.spectatorIdx || 0) % Math.max(1, list.length)];
+    if (target) {
+      player.x = target.x; player.y = target.y;
+      player.cls = target.cls || player.cls;
+      player.facing = target.facing || 0;
+      player.hp = player.maxHp;
+    }
+  }
   const k = Math.min(1, dt * 14);
   if (player._tx != null) {
     player.x += (player._tx - player.x) * k;
@@ -4512,8 +4779,17 @@ function netEndSession(reason) {
   const S = netSession();
   if (!S) return;
   if (S.host) {
-    for (const [id] of NET.peers) netSendTo(id, { t: 'end', reason: reason || 'The host left.' });
+    const others = [...NET.peers.entries()].filter(([id, r]) => r.connected && id !== NET.peerId);
+    const succ = others[0];
+    if (succ) {
+      netApiQuiet('backup', { code: NET.code, peerId: NET.peerId, state: JSON.stringify(netPackState()) });
+      netSendTo(succ[0], { t: 'takeover' });
+      for (const [id] of NET.peers) if (id !== succ[0]) netSendTo(id, { t: 'handoff', to: succ[0] });
+    } else {
+      for (const [id] of NET.peers) netSendTo(id, { t: 'end', reason: reason || 'The host left.' });
+    }
     if (S.snapT) clearInterval(S.snapT);
+    if (S.backupT) clearInterval(S.backupT);
   }
   if (NET.guestPopups) {
     for (const p of NET.guestPopups) if (p.el && p.el.parentNode) p.el.remove();
@@ -4852,7 +5128,7 @@ function buildHelpPanel() {
       <div class="help-block">
         <h4>Play with a friend</h4>
         <p>Turn on <b>play with a friend</b> on the title screen for same-keyboard co-op. You keep <kbd>WASD</kbd>, <kbd>J</kbd>, <kbd>Q</kbd>, <kbd>E</kbd>; your friend moves with the <kbd>arrow keys</kbd> and auto-swings at whatever they face. The camera holds you both, so stay within a screen of each other.</p>
-        <p>For separate keyboards, press <b>play online</b> on the title screen. Open a room, share the six-character code or the invite link, and up to four heroes can join over WebRTC. The host runs the island; guests move with <kbd>WASD</kbd>, aim with the mouse, hold <kbd>J</kbd> to attack, use <kbd>Q</kbd> <kbd>E</kbd> and <kbd>Space</kbd> (the host executes guest skills and dashes), and press <kbd>R</kbd> for one kettle-break heal per wave. Pop-ups reach everyone and damage is host-authoritative. Guests spend their own Joy in their own full upgrade tree (<kbd>U</kbd>, or it opens after a cleared wave), and <kbd>C</kbd> opens six preset chat lines — bubbles only, nothing to moderate. A dropped guest tries to rejoin the room on its own.</p>
+        <p>For separate keyboards, press <b>play online</b> on the title screen. Open a room, share the six-character code or the invite link, and up to four heroes can join over WebRTC — or join as a <b>spectator</b> and watch any hero with <kbd>1</kbd>–<kbd>4</kbd>. The host runs the island; guests move with <kbd>WASD</kbd>, aim with the mouse, hold <kbd>J</kbd> to attack, use <kbd>Q</kbd> <kbd>E</kbd> and <kbd>Space</kbd> (the host executes guest skills and dashes), and press <kbd>R</kbd> for one kettle-break heal per wave. Pop-ups reach everyone and damage is host-authoritative. Guests spend their own Joy in their own full upgrade tree (<kbd>U</kbd>), and <kbd>C</kbd> opens preset lines plus one host-filtered line. If the host leaves, the island hands over to the next hero and the room keeps playing. A dropped guest tries to rejoin on its own.</p>
       </div>
       <div class="help-block">
         <h4>This build</h4>
@@ -10830,7 +11106,7 @@ function drawScene() {
     if (m.dead || !inView(m.x, m.y, 160)) continue;
     list.push({ y: m.y + (m.isBoss ? 14 : 0), draw: () => drawMonster(m) });
   }
-  list.push({ y: player.y + (player.sit ? 40 : 0), draw: drawPlayer });
+  if (!(NET.session && NET.session.spectator)) list.push({ y: player.y + (player.sit ? 40 : 0), draw: drawPlayer });
   list.sort((a, b) => a.y - b.y);
   for (const item of list) item.draw();
 }

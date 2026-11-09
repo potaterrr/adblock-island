@@ -51,6 +51,7 @@ const metaKey = (code) => `ai:room:${code}`;
 const peersKey = (code) => `ai:room:${code}:peers`;
 const peerKey = (code, id) => `ai:room:${code}:p:${id}`;
 const inboxKey = (code, id) => `ai:room:${code}:in:${id}`;
+const backupKey = (code) => `ai:room:${code}:backup`;
 
 const clean = (v, max) => String(v == null ? '' : v).replace(/[\u0000-\u001f\u007f]/g, '').trim().slice(0, max);
 const cleanClass = (v) => (CLASSES.includes(v) ? v : 'blocker');
@@ -96,7 +97,7 @@ async function readRoom(code) {
     code,
     host: meta.host,
     createdAt: meta.createdAt,
-    peers: peers.map((p) => ({ id: p.id, name: p.name, cls: p.cls, role: p.role, lastSeen: p.lastSeen })),
+    peers: peers.map((p) => ({ id: p.id, name: p.name, cls: p.cls, role: p.role, mode: p.mode || 'play', lastSeen: p.lastSeen })),
   };
 }
 
@@ -135,8 +136,9 @@ async function join(body) {
   if (room.peers.length >= MAX_PEERS) return { ok: false, status: 409, error: 'That room is full (four heroes).' };
   const name = clean(body.name, 16) || 'a neighbour';
   const cls = cleanClass(body.cls);
+  const mode = body.mode === 'watch' ? 'watch' : 'play';
   const peerId = newId();
-  const peer = JSON.stringify({ id: peerId, name, cls, role: 'guest', lastSeen: Date.now() });
+  const peer = JSON.stringify({ id: peerId, name, cls, role: 'guest', mode, lastSeen: Date.now() });
   await pipeline([
     ['sadd', peersKey(code), peerId],
     ['set', peerKey(code, peerId), peer, 'EX', ROOM_TTL],
@@ -182,6 +184,51 @@ async function signal(body) {
   return { ok: true };
 }
 
+async function promote(body) {
+  const code = clean(body.code, 6).toUpperCase();
+  const peerId = clean(body.peerId, 24);
+  if (!code || !peerId) return { ok: false, status: 400, error: 'Missing room.' };
+  const [metaRaw] = await pipeline([['get', metaKey(code)]]);
+  const meta = parse(metaRaw);
+  if (!meta) return { ok: false, status: 404, error: 'The room closed.' };
+  const peer = parse(await redis('get', peerKey(code, peerId)));
+  if (!peer) return { ok: false, status: 404, error: 'Not in this room.' };
+  meta.host = { id: peerId, name: peer.name, cls: peer.cls };
+  await pipeline([['set', metaKey(code), JSON.stringify(meta), 'EX', ROOM_TTL]]);
+  return { ok: true, room: await readRoom(code) };
+}
+
+async function backup(body) {
+  const code = clean(body.code, 6).toUpperCase();
+  const peerId = clean(body.peerId, 24);
+  if (!code || !peerId) return { ok: false, status: 400, error: 'Missing room.' };
+  const meta = parse(await redis('get', metaKey(code)));
+  if (!meta) return { ok: false, status: 404, error: 'The room closed.' };
+  if (!meta.host || meta.host.id !== peerId) return { ok: false, status: 403, error: 'Only the host backs up the island.' };
+  const state = typeof body.state === 'string' ? body.state : JSON.stringify(body.state || {});
+  if (state.length > 300000) return { ok: false, status: 413, error: 'State too large.' };
+  await redis('set', backupKey(code), state, 'EX', 120);
+  return { ok: true };
+}
+
+async function takeover(body) {
+  const code = clean(body.code, 6).toUpperCase();
+  const peerId = clean(body.peerId, 24);
+  if (!code || !peerId) return { ok: false, status: 400, error: 'Missing room.' };
+  const peer = parse(await redis('get', peerKey(code, peerId)));
+  if (!peer) return { ok: false, status: 404, error: 'Not in this room.' };
+  const state = await redis('get', backupKey(code));
+  if (!state) return { ok: false, status: 404, error: 'No island state to take over.' };
+  const meta = parse(await redis('get', metaKey(code)));
+  if (!meta) return { ok: false, status: 404, error: 'The room closed.' };
+  meta.host = { id: peerId, name: peer.name, cls: peer.cls };
+  await pipeline([
+    ['set', metaKey(code), JSON.stringify(meta), 'EX', ROOM_TTL],
+    ['del', backupKey(code)]
+  ]);
+  return { ok: true, state, room: await readRoom(code) };
+}
+
 async function leave(body) {
   const code = clean(body.code, 6).toUpperCase();
   const peerId = clean(body.peerId, 24);
@@ -200,7 +247,7 @@ async function readBody(req) {
   const chunks = [];
   for await (const chunk of req) {
     chunks.push(chunk);
-    if (chunks.reduce((n, c) => n + c.length, 0) > 64 * 1024) throw new Error('too large');
+    if (chunks.reduce((n, c) => n + c.length, 0) > 320 * 1024) throw new Error('too large');
   }
   return parse(Buffer.concat(chunks).toString('utf8')) || {};
 }
@@ -230,7 +277,7 @@ module.exports = async (req, res) => {
     });
     return;
   }
-  const handlers = { create, join, poll, signal, leave };
+  const handlers = { create, join, poll, signal, leave, promote, backup, takeover };
   const handler = handlers[action];
   if (!handler) {
     res.status(400).json({ ok: false, error: 'Unknown action.' });

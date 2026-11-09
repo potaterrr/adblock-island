@@ -47,6 +47,32 @@ Until then, the honest description is: a single-player and local co-op cozy micr
 
 ---
 
+## v0.6.0 — Host handover & spectators (phase 5) (2026-11-09)
+
+The room survives the host, watchers get a camera, and chat gets a voice with rules.
+
+### Host handover
+
+- **A backup in Redis.** The host uploads a compact game state every 10 seconds (and once more when leaving): every hero, monster, projectile, hazard, beam, turret, pickup, wave flag and the corruption grid. Backups expire in 120 seconds.
+- **A named successor.** When the host leaves, the next connected hero is told to take over and everyone else is told to wait. The successor calls `takeover`, adopts the state — itself becomes the player hero, the old host's hero becomes an AI bot — promotes itself through `promote`, and re-offers WebRTC connections to every remaining guest.
+- **Crash fallback.** If the host vanishes without a handover message, the first remaining hero tries `takeover` from the last backup; if there is none, the room finally closes.
+- **Guests stay.** They no longer abort on a host channel close while a handover is in progress; they wait for the new host's offer and resume from the adopted state.
+
+### Spectators
+
+- **Join as a watcher.** The lobby has a `join as: hero / spectator` switch. Watchers spawn no hero on the host and send no input.
+- **Their own camera.** A spectator follows the room, and `1`–`4` picks a hero to follow. Their own avatar is not drawn.
+
+### Host-filtered chat
+
+- **One line of free text.** The chat panel keeps the six presets and adds a 140-character line. The host strips links to `[link]`, masks a small blocked-word list, rate-limits each speaker to one line per 1.5 seconds, and can mute any guest.
+- **Spectators talk through the room log**, since they have no hero to put a bubble over.
+- **Honest scope.** This is host-side filtering, not a moderation team or a server-side policy engine.
+
+### Still not shipped
+
+- Dedicated servers, true server-side moderation, anti-cheat and ranked play. Handover is best-effort: it needs the successor to stay connected and a backup to exist.
+
 ## v0.5.0 — Guest tree & quick chat (phase 4) (2026-11-09)
 
 Co-op gets its own economy, its own drinks and a way to talk without a chat log.
