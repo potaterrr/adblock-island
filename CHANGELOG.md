@@ -47,6 +47,29 @@ Until then, the honest description is: a single-player and local co-op cozy micr
 
 ---
 
+## v0.9.0 — Shared wall & guest banners (2026-11-09)
+
+The last section of the roadmap that did not need an account or a rewrite.
+
+### The bench wall is shared
+
+- **Guests read and write the host's wall.** Sitting at the bench as a guest asks the host for its notes (`wall`), shows them read-only, and lets the guest pin one. The host validates and stores it (`note`), broadcasts the updated wall, and keeps it across sessions like any local note.
+- **Hearts stay local.** The host's own wall keeps its heart behaviour; guest notes arrive without hearts so there is no hidden vote surface.
+- **Moderated by the host.** A duplicate note or a note under three characters is refused; the host's own note rules apply.
+
+### Guests see the schedule
+
+- **Wave banners are broadcast.** Each `startWave` sends the same kicker, tier, note and incoming count to every guest, so the room reads the same screen.
+
+### Relay and spectators
+
+- **TURN relay settings.** A new panel in Settings stores `urls`, `username` and `credential` in this browser and adds the relay to new peer connections. STUN is still the default; nothing ships with credentials.
+- **Spectator chip.** Watchers get a "spectating · 1–4 follows" chip, and the hero-switch keys still swap the camera.
+
+### Tests
+
+- **`tests/wall.mjs`** joins a room, pins a note to the host's wall, checks the host stored it, verifies the guest sees the next wave banner, and opens the relay panel. `bash tests/run.sh` runs it alongside the smoke, co-op and handover suites.
+
 ## v0.8.0 — Co-op polish & long-poll (2026-11-09)
 
 A pass over the three bugs the phase-6 build exposed, plus the quality-of-life gaps around them.

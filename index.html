@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
 <meta name="theme-color" content="#bde8f2">
-<meta name="description" content="AdBlock Island — a wholesome micro-RPG in beta (v0.8.0). Nine classes and a south-shore dock. Clear the static and leave a kind note on the beach.">
+<meta name="description" content="AdBlock Island — a wholesome micro-RPG in beta (v0.9.0). Nine classes and a south-shore dock. Clear the static and leave a kind note on the beach.">
 <meta name="author" content="potaterrr">
 <meta name="application-name" content="AdBlock Island">
 <meta name="apple-mobile-web-app-title" content="AdBlock Island">
@@ -1342,7 +1342,7 @@ body.scanlines::after{
         <div class="logo-badges">
           <div class="logo-kicker">a wholesome micro-RPG</div>
           <div class="beta-pill" id="betaPill" title="This is a beta build. The patch notes list what is still pending.">
-            <span class="beta-dot"></span>beta · <b id="betaVersion">v0.8.0</b>
+            <span class="beta-dot"></span>beta · <b id="betaVersion">v0.9.0</b>
           </div>
         </div>
         <h1 class="logo">ADBLOCK<br><span>ISLAND</span></h1>
@@ -1508,7 +1508,7 @@ const ICONS = {
 };
 const svg = (name) => ICONS[name] || ICONS.spark;
 
-const VERSION = '0.8.0';
+const VERSION = '0.9.0';
 
 /* Endless mode tuning. Named on purpose: after a playtest, change these
    numbers instead of hunting through the wave and damage code. */
@@ -3089,6 +3089,7 @@ function updateHUD(force = false) {
   if (ui.questList.innerHTML !== qHtml) ui.questList.innerHTML = qHtml;
 
   const chips = [];
+  if (NET.session && NET.session.spectator) chips.push({ t: 'spectating · 1–4 follows', cls: 'good' });
   if (player.shield > 0) chips.push({ t: 'Bubble · ' + Math.ceil(player.shield), cls: 'good' });
   if (player.marked > 0) chips.push({ t: 'Tracked', cls: 'bad' });
   if (player.hp / player.maxHp < 0.35) chips.push({ t: 'Take a breather', cls: 'bad' });
@@ -3246,6 +3247,7 @@ function seedChat() {
 function escapeHtml(s) {
   return String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
+let TURN_CFG = store.get('adblock-island.turn.v0', null);
 const NET = {
   phase: 'idle',          // idle | busy | room | error
   role: null,             // host | guest
@@ -3263,7 +3265,7 @@ const NET = {
 };
 
 function netIceServers() {
-  const turn = (typeof window !== 'undefined' && window.ADBLOCK_TURN) || null;
+  const turn = TURN_CFG || (typeof window !== 'undefined' && window.ADBLOCK_TURN) || null;
   const servers = NET.ice.iceServers.slice();
   if (turn && turn.urls) servers.push({ urls: turn.urls, username: turn.username || '', credential: turn.credential || '' });
   return { iceServers: servers };
@@ -3879,6 +3881,8 @@ function netHostOnData(peerId, msg) {
   if (msg.t === 'kettle') { const b = netBotForPeer(peerId); if (b) netGuestKettle(b); return; }
   if (msg.t === 'say') { netHostSay(peerId, msg.i); return; }
   if (msg.t === 'chat') { netHostChat(peerId, msg.text); return; }
+  if (msg.t === 'wall') { netSendTo(peerId, { t: 'wall', notes: netHostWallNotes() }); return; }
+  if (msg.t === 'note') { netHostRemoteNote(peerId, msg.text); return; }
   if (msg.t === 'in') {
     const b = netBotForPeer(peerId);
     if (!b) return;
@@ -4267,6 +4271,75 @@ function netShopWallet() {
 }
 function buildNetshopPanel() { renderNetshop(); panelFoot([{ label: 'Back to the island', action: 'close', kind: 'primary' }]); }
 
+function buildNetWallPanel() {
+  const notes = (NET.wallNotes || []).slice().sort((a, b) => (b.ts || 0) - (a.ts || 0));
+  ui.modalBody.innerHTML = `
+    <div class="bench-banner">
+      <div class="bb-ico">♥</div>
+      <p><b>The host's bench wall, shared with this room.</b> Notes you add here land on the host's island and stay after you leave. Be gentle; this is somebody's bench.</p>
+    </div>
+    <form class="note-form" id="netWallForm">
+      <textarea id="netWallText" maxlength="140" placeholder="write something gentle…" aria-label="Your note"></textarea>
+      <div class="nf-row">
+        <span class="char-count"><span id="netWallCount">0</span>/140</span>
+        <button class="btn primary" type="submit">pin it to the host's wall ♥</button>
+      </div>
+    </form>
+    <div class="section-title">On the wall (${notes.length})</div>
+    <div class="notes-list">
+      ${notes.length ? notes.map((n, i) => `
+        <div class="note-card" style="--rot:${(hash2(i, notes.length) * 1.6 - 0.8).toFixed(2)}deg">
+          <div class="nc-text">${esc(n.text)}</div>
+          <div class="nc-meta"><span>— ${esc(n.name)}${n.cls && CLASSES[n.cls] ? ' · ' + CLASSES[n.cls].name : ''} · ${timeAgo(n.ts)}</span><span>♥ ${n.hearts || 0}</span></div>
+        </div>`).join('') : '<div class="empty-note">The wall is waiting for its first note.</div>'}
+    </div>
+  `;
+  const ta = $('#netWallText', ui.modalBody);
+  const count = $('#netWallCount', ui.modalBody);
+  ta.addEventListener('input', () => { count.textContent = String(ta.value.length); });
+  $('#netWallForm', ui.modalBody).addEventListener('submit', (e) => {
+    e.preventDefault();
+    const text = ta.value.replace(/\s+/g, ' ').trim();
+    if (text.length < 3) { toast('A few more words? Even "you got this" counts.', 'warn', '♥'); return; }
+    netSendToHost({ t: 'note', text });
+    ta.value = '';
+    toast('Pinned to the host\'s wall.', 'good', '♥');
+  });
+  panelFoot([{ label: 'Step back outside', action: 'close', kind: 'primary' }]);
+}
+function buildTurnPanel() {
+  const t = TURN_CFG || { urls: '', username: '', credential: '' };
+  ui.modalBody.innerHTML = `
+    <div class="help-block"><h4>Relay (TURN)</h4><p>STUN alone cannot connect some symmetric NATs. If you have a TURN relay (for example a free Cloudflare TURN app), paste its URL and credentials here. They are saved only in this browser, and new connections use them.</p></div>
+    <div class="net-row"><input class="net-input" id="turnUrl" style="text-transform:none;letter-spacing:0" placeholder="turn:host:3478" value="${escapeHtml(t.urls || '')}"></div>
+    <div class="net-row"><input class="net-input" id="turnUser" style="text-transform:none;letter-spacing:0" placeholder="username" value="${escapeHtml(t.username || '')}"></div>
+    <div class="net-row"><input class="net-input" id="turnCred" style="text-transform:none;letter-spacing:0" placeholder="credential" value="${escapeHtml(t.credential || '')}"></div>
+    <p class="net-hint">Saved locally. Hosts and guests each need it, and it applies to connections made after saving.</p>
+  `;
+  const save = () => {
+    const urls = $('#turnUrl', ui.modalBody).value.trim();
+    const username = $('#turnUser', ui.modalBody).value.trim();
+    const credential = $('#turnCred', ui.modalBody).value.trim();
+    TURN_CFG = urls ? { urls, username, credential } : null;
+    store.set('adblock-island.turn.v0', TURN_CFG);
+    toast(urls ? 'Relay saved. New connections will use it.' : 'Relay cleared.', 'good', '✦');
+    audio.sfx('ui');
+  };
+  panelFoot([
+    { label: 'Save relay', action: 'saverelay', kind: 'primary' },
+    { label: 'Clear', action: 'clearrelay' },
+    { label: 'Close', action: 'close' }
+  ]);
+  $$('[data-panel-action]', ui.modalFoot).forEach((btn) => {
+    const act = btn.dataset.panelAction;
+    if (act === 'saverelay') btn.addEventListener('click', save);
+    if (act === 'clearrelay') btn.addEventListener('click', () => {
+      TURN_CFG = null; store.set('adblock-island.turn.v0', null);
+      $('#turnUrl', ui.modalBody).value = ''; $('#turnUser', ui.modalBody).value = ''; $('#turnCred', ui.modalBody).value = '';
+      toast('Relay cleared.', '', '✦');
+    });
+  });
+}
 function buildChatPanel() {
   const muted = NET.muted || {};
   const watchList = netIsHost()
@@ -4511,6 +4584,26 @@ function netFilterChat(text) {
   }
   return { text: t, hit };
 }
+function netHostWallNotes() {
+  return loadNotes().slice(-12).map((n) => ({ id: n.id, name: n.name, cls: n.cls, text: n.text, hearts: n.hearts || 0, ts: n.ts, local: !!n.local }));
+}
+function netBroadcastWall() {
+  const notes = netHostWallNotes();
+  for (const [id] of NET.peers) netSendTo(id, { t: 'wall', notes });
+}
+function netHostRemoteNote(peerId, raw) {
+  const text = String(raw || '').replace(/\s+/g, ' ').trim().slice(0, 140);
+  if (text.length < 3) return;
+  const info = ((NET.room && NET.room.peers) || []).find((p) => p.id === peerId) || {};
+  const notes = loadNotes();
+  if (notes.some((n) => n.text.toLowerCase() === text.toLowerCase())) return;
+  notes.push({ id: 'net-' + Date.now() + '-' + Math.floor(Math.random() * 999), name: info.name || 'a visitor', cls: info.cls || 'blocker', text, hearts: 0, ts: Date.now(), local: false });
+  if (notes.length > 80) notes.splice(0, notes.length - 80);
+  notesCache = notes;
+  persistNotes();
+  netBroadcastWall();
+  toast((info.name || 'A visitor') + ' pinned a note to the bench wall.', 'good', '♥');
+}
 function netHostChat(fromId, text) {
   if (!netIsHost()) return;
   NET.chatRate = NET.chatRate || {};
@@ -4709,6 +4802,12 @@ function netGuestOnData(msg) {
   } else if (msg.t === 'handoff') {
     NET.handoffTo = msg.to;
     toast('The host is handing the island over. Hold on.', 'warn', '↻');
+  } else if (msg.t === 'wall') {
+    NET.wallNotes = msg.notes || [];
+    if (game.modalType === 'wallnet') buildNetWallPanel();
+    toast('The host shared the bench wall.', '', '♥');
+  } else if (msg.t === 'wave') {
+    if (msg.banner) waveBannerShow(msg.banner);
   } else if (msg.t === 'saytext') {
     toast(msg.name + ': ' + msg.text, '', '✎');
   } else if (msg.t === 'resume') {
@@ -4915,6 +5014,8 @@ const PANEL_META = {
   online: { title: 'Play online', sub: 'A short room code, a WebRTC handshake, and up to four heroes.', icon: 'spark' },
   netshop: { title: 'Your broom, your call', sub: 'Spend your own Joy on your own hero. The host applies it on the island.', icon: 'spark' },
   chat: { title: 'Quick chat', sub: 'Presets plus one short line, filtered and rate-limited by the room service.', icon: 'note' },
+  wallnet: { title: 'The host’s kindness wall', sub: 'A shared bench wall for this room. Notes stay on the host’s island.', icon: 'note' },
+  turn: { title: 'Relay settings', sub: 'Optional TURN relay for stubborn NATs. Saved in this browser only.', icon: 'gear' },
   victory: { title: 'Island restored', sub: 'You did a good thing. Look at all this green.', icon: 'sun' }
 };
 
@@ -5012,6 +5113,8 @@ function buildPanel(type) {
   else if (type === 'online') buildOnlinePanel();
   else if (type === 'netshop') buildNetshopPanel();
   else if (type === 'chat') buildChatPanel();
+  else if (type === 'wallnet') buildNetWallPanel();
+  else if (type === 'turn') buildTurnPanel();
   else if (type === 'victory') buildVictoryPanel();
 }
 
@@ -5278,6 +5381,7 @@ function buildSettingsPanel() {
       <button class="btn" id="fullscreenBtn">Fullscreen</button>
       <button class="btn danger" id="resetBtn">Start a fresh island</button>
       <button class="btn" id="saveNowBtn">Save now</button>
+      <button class="btn" id="turnBtn">Relay settings</button>
     </div>
     <p style="font-size:10px;color:var(--ink-faint);line-height:1.6;margin:8px 0 0">Your progress, notes, and cosmetics live in this browser's local storage. No account, no server, no tracking. The kindness wall is private to this device.</p>
   `;
@@ -5304,6 +5408,8 @@ function buildSettingsPanel() {
   $('#fullscreenBtn', ui.modalBody).addEventListener('click', toggleFullscreen);
   syncFullscreenUI();
   $('#saveNowBtn', ui.modalBody).addEventListener('click', () => { saveGame(); toast('Saved. The island remembers.', 'good', '✿'); });
+  const turnBtn = $('#turnBtn', ui.modalBody);
+  if (turnBtn) turnBtn.addEventListener('click', () => openPanel('turn'));
   $('#resetBtn', ui.modalBody).addEventListener('click', (e) => {
     if (!resetArmed) {
       resetArmed = true;
@@ -5631,6 +5737,12 @@ function interactBench() {
   player.facing = Math.PI / 2;
   player.x = BENCH.x - 26; player.y = BENCH.y + 10;
   audio.sfx('note');
+  if (netIsGuest()) {
+    netSendToHost({ t: 'wall' });
+    NET.wallNotes = NET.wallNotes || [];
+    openPanel('wallnet');
+    return;
+  }
   openPanel('kindness');
 }
 
@@ -6887,13 +6999,15 @@ function startWave(n, opts = {}) {
     game.waveTotal++;
   }
   if (opts.silent) { updateWaveChip(); return; }
-  waveBannerShow({
+  const banner = {
     kicker: isEndlessStart ? 'endless mode' : 'wave ' + n,
     label: isEndlessStart ? 'The ladder ends here' : plan.tier.label,
     note: isEndlessStart ? 'the ads keep coming · checkpoint every 3 waves' : (plan.note || plan.tier.note),
     count: plan.count + (plan.count === 1 ? ' ad' : ' ads') + ' incoming',
     cls: isEndlessStart ? 'cleared' : ''
-  });
+  };
+  waveBannerShow(banner);
+  netBroadcastRaw(JSON.stringify({ t: 'wave', banner }));
   audio.sfx(n >= 7 ? 'boss' : 'wave');
   if (isEndlessStart) {
     toast('Endless mode. Every third wave is a checkpoint — spend Joy before the next climb.', 'good', '∞');

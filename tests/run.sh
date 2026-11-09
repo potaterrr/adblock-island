@@ -14,6 +14,7 @@ sleep 1
 
 node smoke.mjs
 node co-op.mjs
+node wall.mjs
 node handover.mjs
 
 echo "all tests passed"

@@ -17,6 +17,7 @@ bash run.sh
 | --- | --- |
 | `smoke.mjs` | v0.8.0 boots, the online button shares the wash-ashore style, retired Mania/Halloween UI is gone, solo starts, and the offline build makes **zero** API calls |
 | `co-op.mjs` | create/join a room, host start, guest receives the island, guest movement reaches the host, server-side chat filtering turns links into `[link]` and masks blocked words |
+| `wall.mjs` | a guest pins a note to the host's shared bench wall, the guest sees the next wave banner, and the TURN relay panel opens |
 | `handover.mjs` | three browsers: the host leaves, the successor adopts the island, and the third guest stays connected under the promoted host |
 
 Each script fails with a non-zero exit code and a clear message on the first broken invariant.
