@@ -1,6 +1,6 @@
 # AdBlock Island
 
-**v0.10.0 · Blob room fallback** · [Play on Vercel](https://adblock-island.vercel.app/) · [Play on GitHub Pages](https://potaterrr.github.io/adblock-island/) · [Patch notes](https://potaterrr.github.io/projects/adblock-island/#patch-notes)
+**v0.10.0 · Blob room fallback** · [Play on Vercel](https://adblock-island.vercel.app/) · [Play on GitHub Pages](https://inodepi.github.io/adblock-island/) · [Patch notes](https://inodepi.github.io/projects/adblock-island/#patch-notes)
 
 A wholesome micro-RPG in a single HTML file, currently in **beta**. The ads took the beach, the locals kept the kettle on. Pick a class, sweep the static, bonk the ad-monsters, and leave a kind note for whoever washes ashore next.
 
@@ -63,7 +63,7 @@ A short version of the [patch notes](CHANGELOG.md):
 
 ## Download
 
-**[Download v0.10.0](https://github.com/potaterrr/adblock-island/releases/tag/v0.10.0)** (`adblock-island-beta-v0.10.0.zip`, also at the repo root). It is rebuilt from `index.html`, `README.md` and `CHANGELOG.md`. Unzip it, open `index.html`, and it plays — online or offline.
+**[Download v0.10.0](https://github.com/inodepi/adblock-island/releases/tag/v0.10.0)** (`adblock-island-beta-v0.10.0.zip`, also at the repo root). It is rebuilt from `index.html`, `README.md` and `CHANGELOG.md`. Unzip it, open `index.html`, and it plays — online or offline.
 
 One honest caveat: **online co-op is a beta inside a beta.** "Play with a friend" puts player two on the same keyboard (arrow keys) on the same screen. The online-beta branch is where room-code networking lands: Vercel static hosting plus a tiny signaling API, host-authoritative WebRTC, and the same single page. Until that ships, the zip stays a complete single-player/same-keyboard-co-op game.
 
@@ -310,7 +310,7 @@ On a touch screen the HUD is deliberately thinner than the desktop one: a compac
 
 ## Patch notes
 
-The full history lives in the **[live patch notes](https://potaterrr.github.io/projects/adblock-island/#patch-notes)** (source: [CHANGELOG.md](CHANGELOG.md)), newest first, and the version on the title card always matches its top entry. This branch's notes restart at **0.1.0** for the online era (**0.2.0** adds the room-code lobby): the Halloween theme and Four-boss Mania are removed, the island is back to its normal palette, bosses spawn on a **33%** roll per eligible wave and split once into two, death puts you back at the bench, and extra humans scale waves and bosses. The 0.9.x history below is from the main branch and still describes how the game got here.
+The full history lives in the **[live patch notes](https://inodepi.github.io/projects/adblock-island/#patch-notes)** (source: [CHANGELOG.md](CHANGELOG.md)), newest first, and the version on the title card always matches its top entry. This branch's notes restart at **0.1.0** for the online era (**0.2.0** adds the room-code lobby): the Halloween theme and Four-boss Mania are removed, the island is back to its normal palette, bosses spawn on a **33%** roll per eligible wave and split once into two, death puts you back at the bench, and extra humans scale waves and bosses. The 0.9.x history below is from the main branch and still describes how the game got here.
 
 | Version | Date | Headline |
 | --- | --- | --- |
@@ -362,11 +362,11 @@ The full history lives in the **[live patch notes](https://potaterrr.github.io/p
 
 ## Disclaimer
 
-AdBlock Island is **my own original work** — written, drawn, composed and play-tested by me, [@potaterrr](https://github.com/potaterrr), as a solo project. Every part of it is hand-written: the Canvas 2D renderer, the character art (drawn procedurally in code, no image files), the Web Audio soundtrack and sound effects, the UI, and the writing.
+AdBlock Island is **my own original work** — written, drawn, composed and play-tested by me, [@inodepi](https://github.com/inodepi), as a solo project. Every part of it is hand-written: the Canvas 2D renderer, the character art (drawn procedurally in code, no image files), the Web Audio soundtrack and sound effects, the UI, and the writing.
 
 - **No third-party assets.** No images, sprites, fonts, audio files, libraries, frameworks, CDNs or tracking scripts are used. The single `index.html` is the whole thing.
 - **No affiliation.** It is a work of parody and a small non-commercial joke about ad fatigue. It is not affiliated with, endorsed by, or connected to any ad blocker, browser, advertiser, or platform. All ads, brands, and characters in it are fictional.
 - **No data collection.** Nothing is uploaded. Medals, notes, settings, cosmetics and lifetime bests are stored only in your browser's `localStorage`; run progress is not saved. Clearing site data removes the saved meta.
 - **Licence.** The source is public so it can be read and learned from; please don't republish it as your own. If you want to reuse a piece of it, ask first.
 
-© 2026 potaterrr. Thanks for washing ashore.
+© 2026 inodepi. Thanks for washing ashore.

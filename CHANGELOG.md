@@ -774,8 +774,8 @@ The island gets its story told.
 ### Added
 
 - **A backstory in the help panel.** Pressing `H` now opens with "The story so far": the ads came with the tide, the locals kept the kettle on, and you wash ashore with a broom and nowhere else to be. Two short paragraphs above the existing plan, class abilities, controls, ads, waves and co-op blocks.
-- **A credit and disclaimer footer.** The bottom of the help panel names it as an original solo project by [@potaterrr](https://github.com/potaterrr), links to the source, and notes that every asset is hand-written — no third-party art, fonts, audio, or libraries — and that the game is a work of parody with no real advertisers involved.
-- **README: backstory, how to play, patch notes, disclaimer.** The readme now opens with the island's story, then a seven-step how-to-play that matches the actual game loop (classes, aim, cleansing, waves, the Algorithm, the bench, co-op), then a patch-notes table covering every release from 0.0.0 to 0.4.3, then a plain-language disclaimer: original work by potaterrr, no third-party assets, no affiliation, no data collection.
+- **A credit and disclaimer footer.** The bottom of the help panel names it as an original solo project by [@inodepi](https://github.com/inodepi), links to the source, and notes that every asset is hand-written — no third-party art, fonts, audio, or libraries — and that the game is a work of parody with no real advertisers involved.
+- **README: backstory, how to play, patch notes, disclaimer.** The readme now opens with the island's story, then a seven-step how-to-play that matches the actual game loop (classes, aim, cleansing, waves, the Algorithm, the bench, co-op), then a patch-notes table covering every release from 0.0.0 to 0.4.3, then a plain-language disclaimer: original work by inodepi, no third-party assets, no affiliation, no data collection.
 
 ### Changed
 
@@ -893,4 +893,4 @@ Aiming, weapons, and paperwork.
 ### Added
 
 - Initial release: three classes (AdBlocker, Fact-Checker, Reader-Mode), four ad-monsters plus The Algorithm boss, Joy and clarity progression, permanent upgrades and cosmetics, roaming locals with chat, the kindness wall, procedural ocean and lo-fi audio, responsive retro-pastel UI, touch controls, and local save data.
-- Deployed to GitHub Pages at <https://potaterrr.github.io/adblock-island/>.
+- Deployed to GitHub Pages at <https://inodepi.github.io/adblock-island/>.
